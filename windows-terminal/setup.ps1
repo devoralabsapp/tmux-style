@@ -119,8 +119,7 @@ foreach($name in $ownedAssets){
 }
 $oldBridge=Join-Path $state.assetDirectory 'TmuxStyle.Keys.exe'
 if(Test-Path -LiteralPath $oldBridge){
-    & $oldBridge --stop
-    Start-Sleep -Milliseconds 500
+    Stop-TmuxStyleOwnedBridge $oldBridge
 }
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'shell.ps1') -Destination (Join-Path $state.assetDirectory 'shell.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'restore.ps1') -Destination (Join-Path $state.assetDirectory 'restore.ps1') -Force

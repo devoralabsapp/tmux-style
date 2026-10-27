@@ -1,3 +1,20 @@
+function Stop-TmuxStyleOwnedBridge([string]$Path) {
+    if(-not(Test-Path -LiteralPath $Path)){return}
+    $fullPath=[IO.Path]::GetFullPath($Path)
+    $matching=@(Get-Process -Name 'TmuxStyle.Keys' -ErrorAction SilentlyContinue|Where-Object {$_.Path -eq $fullPath})
+    # Never signal a bridge installed elsewhere (including the user's live bridge
+    # when exercising a temporary test installation).
+    if(-not $matching.Count){return}
+    & $fullPath --stop
+    $deadline=[DateTime]::UtcNow.AddSeconds(5)
+    do{
+        $matching=@(Get-Process -Name 'TmuxStyle.Keys' -ErrorAction SilentlyContinue|Where-Object {$_.Path -eq $fullPath})
+        if(-not $matching.Count){return}
+        Start-Sleep -Milliseconds 100
+    }while([DateTime]::UtcNow -lt $deadline)
+    throw 'Exit Tmux Style Keys from its tray menu before updating this installation.'
+}
+
 function Read-TmuxStyleJson([string]$Path) {
     $text=[IO.File]::ReadAllText($Path)
     $clean=[Text.StringBuilder]::new()

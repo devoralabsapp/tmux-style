@@ -23,7 +23,7 @@ if($state.shortcutPath -and (File-Hash $state.shortcutPath) -eq $state.shortcutH
     else {Remove-Item -LiteralPath $state.shortcutPath}
 }
 $bridge=Join-Path (Split-Path -Parent $StatePath) 'TmuxStyle.Keys.exe'
-if(Test-Path -LiteralPath $bridge){& $bridge --stop;Start-Sleep -Milliseconds 500}
+if(Test-Path -LiteralPath $bridge){Stop-TmuxStyleOwnedBridge $bridge}
 foreach($asset in @($state.assetBackups)){
     if($null -eq $asset){continue}
     if($asset.backup){Copy-Item -LiteralPath $asset.backup -Destination $asset.path -Force}
