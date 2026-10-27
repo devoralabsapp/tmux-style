@@ -23,7 +23,7 @@ A pure black canvas, white text and quiet gray dividers. Every color in the Blac
 
 ## Windows: download the EXE
 
-**[Download TmuxStyle-Setup-1.2.0.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.2.0/TmuxStyle-Setup-1.2.0.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
+**[Download TmuxStyle-Setup-1.2.1.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.2.1/TmuxStyle-Setup-1.2.1.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
 
 1. Run the installer, choose **WezTerm** for the real bottom status bar, then a theme and starting folder.
 2. Keep the Desktop shortcut and launch options enabled if you want a ready-to-use, three-pane workspace.
@@ -32,6 +32,8 @@ A pure black canvas, white text and quiet gray dividers. Every color in the Blac
 The per-user installer uses Windows PowerShell 5.1 and .NET Framework 4.8 on Windows 10/11 (portable WezTerm targets x64). The optional download installs official portable WezTerm with a pinned SHA-256 check, or Microsoft Windows Terminal through winget. No Nerd Font, Oh My Posh or Starship is needed.
 
 **New in v1.2.0: a real bottom bar on Windows.** WezTerm displays numbered tab names, workspace and PREFIX/ZOOM/OFF states, local Windows CPU/RAM, hostname, and date/time. Counters refresh every two seconds; the clock refreshes every second. Narrow windows use a compact status. The bar belongs to the terminal, so it remains separate from fullscreen application output.
+
+**v1.2.1:** `Ctrl-a` waits up to **two seconds** for the next key. In WezTerm, `theme black` recolors the **current window** immediately, including panes and the bottom bar, without opening another window or restarting shells. Other windows keep their theme. Existing prompts pick up the new palette when next drawn.
 
 | Windows option | Bottom status bar | Ctrl-a handling | Existing Windows Terminal |
 | --- | --- | --- | --- |
@@ -53,7 +55,7 @@ WezTerm uses its own configuration and **Tmux Style WezTerm** shortcut under `%L
 | `Ctrl-a Ctrl-arrow` | Resize pane |
 | `F12` | Toggle pass-through; use OFF for tmux over SSH |
 
-`theme black` opens a Command Line window in WezTerm, or a tab in Windows Terminal. `workspace` opens a three-pane window at the current directory. WezTerm needs no external keyboard bridge. The Windows Terminal bridge handles only predefined mappings while Terminal is in front; it does not record typed content or add itself to Windows startup. Closing windows ends their terminal sessions. [Full shortcut table, native differences and restore instructions](windows-terminal/README.md).
+`theme black` recolors the current WezTerm window, or opens a tab in Windows Terminal. `workspace` opens a three-pane window at the current directory. WezTerm needs no external keyboard bridge. The Windows Terminal bridge handles only predefined mappings while Terminal is in front; it does not record typed content or add itself to Windows startup. Closing windows ends their terminal sessions. [Full shortcut table, native differences and restore instructions](windows-terminal/README.md).
 
 The installer backs up existing settings and owned assets, preserves unrelated profiles/preferences/non-conflicting keys, and includes **Restore previous settings**. It changes neither the shared `$PROFILE` nor execution policy or Windows' default terminal application.
 

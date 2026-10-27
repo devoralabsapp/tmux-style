@@ -1,6 +1,6 @@
 # Windows workspaces + tmux-style keys
 
-Download **TmuxStyle-Setup-1.2.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
+Download **TmuxStyle-Setup-1.2.1.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
 
 The executable is not code signed. Source, build scripts and SHA-256 checksums are provided with the release. It does not bundle or impersonate Microsoft Windows Terminal.
 
@@ -10,7 +10,7 @@ Choose **WezTerm** for a terminal-owned bottom bar containing numbered tab names
 
 The **Tmux Style WezTerm** Desktop shortcut opens three PowerShell panes. The runtime is official portable WezTerm, pinned in `wezterm-runtime.json` with the checksum published upstream. Existing WezTerm on PATH can also be used. The portable runtime targets Windows x64. It stays inside `%LOCALAPPDATA%\TmuxStyleWindows\wezterm`; `.wezterm.lua`, Windows Terminal settings and its existing shortcut remain untouched.
 
-WezTerm handles `Ctrl-a` natively, without the Windows Terminal keyboard bridge:
+WezTerm handles `Ctrl-a` natively, without the Windows Terminal keyboard bridge. Press and release `Ctrl-a`, then press the next key within **two seconds**:
 
 | Keys | WezTerm behavior |
 | --- | --- |
@@ -28,7 +28,13 @@ WezTerm handles `Ctrl-a` natively, without the Windows Terminal keyboard bridge:
 | `Shift+Left/Right`, `Ctrl+Shift+Left/Right`, `Ctrl+T` | Change tab, move tab, new tab while local bindings are enabled |
 | `Ctrl+Alt+W` | New three-pane tab at the current directory |
 
-`theme black` opens another themed WezTerm window; `workspace` opens another three-pane window at the current directory. Theme changes leave current windows open. Native WezTerm defaults such as `Ctrl+Shift+C/V` remain available in normal mode. The personal tmux session-link/merge, monitor, detach/attach and buffer-history commands are not implemented. WezTerm's Shift+Up/Down controls local pass-through; it does not emit the original Alt+F12/Alt+F11 remote signals. Closing windows ends their panes.
+`theme black` recolors the **current WezTerm window**, including all its tabs, panes and bottom bar. Shells and processes stay alive; other windows keep their theme. Existing prompts synchronize at their next redraw; newly created panes use the selected palette. Theme switching preserves F12 pass-through, zoom and hidden-bar settings. It applies to this window's lifetime; the Desktop shortcut still uses the installer-selected starting theme. `workspace` opens another three-pane window at the current directory. Native WezTerm defaults such as `Ctrl+Shift+C/V` remain available in normal mode. The personal tmux session-link/merge, monitor, detach/attach and buffer-history commands are not implemented. WezTerm's Shift+Up/Down controls local pass-through; it does not emit the original Alt+F12/Alt+F11 remote signals. Closing windows ends their panes.
+
+After upgrading from v1.2.0 with shells still open, open one new tab with `Ctrl-a c` to load the updated `theme` command. Existing PowerShell panes can load the updated prompt without restarting their process:
+
+```powershell
+. ([scriptblock]::Create([IO.File]::ReadAllText("$env:LOCALAPPDATA\TmuxStyleWindows\wezterm\shell.ps1"))) -NoBanner
+```
 
 The small `TmuxStyle.Metrics.exe` collector reads Windows CPU/memory counters and writes a local JSON sample. It runs once for this asset directory and exits after all WezTerm GUI processes have been closed for about 20 seconds. It has no network access, keyboard hook or startup entry.
 
@@ -38,7 +44,7 @@ Close Tmux Style WezTerm windows before upgrade/restore. In the installer, selec
 
 The following section applies to the **Windows Terminal** installer option. This backend has themed prompts, tabs and panes, but **no custom bottom bar**. The screenshots in this repository are native tmux captures and do not show Windows Terminal capabilities.
 
-Press and release **Ctrl-a**, then the second key. The prefix waits up to five seconds; Escape cancels it. `Ctrl-a Ctrl-a` forwards a literal Ctrl-a to the terminal.
+Press and release **Ctrl-a**, then the second key. The prefix waits up to two seconds; Escape cancels it. `Ctrl-a Ctrl-a` forwards a literal Ctrl-a to the terminal.
 
 | Original tmux binding | Windows behavior |
 | --- | --- |

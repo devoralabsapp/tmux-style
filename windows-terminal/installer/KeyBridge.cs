@@ -10,6 +10,7 @@ using System.Web.Script.Serialization;
 internal static class KeyBridge
 {
     const int HookId=13, KeyDown=0x100, SysKeyDown=0x104;
+    const int PrefixTimeoutMilliseconds=2000;
     static IntPtr hook=IntPtr.Zero, armedWindow=IntPtr.Zero;
     static HookProc callback=OnKey;
     static bool armed, passThrough, shiftTabs;
@@ -37,6 +38,7 @@ internal static class KeyBridge
     [DllImport("kernel32.dll",CharSet=CharSet.Auto)] static extern IntPtr GetModuleHandle(string name);
 
     static bool Down(int key){return (GetAsyncKeyState(key)&0x8000)!=0;}
+    internal static bool PrefixExpired(int elapsed){return elapsed>=PrefixTimeoutMilliseconds;}
     static bool IsTerminal(IntPtr window){
         uint pid;GetWindowThreadProcessId(window,out pid);
         try{return Process.GetProcessById((int)pid).ProcessName.Equals("WindowsTerminal",StringComparison.OrdinalIgnoreCase);}catch{return false;}
@@ -103,7 +105,7 @@ internal static class KeyBridge
         bool handled=false;string emit=null;
         if(vk==0x7b&&!ctrl&&!alt&&!shift){passThrough=!passThrough;armed=false;handled=true;Notice(passThrough?"OFF: keys now pass to the terminal. F12 restores mappings.":"ON: Ctrl-a mappings restored.");}
         else if(!passThrough){
-            if(armed&&(Environment.TickCount-armedAt>5000||window!=armedWindow))armed=false;
+            if(armed&&(PrefixExpired(Environment.TickCount-armedAt)||window!=armedWindow))armed=false;
             if(armed){
                 armed=false;handled=true;
                 if(vk==prefix&&ctrl&&!alt&&!shift)emit=prefix==0x41?"ctrl+a":"ctrl+b";
@@ -130,7 +132,8 @@ internal static class KeyBridge
         checks["prefix x"]=Resolve(0x58,false,false,false);
         checks["prefix X"]=Resolve(0x58,false,true,false);
         if(checks["prefix c"]!="ctrl+alt+c"||checks["prefix pipe"]!="ctrl+alt+v"||checks["prefix minus"]!="ctrl+alt+h"||checks["prefix r"]==checks["prefix R"]||checks["prefix Ctrl-Up"]!="alt+shift+up"||Resolve(0x43,false,false,true)!=null)return 1;
-        File.WriteAllText(report,new JavaScriptSerializer().Serialize(new {passed=true,mappings=checks,scope="Windows Terminal foreground only; no keys recorded"}));return 0;
+        if(PrefixExpired(1999)||!PrefixExpired(2000)||!PrefixExpired(2001))return 1;
+        File.WriteAllText(report,new JavaScriptSerializer().Serialize(new {passed=true,prefixTimeoutMilliseconds=PrefixTimeoutMilliseconds,mappings=checks,scope="Windows Terminal foreground only; no keys recorded"}));return 0;
     }
     [STAThread] static int Main(string[] args){
         if(args.Length==2&&args[0]=="--self-test")return SelfTest(args[1]);

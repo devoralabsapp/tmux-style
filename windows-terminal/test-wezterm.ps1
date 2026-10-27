@@ -40,4 +40,20 @@ $proc=Start-Process -FilePath (Join-Path $SourceDirectory 'TmuxStyle.Metrics.exe
 if($proc.ExitCode -ne 0){throw 'Windows metric sampling failed'}
 $sample=[IO.File]::ReadAllText($metrics)|ConvertFrom-Json
 if($sample.cpu -lt 0 -or $sample.cpu -gt 100 -or $sample.ram -lt 0 -or $sample.ram -gt 100 -or $sample.totalGiB -le 0 -or $sample.usedGiB -gt $sample.totalGiB){throw 'Invalid Windows counter values'}
+$savedEnv=@{}
+foreach($key in 'TMUX_STYLE_BACKEND','TMUX_STYLE_ASSETS','TMUX_STYLE_GUI_PID','WEZTERM_PANE'){$savedEnv[$key]=[Environment]::GetEnvironmentVariable($key)}
+try{
+    $env:TMUX_STYLE_BACKEND='wezterm';$env:TMUX_STYLE_ASSETS=$assets;$env:TMUX_STYLE_GUI_PID='12345';$env:WEZTERM_PANE='7'
+    . ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'shell.ps1')))) -NoBanner -NoKeyBridge
+    # There is no backend.json or terminal executable here. Theme must use OSC,
+    # rather than trying to launch a new terminal or replace this shell.
+    $signal=@(Set-TmuxStyleTheme black 6>&1)|Out-String
+    if(-not $signal.Contains('SetUserVar=TmuxStyleTheme=YmxhY2s=') -or $global:TmuxStyleTheme -ne 'black'){throw 'Live theme signal/prompt differs'}
+    $state=Get-TmuxStyleThemeStatePath
+    [IO.File]::WriteAllText($state,'{"theme":"paper"}')
+    $global:LASTEXITCODE=37;$promptText=prompt
+    if($global:TmuxStyleTheme -ne 'paper' -or $global:LASTEXITCODE -ne 37 -or $promptText -ne '  > '){throw 'Peer-pane prompt theme sync damaged shell state'}
+}finally{
+    foreach($key in $savedEnv.Keys){[Environment]::SetEnvironmentVariable($key,$savedEnv[$key])}
+}
 Write-Output 'PASS: WezTerm six themes, isolated files, shortcuts, upgrade/restore, edit protection, runtime checksum rejection, live Windows counters.'

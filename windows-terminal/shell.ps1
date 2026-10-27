@@ -19,14 +19,40 @@ if(-not $NoKeyBridge -and $global:TmuxStyleBackend -eq 'wezterm'){
 $global:TmuxStyleThemeNames = @{
     aurora='Aurora'; midnight='Midnight'; ember='Ember'; paper='Paper'; neon='Neon'; black='Command Line'
 }
-$global:TmuxStylePalette = switch ($Theme) {
+function global:Update-TmuxStyleShellTheme {
+    param([ValidateSet('aurora','midnight','ember','paper','neon','black')][string]$Name)
+    $global:TmuxStyleTheme = $Name
+    $global:TmuxStylePalette = switch ($Name) {
     'aurora' { @{Accent='Green';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
     'ember' { @{Accent='Yellow';Detail='DarkYellow';Muted='DarkGray';Text='Gray'} }
     'paper' { @{Accent='Black';Detail='DarkGreen';Muted='DarkGray';Text='Black'} }
     'neon' { @{Accent='Magenta';Detail='Cyan';Muted='DarkGray';Text='Gray'} }
     'black' { @{Accent='White';Detail='Gray';Muted='DarkGray';Text='Gray'} }
     default { @{Accent='Cyan';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
+    }
+    if(Get-Module PSReadLine){
+        Set-PSReadLineOption -Colors @{Command=$global:TmuxStylePalette.Accent;Parameter=$global:TmuxStylePalette.Detail;String='Green';Comment='DarkGray';Error='Red'} -ErrorAction SilentlyContinue
+    }
 }
+function global:Get-TmuxStyleThemeStatePath {
+    $guiProcessId=$env:TMUX_STYLE_GUI_PID
+    if(-not $guiProcessId -and $env:WEZTERM_UNIX_SOCKET -match 'gui-sock-(\d+)$'){$guiProcessId=$Matches[1]}
+    if($guiProcessId -match '^\d+$' -and $env:WEZTERM_PANE -match '^\d+$'){
+        return Join-Path $global:TmuxStyleAssetDirectory ('window-theme-'+$guiProcessId+'-'+$env:WEZTERM_PANE+'.json')
+    }
+}
+function global:Sync-TmuxStyleShellTheme {
+    if($global:TmuxStyleBackend -ne 'wezterm'){return}
+    try{
+        $statePath=Get-TmuxStyleThemeStatePath
+        if($statePath -and (Test-Path -LiteralPath $statePath)){
+            $state=[IO.File]::ReadAllText($statePath)|ConvertFrom-Json
+            if($global:TmuxStyleThemeNames.ContainsKey($state.theme) -and $state.theme -ne $global:TmuxStyleTheme){Update-TmuxStyleShellTheme $state.theme}
+        }
+    }catch{ } # A prompt remains usable during a concurrent state write.
+}
+Update-TmuxStyleShellTheme $Theme
+Sync-TmuxStyleShellTheme
 
 function global:Get-TmuxStyleTerminal {
     if($global:TmuxStyleBackend -eq 'wezterm'){
@@ -54,12 +80,15 @@ function global:Open-TmuxStyleWorkspace {
 
 function global:Set-TmuxStyleTheme {
     param([ValidateSet('aurora','midnight','ember','paper','neon','black')][string]$Name = 'aurora')
-    $terminal = Get-TmuxStyleTerminal
     if($global:TmuxStyleBackend -eq 'wezterm'){
-        $config=Join-Path $global:TmuxStyleAssetDirectory ('wezterm-'+$Name+'.lua')
-        Start-Process -FilePath $terminal -ArgumentList ('--config-file "'+$config+'" start --always-new-process --cwd "'+$PWD.Path+'"') -WindowStyle Hidden
+        $statePath=Get-TmuxStyleThemeStatePath
+        if($statePath){[IO.File]::WriteAllText($statePath,('{"theme":"'+$Name+'"}'),[Text.UTF8Encoding]::new($false))}
+        Update-TmuxStyleShellTheme $Name
+        $encoded=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($Name))
+        Write-Host -NoNewline ([string][char]27+']1337;SetUserVar=TmuxStyleTheme='+$encoded+[char]7)
         return
     }
+    $terminal = Get-TmuxStyleTerminal
     $profileName = 'Tmux Style - ' + $global:TmuxStyleThemeNames[$Name]
     & $terminal -w 0 new-tab -p $profileName -d $PWD.Path
 }
@@ -80,7 +109,7 @@ function global:Show-TmuxStyleHelp {
     Write-Host '  Ctrl+Shift+T / W    new tab / close pane'
     Write-Host '  Ctrl+Tab            next tab'
     Write-Host '  workspace           open a new 3-pane window'
-    Write-Host '  theme neon          open another theme (new WezTerm window / Terminal tab)'
+    Write-Host '  theme neon          recolor this WezTerm window / open a Terminal tab'
     Write-Host '  Show-TmuxStyleHelp  show these shortcuts'
     Write-Host ''
 }
@@ -88,6 +117,7 @@ function global:Show-TmuxStyleHelp {
 function global:prompt {
     $previousSuccess = $?
     $previousExitCode = $global:LASTEXITCODE
+    Sync-TmuxStyleShellTheme
     $palette = $global:TmuxStylePalette
     $path = $PWD.Path
     if ($HOME -and $path.StartsWith($HOME,[StringComparison]::OrdinalIgnoreCase)) {
@@ -142,18 +172,11 @@ if (Get-Module PSReadLine) {
     if ($options.Parameters.ContainsKey('PredictionSource')) {
         Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
     }
-    $syntaxColors = @{
-        Command=$global:TmuxStylePalette.Accent
-        Parameter=$global:TmuxStylePalette.Detail
-        String='Green'
-        Comment='DarkGray'
-        Error='Red'
-    }
-    Set-PSReadLineOption -Colors $syntaxColors -ErrorAction SilentlyContinue
+    Update-TmuxStyleShellTheme $global:TmuxStyleTheme
 }
 if (-not $NoBanner) {
     Write-Host ''
-    Write-Host ('  ' + $global:TmuxStyleThemeNames[$Theme].ToUpper() + ' / WINDOWS WORKSPACE') -ForegroundColor $global:TmuxStylePalette.Accent
+    Write-Host ('  ' + $global:TmuxStyleThemeNames[$global:TmuxStyleTheme].ToUpper() + ' / WINDOWS WORKSPACE') -ForegroundColor $global:TmuxStylePalette.Accent
     Write-Host '  Tab. Split. Focus.' -ForegroundColor $global:TmuxStylePalette.Detail
     Write-Host '  Ctrl+Alt+W: 3 panes   |   Show-TmuxStyleHelp: shortcuts' -ForegroundColor $global:TmuxStylePalette.Muted
 }

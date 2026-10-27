@@ -113,6 +113,8 @@ $checks+='Terminal first-launch normalization accepted; newer user edits protect
 $checks+='WezTerm six themes, separate shortcuts, exact install/upgrade/restore, newer user edits protected'
 $checks+='WezTerm runtime checksum mismatch rejected'
 $checks+='live Windows CPU/RAM sampling without a resident collector'
+$checks+='WezTerm OSC live theme signal and peer-pane prompt sync preserve shell exit codes'
+$checks+='Windows Terminal prefix timeout boundary at 2000 milliseconds'
 $report=[pscustomobject]@{passed=$true;powershell=$PSVersionTable.PSVersion.ToString();checks=$checks;keyboardHookInstalled=$false;productionSettingsTouched=$false}
 [IO.File]::WriteAllText($ReportFile,($report|ConvertTo-Json -Depth 10),[Text.UTF8Encoding]::new($false))
 Write-Output 'PASS: six theme installs, JSONC merge, backups/restore, prompts, native mappings, shortcut/launch regression.'

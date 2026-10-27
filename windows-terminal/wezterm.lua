@@ -12,13 +12,60 @@ end
 local backend = assert(read_json(root .. '/backend.json'), 'Reinstall the Tmux Style WezTerm workspace: backend.json is missing')
 local palettes = assert(read_json(root .. '/wezterm-palettes.json'))
 local theme = '__THEME__'
-local p = palettes[theme]
+local gui_pid = tostring(wezterm.procinfo.pid())
+local function shell_command(name)
+  return { 'powershell.exe', '-NoLogo', '-NoExit', '-Command',
+    ". ([scriptblock]::Create([IO.File]::ReadAllText('" .. root:gsub("'", "''") .. "/shell.ps1'))) -Theme " .. name }
+end
+local function shell_environment(name)
+  return { TMUX_STYLE_BACKEND = 'wezterm', TMUX_STYLE_ASSETS = root, TMUX_STYLE_GUI_PID = gui_pid, TMUX_STYLE_THEME = name }
+end
+local function theme_colors(name)
+  local p = palettes[name]
+  local colors = wezterm.json_parse(wezterm.json_encode(p.colors))
+  colors.tab_bar = {
+    background = p.bar,
+    active_tab = { bg_color = p.accent, fg_color = p.bar, intensity = 'Bold' },
+    inactive_tab = { bg_color = p.bar, fg_color = p.muted },
+    inactive_tab_hover = { bg_color = p.surface, fg_color = p.fg },
+  }
+  return colors
+end
+local function window_theme(window)
+  local o = window:get_config_overrides() or {}
+  local name = o.set_environment_variables and o.set_environment_variables.TMUX_STYLE_THEME
+  return palettes[name] and name or theme
+end
+local published_themes = {}
+local function publish_theme(window, name)
+  -- Separate files per GUI process and pane keep other windows independent.
+  for _, tab in ipairs(window:mux_window():tabs()) do
+    for _, pane in ipairs(tab:panes()) do
+      local path = root .. '/window-theme-' .. gui_pid .. '-' .. pane:pane_id() .. '.json'
+      if published_themes[path] ~= name then
+        local file = io.open(path, 'w')
+        if file then file:write(wezterm.json_encode { theme = name }); file:close(); published_themes[path] = name end
+      end
+    end
+  end
+end
+local function apply_theme(window, pane, name, value)
+  if name ~= 'TmuxStyleTheme' or not palettes[value] then return end
+  if window_theme(window) ~= value then
+    local o = window:get_config_overrides() or {}
+    o.colors = theme_colors(value)
+    o.default_prog = shell_command(value)
+    o.set_environment_variables = shell_environment(value)
+    window:set_config_overrides(o)
+  end
+  publish_theme(window, value)
+end
+wezterm.on('user-var-changed', apply_theme)
 local config = wezterm.config_builder()
-config.default_prog = { 'powershell.exe', '-NoLogo', '-NoExit', '-Command',
-  ". ([scriptblock]::Create([IO.File]::ReadAllText('" .. root:gsub("'", "''") .. "/shell.ps1'))) -Theme " .. theme }
+config.default_prog = shell_command(theme)
 config.default_cwd = backend.startingDirectory
 config.default_workspace = 'TMUX'
-config.set_environment_variables = { TMUX_STYLE_BACKEND = 'wezterm', TMUX_STYLE_ASSETS = root }
+config.set_environment_variables = shell_environment(theme)
 config.font = wezterm.font_with_fallback { 'Cascadia Mono', 'Consolas' }
 config.font_size = 11
 config.initial_cols = 150
@@ -34,14 +81,8 @@ config.hide_tab_bar_if_only_one_tab = false
 config.tab_max_width = 22
 config.show_new_tab_button_in_tab_bar = false
 config.status_update_interval = 1000
-config.colors = p.colors
-config.colors.tab_bar = {
-  background = p.bar,
-  active_tab = { bg_color = p.accent, fg_color = p.bar, intensity = 'Bold' },
-  inactive_tab = { bg_color = p.bar, fg_color = p.muted },
-  inactive_tab_hover = { bg_color = p.surface, fg_color = p.fg },
-}
-config.leader = { key = 'a', mods = 'CTRL', timeout_milliseconds = 5000 }
+config.colors = theme_colors(theme)
+config.leader = { key = 'a', mods = 'CTRL', timeout_milliseconds = 2000 }
 local function rename(description, callback)
   return act.PromptInputLine { description = description, action = wezterm.action_callback(function(window, pane, line)
     if line then callback(window, pane, line) end
@@ -128,6 +169,9 @@ wezterm.on('format-tab-title', function(tab, _, _, _, _, max_width)
 end)
 local last_sample
 wezterm.on('update-status', function(window, pane)
+  local selected_theme = window_theme(window)
+  local p = palettes[selected_theme]
+  publish_theme(window, selected_theme)
   local overrides = window:get_config_overrides() or {}
   local off = overrides.disable_default_key_bindings == true
   local mode = off and 'OFF' or (window:leader_is_active() and 'PREFIX' or 'CTRL-A')

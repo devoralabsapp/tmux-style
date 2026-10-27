@@ -4,6 +4,8 @@
 
 Bản 1.2.0 thêm **WezTerm + PowerShell với bottom bar thật**: tên tab, CPU/RAM Windows, hostname, ngày giờ và trạng thái PREFIX/ZOOM/OFF. Giữ nguyên Windows Terminal hiện có. Bản sửa lỗi mở workspace sau khi cài ở 1.1.0 vẫn được giữ.
 
+Bản **1.2.1** chỉnh thời gian chờ sau `Ctrl-a` thành **2 giây**. Lệnh `theme black` đổi màu ngay cửa sổ WezTerm hiện tại, giữ nguyên tab, pane và tiến trình. Các cửa sổ khác giữ màu riêng; prompt ở pane khác cập nhật khi được vẽ lại.
+
 ![Command Line / Black](preview/black-terminal.png)
 
 Sáu giao diện cho tmux, WezTerm và Windows Terminal: **Aurora**, **Midnight / Cyan**, **Ember**, **Paper / Ink**, **Neon / Circuit**, **Command Line / Black**. Giữ cấu hình tmux cá nhân của the original tmux configuration, dựa trên [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config).
@@ -12,9 +14,9 @@ Sáu giao diện cho tmux, WezTerm và Windows Terminal: **Aurora**, **Midnight 
 
 ## Windows: tải EXE và cài
 
-Tải **[TmuxStyle-Setup-1.2.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
+Tải **[TmuxStyle-Setup-1.2.1.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
 
-WezTerm dùng phím `Ctrl-a` native, không cần bộ remap ngoài. CPU/RAM là số liệu của máy Windows, kể cả khi SSH; cập nhật mỗi 2 giây, đồng hồ mỗi giây. `F12` bật/tắt chế độ chuyển phím cho tmux từ xa. `theme black` mở cửa sổ WezTerm mới màu đen; `workspace` mở 3 pane tại thư mục hiện tại. `Ctrl-a R` đổi tên workspace. Các ảnh minh họa bên dưới là phiên tmux thử nghiệm, không phải thanh trạng thái Windows Terminal.
+WezTerm dùng phím `Ctrl-a` native, không cần bộ remap ngoài. CPU/RAM là số liệu của máy Windows, kể cả khi SSH; cập nhật mỗi 2 giây, đồng hồ mỗi giây. `F12` bật/tắt chế độ chuyển phím cho tmux từ xa. `theme black` đổi màu cửa sổ WezTerm hiện tại; `workspace` mở 3 pane tại thư mục hiện tại. `Ctrl-a R` đổi tên workspace. Các ảnh minh họa bên dưới là phiên tmux thử nghiệm, không phải thanh trạng thái Windows Terminal.
 
 Riêng lựa chọn Windows Terminal:
 
