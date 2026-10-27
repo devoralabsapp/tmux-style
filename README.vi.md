@@ -18,7 +18,9 @@ Sáu giao diện cho tmux, WezTerm và Windows Terminal: **Aurora**, **Midnight 
 
 ## Windows: tải EXE và cài
 
-Tải **[TmuxStyle-Setup-1.3.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
+Tải **[TmuxStyle-Setup-1.3.1.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
+
+Bản **1.3.1** bỏ giới hạn ký tự tên tab WezTerm: tên dài hiển thị đầy đủ khi thanh tab còn đủ chỗ. Nếu tổng các tab vượt chiều rộng cửa sổ, WezTerm xử lý phần tràn theo không gian thực tế.
 
 WezTerm dùng phím `Ctrl-a` native, không cần bộ remap ngoài. CPU/RAM là số liệu của máy Windows, kể cả khi SSH; cập nhật mỗi 2 giây, đồng hồ mỗi giây. `F12` bật/tắt chế độ chuyển phím cho tmux từ xa. `theme black` đổi màu cửa sổ WezTerm hiện tại; `workspace` mở 3 pane tại thư mục hiện tại. `Ctrl-a R` đổi tên workspace. Các ảnh minh họa bên dưới là phiên tmux thử nghiệm, không phải thanh trạng thái Windows Terminal.
 

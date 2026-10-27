@@ -82,7 +82,8 @@ config.show_update_window = false
 config.use_fancy_tab_bar = false
 config.tab_bar_at_bottom = true
 config.hide_tab_bar_if_only_one_tab = false
-config.tab_max_width = 22
+-- No per-title character cap; the available bar width controls overflow.
+config.tab_max_width = math.maxinteger
 config.show_new_tab_button_in_tab_bar = false
 config.status_update_interval = 1000
 config.colors = theme_colors(theme)
@@ -166,10 +167,10 @@ wezterm.on('gui-startup', function(cmd)
   right:split { direction = 'Bottom', size = 0.5 }
   first:activate()
 end)
-wezterm.on('format-tab-title', function(tab, _, _, _, _, max_width)
+wezterm.on('format-tab-title', function(tab)
   local title = tab.tab_title ~= '' and tab.tab_title or tab.active_pane.title
   title = title:gsub('[%c]', ' ')
-  return ' ' .. (tab.tab_index + 1) .. ' ' .. wezterm.truncate_right(title, math.max(1, max_width - 5)) .. ' '
+  return ' ' .. (tab.tab_index + 1) .. ' ' .. title .. ' '
 end)
 local last_sample
 wezterm.on('update-status', function(window, pane)

@@ -1,12 +1,14 @@
 # Windows workspaces + tmux-style keys
 
-Download **TmuxStyle-Setup-1.3.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
+Download **TmuxStyle-Setup-1.3.1.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
 
 The executable is not code signed. Source, build scripts and SHA-256 checksums are provided with the release. It does not bundle or impersonate Microsoft Windows Terminal.
 
 ## WezTerm: real bottom bar (default)
 
 Choose **WezTerm** for a terminal-owned bottom bar containing numbered tab names, workspace, PREFIX/ZOOM/OFF indicators, local Windows CPU/RAM, hostname and date/time. CPU/RAM refresh every two seconds; the clock refreshes every second. Small windows show a compact status; missing or stale counter data shows `--`. These are local Windows values, including during SSH sessions.
+
+Tab names have no configured character cap as of v1.3.1. Renamed and automatic titles use their full text. WezTerm handles physical overflow if the tabs exceed the available window width.
 
 The **Tmux Style WezTerm** Desktop shortcut opens three PowerShell panes. The runtime is official portable WezTerm, pinned in `wezterm-runtime.json` with the checksum published upstream. Existing WezTerm on PATH can also be used. The portable runtime targets Windows x64. It stays inside `%LOCALAPPDATA%\TmuxStyleWindows\wezterm`; `.wezterm.lua`, Windows Terminal settings and its existing shortcut remain untouched.
 

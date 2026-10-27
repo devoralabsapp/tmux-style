@@ -31,7 +31,7 @@ A pure black canvas, white text and quiet gray dividers. Every color in the Blac
 
 ## Windows: download the EXE
 
-**[Download TmuxStyle-Setup-1.3.0.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.3.0/TmuxStyle-Setup-1.3.0.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
+**[Download TmuxStyle-Setup-1.3.1.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.3.1/TmuxStyle-Setup-1.3.1.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
 
 1. Run the installer, choose **WezTerm** for the real bottom status bar, then a theme and starting folder.
 2. Keep the Desktop shortcut and launch options enabled if you want a ready-to-use, three-pane workspace.
@@ -42,6 +42,8 @@ The per-user installer uses Windows PowerShell 5.1 and .NET Framework 4.8 on Win
 **New in v1.2.0: a real bottom bar on Windows.** WezTerm displays numbered tab names, workspace and PREFIX/ZOOM/OFF states, local Windows CPU/RAM, hostname, and date/time. Counters refresh every two seconds; the clock refreshes every second. Narrow windows use a compact status. The bar belongs to the terminal, so it remains separate from fullscreen application output.
 
 **v1.3.0 fixes the premature Ctrl-a cancellation.** WezTerm watches its configuration directory, so earlier versions accidentally reloaded configuration on metric/prompt-state writes and cleared the leader. Volatile files now live in the separate `wezterm-state` sibling directory. `Ctrl-a` can wait its full **two seconds** while metrics continue updating. `theme black` recolors the **current window**, including panes and the bottom bar, without opening another window or restarting shells. Other windows keep their theme. Existing prompts pick up the new palette when next drawn.
+
+**v1.3.1:** WezTerm tab names have no configured character cap. Long names display in full when the tab bar has room; the terminal still handles overflow when many tabs exceed the window width.
 
 | Windows option | Bottom status bar | Ctrl-a handling | Existing Windows Terminal |
 | --- | --- | --- | --- |
