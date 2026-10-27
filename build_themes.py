@@ -8,6 +8,12 @@ BASE = (ROOT / 'tmux.conf').read_text(encoding='utf-8')
 ORIGINAL = ['#161925', '#e0e6f5', '#b8a1f7', '#a5aec6', '#75d7e8',
             '#a6d6a0', '#f0c674', '#f28b98', '#202435', '#292e42', '#3b425b']
 THEMES = {
+    'black': {
+        'name': 'Command Line', 'subtitle': 'Pure black. Crisp whites. Quiet gray dividers.',
+        'colors': ['#080808','#e6e6e6','#c4c4c4','#a0a0a0','#ededed',
+                   '#cccccc','#b8b8b8','#ffffff','#202020','#1a1a1a','#454545'],
+        'pane': '#000000', 'position': 'bottom', 'rows': 1,
+    },
     'aurora': {
         'name': 'Aurora', 'subtitle': 'Mint accents. Lavender details. Tabs on top.',
         'colors': ['#182722','#e1eee6','#c5b5ed','#a7bdb1','#9fe4be',

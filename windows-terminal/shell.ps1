@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('aurora','midnight','ember','paper','neon')]
+    [ValidateSet('aurora','midnight','ember','paper','neon','black')]
     [string]$Theme = 'aurora',
     [switch]$NoBanner,
     [switch]$NoKeyBridge
@@ -11,13 +11,14 @@ if(-not $NoKeyBridge -and $env:WT_SESSION -and (Test-Path -LiteralPath $keyBridg
     Start-Process -FilePath $keyBridge -WindowStyle Hidden
 }
 $global:TmuxStyleThemeNames = @{
-    aurora='Aurora'; midnight='Midnight'; ember='Ember'; paper='Paper'; neon='Neon'
+    aurora='Aurora'; midnight='Midnight'; ember='Ember'; paper='Paper'; neon='Neon'; black='Command Line'
 }
 $global:TmuxStylePalette = switch ($Theme) {
     'aurora' { @{Accent='Green';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
     'ember' { @{Accent='Yellow';Detail='DarkYellow';Muted='DarkGray';Text='Gray'} }
     'paper' { @{Accent='Black';Detail='DarkGreen';Muted='DarkGray';Text='Black'} }
     'neon' { @{Accent='Magenta';Detail='Cyan';Muted='DarkGray';Text='Gray'} }
+    'black' { @{Accent='White';Detail='Gray';Muted='DarkGray';Text='Gray'} }
     default { @{Accent='Cyan';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
 }
 
@@ -37,7 +38,7 @@ function global:Open-TmuxStyleWorkspace {
 }
 
 function global:Set-TmuxStyleTheme {
-    param([ValidateSet('aurora','midnight','ember','paper','neon')][string]$Name = 'aurora')
+    param([ValidateSet('aurora','midnight','ember','paper','neon','black')][string]$Name = 'aurora')
     $terminal = Get-TmuxStyleTerminal
     $profileName = 'Tmux Style - ' + $global:TmuxStyleThemeNames[$Name]
     & $terminal -w 0 new-tab -p $profileName -d $PWD.Path

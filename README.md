@@ -1,69 +1,90 @@
+<img src="assets/tmux-style.svg" width="84" alt="Tmux Style logo">
+
 # Tmux Style
 
-Năm giao diện cho tmux và Windows Terminal: **Aurora**, **Midnight / Cyan**, **Ember**, **Paper / Ink**, **Neon / Circuit**. Giữ cấu hình tmux cá nhân của the original tmux configuration, dựa trên [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config).
+English · [Tiếng Việt](README.vi.md)
 
-![Theme gallery](preview/theme-gallery.png)
+Six selectable themes for **tmux** and **Windows Terminal + PowerShell**, with familiar `Ctrl-a` shortcuts based on the original tmux configuration and [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config).
 
-## Windows: tải EXE và cài
+## Command Line / Black
 
-Tải **[TmuxStyle-Setup-1.0.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn màu và thư mục khởi động, rồi bấm **Install workspace**.
+A pure black canvas, white text and quiet gray dividers. Every color in the Black palette is grayscale, including shell syntax colors. No green or other colored accents.
 
-- Cài theo tài khoản hiện tại, không yêu cầu quyền quản trị.
-- Có thể cài Windows Terminal chính thức qua winget nếu máy chưa có và bạn bật tùy chọn tải.
-- Tạo workspace PowerShell ba pane, prompt có đường dẫn và nhánh Git.
-- Có bộ remap `Ctrl-a` theo thói quen tmux, hoạt động khi Windows Terminal ở phía trước; F12 tắt/bật remap.
-- Có backup và nút khôi phục cấu hình; giữ profile, tùy chọn và phím không xung đột.
-- EXE chưa ký số; mã nguồn, hướng dẫn build và SHA-256 đi kèm Release.
+![Command Line / Black terminal sample](preview/black-terminal.png)
 
-| Phím chính | Tác dụng Windows |
+*Recorded from a native tmux test session with sample pane content. The same color palette is available in Windows Terminal.*
+
+<details>
+<summary>View all six themes</summary>
+
+![Six-theme terminal gallery](preview/theme-gallery.png)
+
+</details>
+
+## Windows: download the EXE
+
+**[Download TmuxStyle-Setup-1.1.0.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.1.0/TmuxStyle-Setup-1.1.0.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
+
+1. Run the installer, choose a theme and starting folder.
+2. Keep the Desktop shortcut and launch options enabled if you want a ready-to-use, three-pane workspace.
+3. Click **Install workspace**. Open **Tmux Style Workspace** on Desktop next time.
+
+The per-user installer uses Windows PowerShell 5.1 and .NET Framework 4.8 on Windows 10/11. If Windows Terminal is missing, the optional download uses the official Microsoft package through winget and requires an internet connection. No Nerd Font, Oh My Posh or Starship is needed.
+
+**v1.1.0 fixes the post-install launch failure** shown as “The expression '&' in a pipeline element produced an object that was not valid.” Shortcut creation and launching now use separate variables/scopes, and the packaged regression test exercises both options together.
+
+| Shortcut | Windows behavior |
 | --- | --- |
-| `Ctrl-a c` | Tab mới, giữ profile/thư mục hiện tại |
-| `Ctrl-a \|` / `Ctrl-a -` | Chia phải / chia dưới |
-| `Ctrl-a r` / `Ctrl-a R` | Đổi tên tab / cửa sổ |
-| `Ctrl-a z` | Zoom / trả pane về bố cục cũ |
-| `Ctrl-a x` / `Ctrl-a X` | Đóng pane / tab |
-| `Ctrl-a` + mũi tên | Chuyển pane |
-| `Ctrl-a Ctrl-mũi tên` | Đổi kích thước pane |
-| `F12` | Tắt/bật bộ remap, dùng khi SSH vào tmux |
+| `Ctrl-a c` | New tab in the focused profile and working directory |
+| `Ctrl-a \|` / `Ctrl-a -` | Split right / below |
+| `Ctrl-a r` / `Ctrl-a R` | Rename tab / window |
+| `Ctrl-a z` | Zoom / restore pane |
+| `Ctrl-a x` / `Ctrl-a X` | Close pane / tab |
+| `Ctrl-a` + arrow | Focus an adjacent pane |
+| `Ctrl-a Ctrl-arrow` | Resize pane |
+| `F12` | Toggle the key bridge; turn it off for tmux over SSH |
 
-Lệnh `theme neon` mở tab màu Neon; `workspace` mở workspace ba pane tại thư mục hiện tại. Tiến trình vẫn theo vòng đời cửa sổ Terminal; đây không phải tmux native hay cơ chế detach/attach. [Bảng phím đầy đủ, khác biệt và hướng dẫn build](windows-terminal/README.md).
+`theme black` opens a Command Line tab. `workspace` opens a three-pane window at the current directory. The bridge handles only predefined mappings while Windows Terminal is in front; it does not record typed content or add itself to Windows startup. Terminal sessions still end when their window is closed. [Full shortcut table, native differences and restore instructions](windows-terminal/README.md).
+
+The installer backs up existing settings and owned assets, preserves unrelated profiles/preferences/non-conflicting keys, and includes **Restore previous settings**. It changes neither the shared `$PROFILE` nor execution policy or Windows' default terminal application.
 
 ## Linux / macOS / WSL: tmux
 
-Yêu cầu tmux **>= 3.2** và bộ nền samoshkin đã cài ở `~/.tmux`.
+Requires **tmux >= 3.2** and the samoshkin base configuration already installed under `~/.tmux`.
 
 ```bash
 git clone https://github.com/devoralabsapp/tmux-style.git
 cd tmux-style
-bash install.sh aurora
+bash install.sh black
 tmux source-file ~/.tmux.conf
 ```
 
-Đổi `aurora` thành `midnight`, `ember`, `paper` hoặc `neon`. Không truyền tên sẽ chọn Midnight. Mỗi lần cài đều sao lưu; giữ symlink `~/.tmux.conf` của samoshkin. Không cần đóng session đang chạy.
+Supported names: `black`, `aurora`, `midnight`, `ember`, `paper`, `neon`. Without a name, the installer keeps Midnight as its default. Every install creates a backup and preserves the existing `~/.tmux.conf` symlink. Existing sessions can stay open.
 
-| Mẫu | Phong cách |
+| Theme | Style |
 | --- | --- |
-| [Aurora](preview/aurora.png) | Mint/lavender, tab trên; SSH giữ thanh dưới theo cấu hình nền |
-| [Midnight / Cyan](preview/midnight-cyan.png) | Xanh đen, cyan, một dòng gọn |
-| [Ember](preview/ember.png) | Cam ấm, tiêu đề đánh số từng pane |
-| [Paper / Ink](preview/paper.png) | Nền giấy sáng, chữ mực, tab đen |
-| [Neon / Circuit](preview/neon.png) | Tím hồng, thanh hai dòng có đường dẫn/lệnh đang chạy |
+| [Command Line / Black](preview/black.png) | Black canvas, white text, gray dividers |
+| [Aurora](preview/aurora.png) | Mint/lavender, tabs on top locally |
+| [Midnight / Cyan](preview/midnight-cyan.png) | Compact navy/cyan workspace |
+| [Ember](preview/ember.png) | Warm amber with numbered pane headers |
+| [Paper / Ink](preview/paper.png) | Warm light background and ink-black tabs |
+| [Neon / Circuit](preview/neon.png) | Orchid accents and two rows of context |
 
-Thanh trạng thái tự rút gọn theo chiều rộng, có nhãn COPY/PREFIX/ZOOM/OFF; CPU/RAM xuất hiện từ 160 cột qua plugin sysstat sẵn có. Phím cá nhân, clipboard, plugin, thư mục làm việc và hành vi F12/SSH được giữ. Đoạn `swap-pane` bị comment dở trong bản gốc đã được sửa để tiếp tục tắt binding đó.
+The tmux status bar adapts to window width and shows COPY/PREFIX/ZOOM/OFF states. Existing sysstat CPU/RAM widgets appear on wide terminals. Personal shortcuts, clipboard behavior and SSH/F12 handling are retained. Remote sessions keep the samoshkin bottom status position. Applications such as Neovim can still use their own color schemes.
 
-Hoàn tác tmux bằng đường dẫn backup được script in ra:
+To restore tmux, use the backup path printed by the installer:
 
 ```bash
-cat ~/.tmux/backups/ten-file-backup > ~/.tmux.conf
+cat ~/.tmux/backups/your-backup-file > ~/.tmux.conf
 tmux source-file ~/.tmux.conf
 ```
 
-`build_themes.py` tạo lại bốn mẫu từ `tmux.conf`. Bốn mẫu mới đặt màu mặc định của pane; Midnight dùng màu mặc định của terminal. Ứng dụng tự đặt màu như Neovim vẫn có theme riêng. Nội dung pane trong ảnh là ví dụ; thanh trạng thái và viền được ghi lại từ tmux thật.
+## Build and validation
 
-## Kiểm chứng và nguồn gốc
+```powershell
+.\windows-terminal\build.ps1 -RunTests
+```
 
-- tmux 3.6: load/reload, COPY/PREFIX/ZOOM/F12, 60–160 cột, SSH, sysstat, chuyển qua cả năm theme và backup/restore.
-- Windows: EXE tự kiểm tra gói trên Windows PowerShell 5.1; merge JSONC, giữ cấu hình cũ, backup/restore từng byte, prompt và bộ giải ánh xạ phím. Schema được kiểm tra bằng lược đồ Microsoft.
-- CI build và chạy lại kiểm thử EXE; `dist/` là kết quả build, không commit binary vào mã nguồn.
+The Windows build reads `VERSION`, embeds the multi-size application icon, and produces an EXE plus SHA-256 checksums under `dist/`. Its packaged self-test runs on Windows PowerShell 5.1 with temporary settings: six themes, JSONC preservation, exact backup/restore, protection of newer user edits, prompt exit codes, grayscale checks, native key-map resolution, and shortcut/post-install launch regression tests. CI also validates settings against Microsoft's schema.
 
-Xem [NOTICE.md](NOTICE.md) về nguồn cấu hình cũ và giấy phép; phần Windows mới có giấy phép MIT riêng. Bản gốc và schema bên thứ ba giữ nguồn gốc/điều khoản tương ứng.
+The EXE is **not code signed**. Source and checksums are provided. This project is an independent installer/configuration, not Microsoft Windows Terminal itself. See [NOTICE.md](NOTICE.md) for provenance and licensing. Original Windows code and logo assets use the [Windows MIT license](windows-terminal/LICENSE); existing tmux and third-party files retain their own terms.

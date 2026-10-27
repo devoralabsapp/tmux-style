@@ -1,4 +1,24 @@
 {
+  "black": {
+    "name": "Command Line",
+    "subtitle": "Pure black. Crisp whites. Quiet gray dividers.",
+    "colors": [
+      "#080808",
+      "#e6e6e6",
+      "#c4c4c4",
+      "#a0a0a0",
+      "#ededed",
+      "#cccccc",
+      "#b8b8b8",
+      "#ffffff",
+      "#202020",
+      "#1a1a1a",
+      "#454545"
+    ],
+    "pane": "#000000",
+    "position": "bottom",
+    "rows": 1
+  },
   "aurora": {
     "name": "Aurora",
     "subtitle": "Mint accents. Lavender details. Tabs on top.",

@@ -1,8 +1,9 @@
-param([string]$Version='1.0.0',[switch]$RunTests,[string]$SourceDirectory=$PSScriptRoot)
+param([string]$Version,[switch]$RunTests,[string]$SourceDirectory=$PSScriptRoot)
 $ErrorActionPreference='Stop'
-if($Version -notmatch '^\d+\.\d+\.\d+$'){throw 'Version must have the form 1.0.0'}
 $root=$SourceDirectory
 if(-not $root){throw 'Provide -SourceDirectory when invoking build as a script block.'}
+if(-not $Version){$Version=[IO.File]::ReadAllText((Join-Path (Split-Path -Parent $root) 'VERSION')).Trim()}
+if($Version -notmatch '^\d+\.\d+\.\d+$'){throw 'Version must have the form 1.1.0'}
 $output=Join-Path (Split-Path -Parent $root) 'dist'
 $build=Join-Path $output 'build'
 New-Item -ItemType Directory -Path $build -Force|Out-Null
@@ -11,20 +12,20 @@ if(-not(Test-Path $compiler)){$compiler=Join-Path $env:WINDIR 'Microsoft.NET\Fra
 $assemblyInfo=Join-Path $build 'AssemblyInfo.cs'
 [IO.File]::WriteAllText($assemblyInfo,'using System.Reflection; [assembly:AssemblyVersion("'+$Version+'.0")] [assembly:AssemblyFileVersion("'+$Version+'.0")] [assembly:AssemblyProduct("Tmux Style Windows Workspace")]')
 $bridge=Join-Path $build 'TmuxStyle.Keys.exe'
-& $compiler /nologo /target:winexe /platform:anycpu "/out:$bridge" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Web.Extensions.dll (Join-Path $root 'installer\KeyBridge.cs') $assemblyInfo
+& $compiler /nologo /target:winexe /platform:anycpu "/out:$bridge" "/win32icon:$(Join-Path $root 'tmux-style.ico')" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Web.Extensions.dll (Join-Path $root 'installer\KeyBridge.cs') $assemblyInfo
 if($LASTEXITCODE -ne 0){throw 'Key bridge compilation failed'}
 $payload=Join-Path $build 'payload.zip'
 if(Test-Path $payload){Remove-Item -LiteralPath $payload}
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $archive=[IO.Compression.ZipFile]::Open($payload,[IO.Compression.ZipArchiveMode]::Create)
 try{
-    foreach($name in @('shell.ps1','setup.ps1','restore.ps1','common.ps1','settings.additions.json','profiles.schema.json','install-runner.ps1','test-release.ps1')){
+    foreach($name in @('shell.ps1','setup.ps1','restore.ps1','common.ps1','settings.additions.json','profiles.schema.json','install-runner.ps1','test-release.ps1','tmux-style.ico')){
         [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path $root $name),$name,[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     }
     [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$bridge,'TmuxStyle.Keys.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
 }finally{$archive.Dispose()}
 $installer=Join-Path $output ('TmuxStyle-Setup-'+$Version+'.exe')
-& $compiler /nologo /target:winexe /platform:anycpu "/out:$installer" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll "/resource:$payload,TmuxStyle.Payload.zip" "/win32manifest:$(Join-Path $root 'installer\app.manifest')" (Join-Path $root 'installer\Setup.cs') $assemblyInfo
+& $compiler /nologo /target:winexe /platform:anycpu "/out:$installer" "/win32icon:$(Join-Path $root 'tmux-style.ico')" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll "/resource:$payload,TmuxStyle.Payload.zip" "/win32manifest:$(Join-Path $root 'installer\app.manifest')" (Join-Path $root 'installer\Setup.cs') $assemblyInfo
 if($LASTEXITCODE -ne 0){throw 'Setup compilation failed'}
 if($RunTests){
     $report=Join-Path $output 'self-test.json'

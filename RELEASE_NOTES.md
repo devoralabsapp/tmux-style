@@ -1,15 +1,21 @@
-# Tmux Style v1.0.0
+# Tmux Style v1.1.0
 
-- Năm giao diện tmux: Aurora, Midnight / Cyan, Ember, Paper / Ink và Neon / Circuit.
-- Bộ cài Windows dạng EXE, chọn màu/thư mục, tạo shortcut workspace ba pane, sao lưu và khôi phục cấu hình.
-- Bộ remap theo original tmux configuration: Ctrl-a rồi c, |, -, r/R, z, x/X, mũi tên, Ctrl-mũi tên và F12 pass-through. Không ghi nội dung gõ; chỉ xử lý khi Windows Terminal ở phía trước.
-- Giữ các profile/tùy chọn/phím không xung đột. Có bảng các thao tác tmux chưa có tương đương native.
-- EXE được biên dịch từ source và chạy self-test từ chính gói trên Windows PowerShell 5.1; CI build/test độc lập.
+## Fixed
 
-## Tải và dùng
+- Fixed the post-install error “The expression '&' in a pipeline element produced an object that was not valid” when both **Create Desktop shortcut** and **Open workspace** were enabled. Shortcut creation no longer overwrites the launch executable, and setup steps use separate scopes.
+- A workspace launch problem after successful configuration now produces a launch warning with a manual-open hint, instead of reporting the whole configuration as failed.
+- Added packaged regression coverage for the shortcut + three-pane launch path and for unsuccessful Terminal launches.
 
-Windows: tải `TmuxStyle-Setup-1.0.0.exe`, chọn theme và bấm **Install workspace**. Cần Windows 10/11 với .NET Framework 4.8; nếu thiếu Windows Terminal, bộ cài có thể lấy gói chính thức bằng winget khi bạn bật tùy chọn và có internet.
+## Added
 
-tmux: tải `tmux-theme-collection-1.0.0.zip`, giải nén trên máy đã cài samoshkin/tmux-config và tmux >= 3.2; chạy `bash install.sh aurora` rồi `tmux source-file ~/.tmux.conf`.
+- **Command Line / Black** for tmux and Windows Terminal: pure black, white and gray, including the shell syntax palette. Select `black` or **Command Line (Black)**.
+- Original logo and multi-size icon embedded in the installer/key bridge, the installer window, Terminal profiles and the Desktop shortcut.
+- English default README, retained Vietnamese README, a Black terminal example recorded from tmux, and an updated six-theme gallery.
 
-EXE chưa ký số. `SHA256SUMS.txt` chứa checksum của các file phát hành. Windows Terminal vẫn kết thúc các phiên PowerShell khi đóng cửa sổ; bản native không cung cấp tmux detach/attach. GUI capture tại môi trường build bị timeout, nên phần kiểm chứng UI không được mô tả là đã bấm thử mọi phím.
+## Downloads
+
+Windows: run `TmuxStyle-Setup-1.1.0.exe`, choose a theme and click **Install workspace**. The optional Windows Terminal download uses Microsoft's winget package. The EXE remains unsigned.
+
+tmux: extract `tmux-theme-collection-1.1.0.zip` on a machine with the samoshkin base config and tmux >= 3.2; run `bash install.sh black`, then `tmux source-file ~/.tmux.conf`.
+
+`windows-self-test.json` contains the packaged test results. `SHA256SUMS.txt` covers the downloadable EXE, ZIP and report. Native Windows panes still follow the lifetime of the Terminal window; full tmux detach/attach semantics are not provided.

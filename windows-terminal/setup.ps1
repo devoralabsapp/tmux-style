@@ -1,7 +1,8 @@
 param(
     [switch]$Apply,
     [string]$SourceDirectory=$PSScriptRoot,
-    [ValidateSet('aurora','midnight','ember','paper','neon')][string]$DefaultTheme='aurora',
+    [ValidateSet('aurora','midnight','ember','paper','neon','black')][string]$DefaultTheme='aurora',
+    [string]$TerminalExecutable,
     [string]$SettingsPath = (Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json'),
     [string]$AssetDirectory = (Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows'),
     [string]$DesktopDirectory = [Environment]::GetFolderPath('DesktopDirectory'),
@@ -47,6 +48,7 @@ if (-not $Apply) {
         $commandline='powershell.exe -NoLogo -NoExit -Command "'+$initialization+'"'
         Set-Property $profile commandline $commandline
         Set-Property $profile startingDirectory $DefaultDirectory
+        Set-Property $profile icon (Join-Path $AssetDirectory 'tmux-style.ico')
         $profiles+=$profile
     }
     Set-Property $settings.profiles list @($profiles)
@@ -91,6 +93,7 @@ if (-not $Apply) {
         desktopDirectory=$DesktopDirectory;defaultDirectory=$DefaultDirectory
         shortcut=(-not $NoShortcut);created=(Get-Date -Format o)
         defaultProfileName=$defaultProfileName
+        terminalExecutable=$TerminalExecutable
     })
     Write-Output "Staged configuration: $stagePath"
     return
@@ -109,7 +112,7 @@ if ($state.previousHash -ne 'MISSING') {
     $settingsBackup=Join-Path $backupDirectory 'settings.before.json'
     Copy-Item -LiteralPath $state.settingsPath -Destination $settingsBackup
 }
-$ownedAssets=@('shell.ps1','restore.ps1','common.ps1','settings.additions.json','TmuxStyle.Keys.exe')
+$ownedAssets=@('shell.ps1','restore.ps1','common.ps1','settings.additions.json','TmuxStyle.Keys.exe','tmux-style.ico')
 $assetBackups=@()
 foreach($name in $ownedAssets){
     $path=Join-Path $state.assetDirectory $name
@@ -125,6 +128,7 @@ Copy-Item -LiteralPath (Join-Path $sourceDirectory 'shell.ps1') -Destination (Jo
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'restore.ps1') -Destination (Join-Path $state.assetDirectory 'restore.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'common.ps1') -Destination (Join-Path $state.assetDirectory 'common.ps1') -Force
 if(Test-Path (Join-Path $sourceDirectory 'TmuxStyle.Keys.exe')){Copy-Item -LiteralPath (Join-Path $sourceDirectory 'TmuxStyle.Keys.exe') -Destination (Join-Path $state.assetDirectory 'TmuxStyle.Keys.exe') -Force}
+Copy-Item -LiteralPath (Join-Path $sourceDirectory 'tmux-style.ico') -Destination (Join-Path $state.assetDirectory 'tmux-style.ico') -Force
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'settings.additions.json') -Destination (Join-Path $state.assetDirectory 'settings.additions.json') -Force
 New-Item -ItemType Directory -Path (Split-Path -Parent $state.settingsPath) -Force | Out-Null
 Copy-Item -LiteralPath $stagePath -Destination $state.settingsPath -Force
@@ -135,10 +139,12 @@ if ($state.shortcut) {
         $shortcutBackup=Join-Path $backupDirectory 'Aurora Workspace.before.lnk'
         Copy-Item -LiteralPath $shortcutPath -Destination $shortcutBackup
     }
-    $terminal=(Get-Command wt.exe -ErrorAction Stop).Source
+    $shortcutTerminalExe=$state.terminalExecutable
+    if(-not $shortcutTerminalExe){$shortcutTerminalExe=(Get-Command wt.exe -ErrorAction Stop).Source}
     $wshell=New-Object -ComObject WScript.Shell
     $shortcut=$wshell.CreateShortcut($shortcutPath)
-    $shortcut.TargetPath=$terminal
+    $shortcut.TargetPath=$shortcutTerminalExe
+    $shortcut.IconLocation=(Join-Path $state.assetDirectory 'tmux-style.ico')+',0'
     $profileName=$state.defaultProfileName
     $directory=$state.defaultDirectory
     $shortcut.Arguments='-w new new-tab -p "'+$profileName+'" -d "'+$directory+'" ; split-pane -V -s 0.35 -p "'+$profileName+'" -d "'+$directory+'" ; split-pane -H -s 0.5 -p "'+$profileName+'" -d "'+$directory+'" ; move-focus first'

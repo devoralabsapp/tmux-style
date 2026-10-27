@@ -20,7 +20,7 @@ jobs:
           git diff --exit-code -- themes windows-terminal/settings.additions.json
       - name: Compile and test packaged EXE on Windows PowerShell
         shell: pwsh
-        run: ./windows-terminal/build.ps1 -Version 1.0.0 -RunTests
+        run: ./windows-terminal/build.ps1 -RunTests
       - name: Validate settings with the official Terminal schema
         shell: pwsh
         run: |

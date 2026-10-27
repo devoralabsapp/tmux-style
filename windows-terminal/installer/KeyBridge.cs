@@ -142,7 +142,7 @@ internal static class KeyBridge
             Application.EnableVisualStyles();
             using(stopEvent=new EventWaitHandle(false,EventResetMode.AutoReset,stopName))
             using(tray=new NotifyIcon()){
-                tray.Icon=System.Drawing.SystemIcons.Application;tray.Text="Tmux Style: Ctrl-A";tray.Visible=true;
+                tray.Icon=System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);tray.Text="Tmux Style: Ctrl-A";tray.Visible=true;
                 ContextMenuStrip menu=new ContextMenuStrip();menu.Items.Add("F12: toggle pass-through",null,delegate{passThrough=!passThrough;Notice(passThrough?"Mappings OFF":"Mappings ON");});menu.Items.Add("Exit key bridge",null,delegate{Application.Exit();});tray.ContextMenuStrip=menu;
                 hook=SetWindowsHookEx(HookId,callback,GetModuleHandle(null),0);
                 if(hook==IntPtr.Zero)return 2;

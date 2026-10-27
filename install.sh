@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 if [[ $# -gt 1 ]]; then
-  echo 'Usage: bash install.sh [midnight|aurora|ember|paper|neon]' >&2; exit 1
+  echo 'Usage: bash install.sh [midnight|aurora|ember|paper|neon|black]' >&2; exit 1
 fi
 selected="${1:-midnight}"
 case "$selected" in
@@ -12,7 +12,8 @@ case "$selected" in
   ember) config="$repo_dir/themes/ember.conf"; theme_name='Ember' ;;
   paper) config="$repo_dir/themes/paper.conf"; theme_name='Paper / Ink' ;;
   neon) config="$repo_dir/themes/neon.conf"; theme_name='Neon / Circuit' ;;
-  *) echo 'Choose midnight, aurora, ember, paper or neon.' >&2; exit 1 ;;
+  black) config="$repo_dir/themes/black.conf"; theme_name='Command Line / Black' ;;
+  *) echo 'Choose midnight, aurora, ember, paper, neon or black.' >&2; exit 1 ;;
 esac
 [[ -f "$config" ]] || { echo "Missing configuration: $config" >&2; exit 1; }
 command -v tmux >/dev/null || { echo 'Please install tmux first.' >&2; exit 1; }

@@ -99,6 +99,26 @@
       "opacity": 100,
       "bellStyle": "taskbar",
       "startingDirectory": "%USERPROFILE%"
+    },
+    {
+      "guid": "{bd14a5fa-02f2-561a-8739-bbce1bcab136}",
+      "name": "Tmux Style - Command Line",
+      "hidden": false,
+      "slug": "black",
+      "colorScheme": "Tmux Style / Command Line",
+      "tabColor": "#ededed",
+      "font": {
+        "face": "Cascadia Mono",
+        "size": 12
+      },
+      "padding": "14, 10, 14, 10",
+      "cursorShape": "bar",
+      "historySize": 20000,
+      "scrollbarState": "hidden",
+      "useAcrylic": false,
+      "opacity": 100,
+      "bellStyle": "taskbar",
+      "startingDirectory": "%USERPROFILE%"
     }
   ],
   "schemes": [
@@ -216,6 +236,29 @@
       "brightPurple": "#bda2f2",
       "brightCyan": "#9fe4db",
       "brightWhite": "#eae1fa"
+    },
+    {
+      "name": "Tmux Style / Command Line",
+      "background": "#000000",
+      "foreground": "#e6e6e6",
+      "cursorColor": "#ededed",
+      "selectionBackground": "#333333",
+      "black": "#080808",
+      "red": "#bfbfbf",
+      "green": "#bfbfbf",
+      "yellow": "#bfbfbf",
+      "blue": "#bfbfbf",
+      "purple": "#bfbfbf",
+      "cyan": "#bfbfbf",
+      "white": "#e6e6e6",
+      "brightBlack": "#a0a0a0",
+      "brightRed": "#ededed",
+      "brightGreen": "#ededed",
+      "brightYellow": "#ededed",
+      "brightBlue": "#ededed",
+      "brightPurple": "#ededed",
+      "brightCyan": "#ededed",
+      "brightWhite": "#e6e6e6"
     }
   ],
   "actions": [

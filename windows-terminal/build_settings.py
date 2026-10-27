@@ -7,9 +7,9 @@ catalog=json.loads((ROOT.parent/'themes/catalog.json').read_text())
 catalog['midnight']={'name':'Midnight','pane':'#10131e','colors':[
     '#161925','#e0e6f5','#b8a1f7','#a5aec6','#75d7e8','#a6d6a0',
     '#f0c674','#f28b98','#202435','#292e42','#3b425b']}
-names={'aurora':'Aurora','midnight':'Midnight','ember':'Ember','paper':'Paper','neon':'Neon'}
+names={'aurora':'Aurora','midnight':'Midnight','ember':'Ember','paper':'Paper','neon':'Neon','black':'Command Line'}
 schemes=[]; profiles=[]
-for slug in ['aurora','midnight','ember','paper','neon']:
+for slug in ['aurora','midnight','ember','paper','neon','black']:
     spec=catalog[slug]; c=spec['colors']; label='Tmux Style / '+names[slug]
     scheme=dict(name=label,background=spec['pane'],foreground=c[1],cursorColor=c[4],
         selectionBackground=c[9],black=c[0],red=c[7],green=c[5],yellow=c[6],
@@ -22,6 +22,12 @@ for slug in ['aurora','midnight','ember','paper','neon']:
     if slug=='paper':
         scheme.update(yellow='#8a601d',brightYellow='#8a601d',
                       green='#527344',brightGreen='#527344',brightBlack='#625d54')
+    if slug=='black':
+        for key in ['red','green','yellow','blue','purple','cyan']:
+            scheme[key]='#bfbfbf'
+        for key in ['brightRed','brightGreen','brightYellow','brightBlue','brightPurple','brightCyan']:
+            scheme[key]='#ededed'
+        scheme['selectionBackground']='#333333'
     schemes.append(scheme)
     guid='{'+str(uuid.uuid5(uuid.NAMESPACE_URL,'https://local/tmux-style-windows/'+slug))+'}'
     profiles.append(dict(guid=guid,name='Tmux Style - '+names[slug],hidden=False,
@@ -68,4 +74,4 @@ action('PreviousOrderedTab','previous tab',dict(action='prevTab',tabSwitcherMode
 action('NextOrderedTab','next tab',dict(action='nextTab',tabSwitcherMode='disabled'),'ctrl+alt+right')
 result=dict(profiles=profiles,schemes=schemes,actions=actions,keybindings=keys)
 (ROOT/'settings.additions.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
-print('Built 5 profiles, 5 color schemes and',len(actions),'actions.')
+print('Built',len(profiles),'profiles,',len(schemes),'color schemes and',len(actions),'actions.')

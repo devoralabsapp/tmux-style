@@ -59,6 +59,7 @@ internal sealed class SetupForm:Form
     bool busy;
     public SetupForm(){
         Text="Tmux Style / Windows Setup "+SetupProgram.Version;ClientSize=new Size(760,620);
+        Icon=System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         MinimumSize=new Size(776,659);MaximumSize=new Size(1000,800);StartPosition=FormStartPosition.CenterScreen;
         BackColor=Color.FromArgb(16,22,25);ForeColor=Color.FromArgb(225,238,230);Font=new Font("Segoe UI",10);
         AutoScaleMode=AutoScaleMode.Dpi;
@@ -66,7 +67,7 @@ internal sealed class SetupForm:Form
         Controls.Add(new Label{Text="Windows Terminal + PowerShell. Your tmux muscle memory.",Location=new Point(33,78),Size=new Size(690,28),ForeColor=Color.FromArgb(167,189,177)});
         Controls.Add(new Label{Text="Default theme",Location=new Point(34,127),AutoSize=true});
         theme=new ComboBox{Location=new Point(205,123),Size=new Size(260,30),DropDownStyle=ComboBoxStyle.DropDownList};
-        theme.Items.AddRange(new object[]{"Aurora","Midnight","Ember","Paper","Neon"});theme.SelectedIndex=0;Controls.Add(theme);
+        theme.Items.AddRange(new object[]{"Aurora","Midnight","Ember","Paper","Neon","Command Line (Black)"});theme.SelectedIndex=0;Controls.Add(theme);
         Controls.Add(new Label{Text="Starting folder",Location=new Point(34,174),AutoSize=true});
         directory=new TextBox{Location=new Point(205,169),Size=new Size(452,30),Text=Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)};Controls.Add(directory);
         Button browse=new Button{Text="...",Location=new Point(668,168),Size=new Size(54,30)};browse.Click+=delegate{using(FolderBrowserDialog dialog=new FolderBrowserDialog()){dialog.SelectedPath=directory.Text;if(dialog.ShowDialog()==DialogResult.OK)directory.Text=dialog.SelectedPath;}};Controls.Add(browse);
@@ -84,7 +85,7 @@ internal sealed class SetupForm:Form
     void SetBusy(bool value){busy=value;install.Enabled=!value;restore.Enabled=!value;theme.Enabled=!value;directory.Enabled=!value;}
     async Task Install(){
         if(!Directory.Exists(directory.Text)){MessageBox.Show(this,"Choose an existing starting folder.","Tmux Style");return;}
-        string selected=theme.SelectedItem.ToString().ToLowerInvariant(),folder=directory.Text;
+        string selected=new string[]{"aurora","midnight","ember","paper","neon","black"}[theme.SelectedIndex],folder=directory.Text;
         bool createShortcut=shortcut.Checked,open=launch.Checked,download=terminal.Checked;
         SetBusy(true);status.Text="Installing...";log.Clear();
         try{

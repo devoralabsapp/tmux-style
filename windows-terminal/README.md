@@ -1,6 +1,6 @@
 # Windows Terminal workspace + tmux-style keys
 
-Download **TmuxStyle-Setup-1.0.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. It can install the official Microsoft Windows Terminal package with winget if Terminal is missing and the download checkbox is enabled. An internet connection and App Installer/winget are needed for that optional step.
+Download **TmuxStyle-Setup-1.1.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. It can install the official Microsoft Windows Terminal package with winget if Terminal is missing and the download checkbox is enabled. An internet connection and App Installer/winget are needed for that optional step.
 
 The executable is not code signed. Source, build scripts and SHA-256 checksums are provided with the release. It does not bundle or impersonate Microsoft Windows Terminal.
 
@@ -43,9 +43,15 @@ The bridge only handles keys while the **WindowsTerminal** process owns the fore
 
 Direct shortcuts also remain: `Ctrl+Alt+V/H` splits, `Alt+Arrow` focuses panes, `Alt+Shift+Arrow` resizes, `Ctrl+Shift+Z` zooms and `Ctrl+Alt+W` creates a three-pane tab.
 
+## Terminal sample
+
+![Command Line / Black terminal sample](../preview/black-terminal.png)
+
+This example was recorded from a native tmux test session with sample pane content. Windows Terminal uses the same Black color palette.
+
 ## Themes and prompt
 
-Five profiles are installed: Aurora, Midnight, Ember, Paper and Neon. `theme neon` opens a new Neon tab. `workspace` opens a three-pane window at the current directory. The prompt shows the directory and Git branch, when available. No Nerd Font, Oh My Posh or Starship is required.
+Six profiles are installed: Aurora, Midnight, Ember, Paper, Neon and Command Line. `theme black` opens the monochrome profile. `theme neon` opens a new Neon tab. `workspace` opens a three-pane window at the current directory. The prompt shows the directory and Git branch, when available. No Nerd Font, Oh My Posh or Starship is required.
 
 The installer preserves unrelated profiles, preferences and non-conflicting keys. It intentionally replaces the keys listed above and sets the selected theme as the default profile. `$PROFILE`, PATH, execution policy and Windows' default terminal application are not changed.
 
@@ -60,11 +66,15 @@ Installed assets live under `%LOCALAPPDATA%\TmuxStyleWindows`. Windows Terminal 
 On Windows, from the repository root:
 
 ```powershell
-.\windows-terminal\build.ps1 -Version 1.0.0 -RunTests
+.\windows-terminal\build.ps1 -RunTests
 ```
 
-The build uses the Windows .NET Framework compiler. No downloaded compiler package or PowerShell 7 runtime is included in the EXE. `dist/` contains the installer, checksums and self-test report. The packaged self-test uses temporary settings, exercises all five themes, preserves existing data, checks exact backups/restores, prompt exit-code behavior and key-map resolution. It does not install a keyboard hook or touch production settings. CI separately validates generated settings against Microsoft's schema using PowerShell 7.
+The build uses the Windows .NET Framework compiler. No downloaded compiler package or PowerShell 7 runtime is included in the EXE. `dist/` contains the installer, checksums and self-test report. The packaged self-test uses temporary settings, exercises all six themes, preserves existing data, checks exact backups/restores, prompt exit-code behavior and key-map resolution. It does not install a keyboard hook or touch production settings. CI separately validates generated settings against Microsoft's schema using PowerShell 7.
 
 GUI capture was unavailable in the local test environment (capture timeout); the release was checked by compiling and running the packaged self-test and by validating the native settings, not by claiming every shortcut was pressed in UI.
 
 References: the original tmux configuration, [Terminal actions](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/actions), [upstream multi-key prefix request](https://github.com/microsoft/terminal/issues/1334).
+
+## v1.1.0 launch fix
+
+Creating a Desktop shortcut no longer overwrites the executable used by the post-install launcher. Setup steps execute in separate scopes. The packaged regression test enables both shortcut creation and launch, then checks the complete three-pane argument list using a mock Terminal. A launch failure after successful configuration is reported as a launch warning, rather than claiming the configuration failed.
