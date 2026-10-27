@@ -1,5 +1,6 @@
 param(
     [Parameter(Mandatory=$true)][string]$SourceDirectory,
+    [ValidateSet('windows-terminal','wezterm')][string]$Backend='windows-terminal',
     [ValidateSet('aurora','midnight','ember','paper','neon','black')][string]$Theme='aurora',
     [string]$StartingDirectory=$HOME,
     [string]$SettingsPath=(Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json'),
@@ -9,6 +10,10 @@ param(
     [switch]$NoShortcut,[switch]$Launch,[switch]$InstallTerminal
 )
 $ErrorActionPreference='Stop'
+if($Backend -eq 'wezterm'){
+    & ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'setup-wezterm.ps1')))) -SourceDirectory $SourceDirectory -Theme $Theme -StartingDirectory $StartingDirectory -AssetDirectory (Join-Path $AssetDirectory 'wezterm') -DesktopDirectory $DesktopDirectory -WezTermExecutable $TerminalExecutable -NoShortcut:$NoShortcut -Launch:$Launch -InstallTerminal:$InstallTerminal
+    return
+}
 if(-not(Test-Path -LiteralPath $StartingDirectory -PathType Container)){throw 'Starting directory does not exist.'}
 $terminalExe=$TerminalExecutable
 if(-not $terminalExe){$terminalCommand=Get-Command wt.exe -ErrorAction SilentlyContinue;if($terminalCommand){$terminalExe=$terminalCommand.Source}}

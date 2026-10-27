@@ -1,10 +1,42 @@
-# Windows Terminal workspace + tmux-style keys
+# Windows workspaces + tmux-style keys
 
-Download **TmuxStyle-Setup-1.1.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. It can install the official Microsoft Windows Terminal package with winget if Terminal is missing and the download checkbox is enabled. An internet connection and App Installer/winget are needed for that optional step.
+Download **TmuxStyle-Setup-1.2.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
 
 The executable is not code signed. Source, build scripts and SHA-256 checksums are provided with the release. It does not bundle or impersonate Microsoft Windows Terminal.
 
-## Keys matching original tmux configuration
+## WezTerm: real bottom bar (default)
+
+Choose **WezTerm** for a terminal-owned bottom bar containing numbered tab names, workspace, PREFIX/ZOOM/OFF indicators, local Windows CPU/RAM, hostname and date/time. CPU/RAM refresh every two seconds; the clock refreshes every second. Small windows show a compact status; missing or stale counter data shows `--`. These are local Windows values, including during SSH sessions.
+
+The **Tmux Style WezTerm** Desktop shortcut opens three PowerShell panes. The runtime is official portable WezTerm, pinned in `wezterm-runtime.json` with the checksum published upstream. Existing WezTerm on PATH can also be used. The portable runtime targets Windows x64. It stays inside `%LOCALAPPDATA%\TmuxStyleWindows\wezterm`; `.wezterm.lua`, Windows Terminal settings and its existing shortcut remain untouched.
+
+WezTerm handles `Ctrl-a` natively, without the Windows Terminal keyboard bridge:
+
+| Keys | WezTerm behavior |
+| --- | --- |
+| `Ctrl-a c`, `Ctrl-a \|`, `Ctrl-a -` | New tab, split right, split below; inherit current directory |
+| `Ctrl-a r` / `Ctrl-a R` | Rename tab / workspace |
+| `Ctrl-a z`, `Ctrl-a x` / `Ctrl-a X` | Zoom, close pane / tab with confirmation when needed |
+| `Ctrl-a Tab`, `Ctrl-a 1` … `9` | Last active tab, select numbered tab |
+| `Ctrl-a` + arrow / `Ctrl-arrow` | Focus / resize pane |
+| `Ctrl-a Ctrl-o` | Rotate panes clockwise |
+| `Ctrl-a [` / `Ctrl-a ]` | Native copy mode / paste clipboard |
+| `Ctrl-a Ctrl-a` | Forward literal Ctrl-a |
+| `Ctrl-a Ctrl-r` / `Ctrl-a Ctrl-s` | Reload configuration / hide or show tab bar |
+| `F12` | Toggle OFF pass-through; disables leader and default keyboard shortcuts except the resume keys |
+| `Shift+Up` / `Shift+Down` | Enter / leave pass-through |
+| `Shift+Left/Right`, `Ctrl+Shift+Left/Right`, `Ctrl+T` | Change tab, move tab, new tab while local bindings are enabled |
+| `Ctrl+Alt+W` | New three-pane tab at the current directory |
+
+`theme black` opens another themed WezTerm window; `workspace` opens another three-pane window at the current directory. Theme changes leave current windows open. Native WezTerm defaults such as `Ctrl+Shift+C/V` remain available in normal mode. The personal tmux session-link/merge, monitor, detach/attach and buffer-history commands are not implemented. WezTerm's Shift+Up/Down controls local pass-through; it does not emit the original Alt+F12/Alt+F11 remote signals. Closing windows ends their panes.
+
+The small `TmuxStyle.Metrics.exe` collector reads Windows CPU/memory counters and writes a local JSON sample. It runs once for this asset directory and exits after all WezTerm GUI processes have been closed for about 20 seconds. It has no network access, keyboard hook or startup entry.
+
+Close Tmux Style WezTerm windows before upgrade/restore. In the installer, select **WezTerm** and click **Restore previous settings**. Owned configs, prompt and shortcut are backed up in the separate `wezterm\backups` directory. Restore and upgrade refuse to overwrite files edited since installation. The portable runtime remains available after restoring the configuration.
+
+## Windows Terminal: keys matching original tmux configuration
+
+The following section applies to the **Windows Terminal** installer option. This backend has themed prompts, tabs and panes, but **no custom bottom bar**. The screenshots in this repository are native tmux captures and do not show Windows Terminal capabilities.
 
 Press and release **Ctrl-a**, then the second key. The prefix waits up to five seconds; Escape cancels it. `Ctrl-a Ctrl-a` forwards a literal Ctrl-a to the terminal.
 
@@ -69,7 +101,7 @@ On Windows, from the repository root:
 .\windows-terminal\build.ps1 -RunTests
 ```
 
-The build uses the Windows .NET Framework compiler. No downloaded compiler package or PowerShell 7 runtime is included in the EXE. `dist/` contains the installer, checksums and self-test report. The packaged self-test uses temporary settings, exercises all six themes, preserves existing data, checks exact backups/restores, prompt exit-code behavior and key-map resolution. It does not install a keyboard hook or touch production settings. CI separately validates generated settings against Microsoft's schema using PowerShell 7.
+The build uses the Windows .NET Framework compiler. No downloaded compiler package or PowerShell 7 runtime is included in the EXE. `dist/` contains the installer, checksums and self-test report. The packaged self-test uses temporary settings, exercises all six themes in both backends, checks backups/restore, upgrade rollback, edit protection, checksum rejection, live Windows counters, prompt exit codes and key-map resolution. It does not install a keyboard hook or touch production settings. CI validates Microsoft's settings schema and runs `test-wezterm-lua.ps1` with the pinned real WezTerm runtime to check six configurations plus status, F12, layout and Windows URL-path handling.
 
 GUI capture was unavailable in the local test environment (capture timeout); the release was checked by compiling and running the packaged self-test and by validating the native settings, not by claiming every shortcut was pressed in UI.
 

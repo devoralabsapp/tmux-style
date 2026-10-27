@@ -14,6 +14,9 @@ $assemblyInfo=Join-Path $build 'AssemblyInfo.cs'
 $bridge=Join-Path $build 'TmuxStyle.Keys.exe'
 & $compiler /nologo /target:winexe /platform:anycpu "/out:$bridge" "/win32icon:$(Join-Path $root 'tmux-style.ico')" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Web.Extensions.dll (Join-Path $root 'installer\KeyBridge.cs') $assemblyInfo
 if($LASTEXITCODE -ne 0){throw 'Key bridge compilation failed'}
+$metrics=Join-Path $build 'TmuxStyle.Metrics.exe'
+& $compiler /nologo /target:winexe /platform:anycpu "/out:$metrics" "/win32icon:$(Join-Path $root 'tmux-style.ico')" (Join-Path $root 'installer\Metrics.cs') $assemblyInfo
+if($LASTEXITCODE -ne 0){throw 'Metrics helper compilation failed'}
 $payload=Join-Path $build 'payload.zip'
 if(Test-Path $payload){Remove-Item -LiteralPath $payload}
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -22,6 +25,10 @@ try{
     foreach($name in @('shell.ps1','setup.ps1','restore.ps1','common.ps1','settings.additions.json','profiles.schema.json','install-runner.ps1','test-release.ps1','tmux-style.ico')){
         [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path $root $name),$name,[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     }
+    foreach($name in @('setup-wezterm.ps1','restore-wezterm.ps1','wezterm.lua','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md','test-wezterm.ps1','test-wezterm-lua.ps1')){
+        [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path $root $name),$name,[IO.Compression.CompressionLevel]::Optimal)|Out-Null
+    }
+    [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$metrics,'TmuxStyle.Metrics.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$bridge,'TmuxStyle.Keys.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
 }finally{$archive.Dispose()}
 $installer=Join-Path $output ('TmuxStyle-Setup-'+$Version+'.exe')

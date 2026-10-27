@@ -109,6 +109,10 @@ if($proc.ExitCode -ne 0 -or -not(Test-Path $bridgeReport)){throw 'Key mapping se
 $checks+='native key mapping resolver'
 $checks+='black palette contains only grayscale values'
 $checks+='Terminal first-launch normalization accepted; newer user edits protected'
+& ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'test-wezterm.ps1')))) -SourceDirectory $SourceDirectory -Fixture $fixture -FakeTerminal $fakeTerminal
+$checks+='WezTerm six themes, separate shortcuts, exact install/upgrade/restore, newer user edits protected'
+$checks+='WezTerm runtime checksum mismatch rejected'
+$checks+='live Windows CPU/RAM sampling without a resident collector'
 $report=[pscustomobject]@{passed=$true;powershell=$PSVersionTable.PSVersion.ToString();checks=$checks;keyboardHookInstalled=$false;productionSettingsTouched=$false}
 [IO.File]::WriteAllText($ReportFile,($report|ConvertTo-Json -Depth 10),[Text.UTF8Encoding]::new($false))
 Write-Output 'PASS: six theme installs, JSONC merge, backups/restore, prompts, native mappings, shortcut/launch regression.'

@@ -17,7 +17,7 @@ jobs:
         run: |
           python build_themes.py
           python windows-terminal/build_settings.py
-          git diff --exit-code -- themes windows-terminal/settings.additions.json
+          git diff --exit-code -- themes windows-terminal/settings.additions.json windows-terminal/wezterm-palettes.json
       - name: Compile and test packaged EXE on Windows PowerShell
         shell: pwsh
         run: ./windows-terminal/build.ps1 -RunTests
@@ -26,6 +26,16 @@ jobs:
         run: |
           ./windows-terminal/setup.ps1 -SettingsPath "$env:RUNNER_TEMP/terminal-settings.json" -AssetDirectory "$env:RUNNER_TEMP/tmux-style-assets" -DefaultDirectory $env:RUNNER_TEMP -NoShortcut
           if (-not (Test-Json -LiteralPath ./windows-terminal/settings.staged.json -SchemaFile ./windows-terminal/profiles.schema.json)) { throw 'Invalid settings' }
+      - name: Validate real WezTerm Lua APIs and status callbacks
+        shell: pwsh
+        run: |
+          $pin=Get-Content ./windows-terminal/wezterm-runtime.json -Raw | ConvertFrom-Json
+          $archive=Join-Path $env:RUNNER_TEMP 'wezterm.zip'
+          Invoke-WebRequest -Uri $pin.url -OutFile $archive
+          if ((Get-FileHash $archive).Hash -ne $pin.sha256) { throw 'WezTerm checksum mismatch' }
+          $runtime=Join-Path $env:RUNNER_TEMP 'wezterm-runtime'
+          Expand-Archive $archive $runtime
+          ./windows-terminal/test-wezterm-lua.ps1 -SourceDirectory ./windows-terminal -WezTermExecutable (Join-Path $runtime ($pin.folder+'/wezterm.exe')) -ReportFile ./dist/wezterm-lua-test.json
       - uses: actions/upload-artifact@v4
         with:
           name: TmuxStyle-Windows
@@ -33,3 +43,4 @@ jobs:
             dist/TmuxStyle-Setup-*.exe
             dist/SHA256SUMS.txt
             dist/self-test.json
+            dist/wezterm-lua-test.json

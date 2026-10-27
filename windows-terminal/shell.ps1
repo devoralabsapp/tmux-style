@@ -6,9 +6,15 @@ param(
 )
 
 $global:TmuxStyleTheme = $Theme
+$global:TmuxStyleBackend = if($env:TMUX_STYLE_BACKEND -eq 'wezterm'){'wezterm'}else{'windows-terminal'}
+$global:TmuxStyleAssetDirectory = if($global:TmuxStyleBackend -eq 'wezterm'){$env:TMUX_STYLE_ASSETS}else{Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows'}
 $keyBridge=Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows\TmuxStyle.Keys.exe'
-if(-not $NoKeyBridge -and $env:WT_SESSION -and (Test-Path -LiteralPath $keyBridge)){
+if(-not $NoKeyBridge -and $global:TmuxStyleBackend -eq 'windows-terminal' -and $env:WT_SESSION -and (Test-Path -LiteralPath $keyBridge)){
     Start-Process -FilePath $keyBridge -WindowStyle Hidden
+}
+if(-not $NoKeyBridge -and $global:TmuxStyleBackend -eq 'wezterm'){
+    $collector=Join-Path $global:TmuxStyleAssetDirectory 'TmuxStyle.Metrics.exe'
+    if(Test-Path -LiteralPath $collector){Start-Process -FilePath $collector -ArgumentList ('--watch "'+(Join-Path $global:TmuxStyleAssetDirectory 'metrics.json')+'"') -WindowStyle Hidden}
 }
 $global:TmuxStyleThemeNames = @{
     aurora='Aurora'; midnight='Midnight'; ember='Ember'; paper='Paper'; neon='Neon'; black='Command Line'
@@ -23,6 +29,10 @@ $global:TmuxStylePalette = switch ($Theme) {
 }
 
 function global:Get-TmuxStyleTerminal {
+    if($global:TmuxStyleBackend -eq 'wezterm'){
+        $backend=[IO.File]::ReadAllText((Join-Path $global:TmuxStyleAssetDirectory 'backend.json'))|ConvertFrom-Json
+        return $backend.executable
+    }
     $terminal = Get-Command wt.exe -ErrorAction SilentlyContinue
     if ($terminal) { return $terminal.Source }
     $aliasPath = Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\wt.exe'
@@ -33,6 +43,11 @@ function global:Get-TmuxStyleTerminal {
 function global:Open-TmuxStyleWorkspace {
     param([string]$Path = $PWD.Path)
     $terminal = Get-TmuxStyleTerminal
+    if($global:TmuxStyleBackend -eq 'wezterm'){
+        $config=Join-Path $global:TmuxStyleAssetDirectory ('wezterm-'+$global:TmuxStyleTheme+'.lua')
+        Start-Process -FilePath $terminal -ArgumentList ('--config-file "'+$config+'" start --always-new-process --cwd "'+$Path+'"') -WindowStyle Hidden
+        return
+    }
     $profileName = 'Tmux Style - ' + $global:TmuxStyleThemeNames[$global:TmuxStyleTheme]
     & $terminal -w new new-tab -p $profileName -d $Path ';' split-pane -V -s 0.35 -p $profileName -d $Path ';' split-pane -H -s 0.5 -p $profileName -d $Path ';' move-focus first
 }
@@ -40,6 +55,11 @@ function global:Open-TmuxStyleWorkspace {
 function global:Set-TmuxStyleTheme {
     param([ValidateSet('aurora','midnight','ember','paper','neon','black')][string]$Name = 'aurora')
     $terminal = Get-TmuxStyleTerminal
+    if($global:TmuxStyleBackend -eq 'wezterm'){
+        $config=Join-Path $global:TmuxStyleAssetDirectory ('wezterm-'+$Name+'.lua')
+        Start-Process -FilePath $terminal -ArgumentList ('--config-file "'+$config+'" start --always-new-process --cwd "'+$PWD.Path+'"') -WindowStyle Hidden
+        return
+    }
     $profileName = 'Tmux Style - ' + $global:TmuxStyleThemeNames[$Name]
     & $terminal -w 0 new-tab -p $profileName -d $PWD.Path
 }
@@ -47,6 +67,10 @@ function global:Set-TmuxStyleTheme {
 function global:Show-TmuxStyleHelp {
     Write-Host ''
     Write-Host '  TMUX STYLE / WINDOWS' -ForegroundColor $global:TmuxStylePalette.Accent
+    Write-Host '  Ctrl-a then | / -  split right / below'
+    Write-Host '  Ctrl-a then c / r  new tab / rename tab'
+    Write-Host '  Ctrl-a then z / x  zoom pane / close pane'
+    Write-Host '  F12                 toggle pass-through for remote tmux'
     Write-Host '  Ctrl+Alt+V          split right'
     Write-Host '  Ctrl+Alt+H          split below'
     Write-Host '  Alt+Arrow           focus pane'
@@ -56,7 +80,7 @@ function global:Show-TmuxStyleHelp {
     Write-Host '  Ctrl+Shift+T / W    new tab / close pane'
     Write-Host '  Ctrl+Tab            next tab'
     Write-Host '  workspace           open a new 3-pane window'
-    Write-Host '  theme neon          open a tab in another theme'
+    Write-Host '  theme neon          open another theme (new WezTerm window / Terminal tab)'
     Write-Host '  Show-TmuxStyleHelp  show these shortcuts'
     Write-Host ''
 }
@@ -82,7 +106,11 @@ function global:prompt {
         $leaf = Split-Path -Leaf $PWD.Path
         if (-not $leaf) { $leaf = $PWD.Path }
         $Host.UI.RawUI.WindowTitle = $global:TmuxStyleThemeNames[$global:TmuxStyleTheme] + ' | ' + $leaf
-        if ($env:WT_SESSION -and $PWD.Provider.Name -eq 'FileSystem') {
+        if ($global:TmuxStyleBackend -eq 'wezterm' -and $PWD.Provider.Name -eq 'FileSystem') {
+            $escape = [char]27
+            $uri = [Uri]::new($PWD.ProviderPath + [IO.Path]::DirectorySeparatorChar)
+            Write-Host -NoNewline ($escape + ']7;' + $uri.AbsoluteUri + $escape + '\')
+        } elseif ($env:WT_SESSION -and $PWD.Provider.Name -eq 'FileSystem') {
             $escape = [char]27
             # Native Terminal working-directory reporting for duplicate panes.
             $safePath = $PWD.ProviderPath -replace '[\x00-\x1f"\x7f]', ''

@@ -74,4 +74,14 @@ action('PreviousOrderedTab','previous tab',dict(action='prevTab',tabSwitcherMode
 action('NextOrderedTab','next tab',dict(action='nextTab',tabSwitcherMode='disabled'),'ctrl+alt+right')
 result=dict(profiles=profiles,schemes=schemes,actions=actions,keybindings=keys)
 (ROOT/'settings.additions.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+wezterm={}
+for slug,scheme in zip(names,schemes):
+    c=catalog[slug]['colors']
+    wezterm[slug]=dict(bar=c[0],fg=c[1],accent=c[4],muted=c[3],surface=c[9],colors=dict(
+        foreground=scheme['foreground'],background=scheme['background'],
+        cursor_bg=scheme['cursorColor'],cursor_fg=scheme['background'],cursor_border=scheme['cursorColor'],
+        selection_bg=scheme['selectionBackground'],selection_fg=scheme['foreground'],split=c[10],
+        ansi=[scheme[k] for k in ['black','red','green','yellow','blue','purple','cyan','white']],
+        brights=[scheme[k] for k in ['brightBlack','brightRed','brightGreen','brightYellow','brightBlue','brightPurple','brightCyan','brightWhite']]))
+(ROOT/'wezterm-palettes.json').write_text(json.dumps(wezterm,indent=2)+'\n',encoding='utf-8')
 print('Built',len(profiles),'profiles,',len(schemes),'color schemes and',len(actions),'actions.')
