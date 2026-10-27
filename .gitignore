@@ -1,0 +1,10 @@
+preview/*.ansi
+preview/*validation.json
+dist/
+__pycache__/
+*.pyc
+windows-terminal/TmuxStyle.Keys.exe
+windows-terminal/settings.staged.json
+windows-terminal/stage-state.json
+windows-terminal/installed-state.json
+windows-terminal/validation.json

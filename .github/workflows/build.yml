@@ -1,0 +1,35 @@
+name: Build and test Windows installer
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Regenerate themes and check generated files
+        shell: pwsh
+        run: |
+          python build_themes.py
+          python windows-terminal/build_settings.py
+          git diff --exit-code -- themes windows-terminal/settings.additions.json
+      - name: Compile and test packaged EXE on Windows PowerShell
+        shell: pwsh
+        run: ./windows-terminal/build.ps1 -Version 1.0.0 -RunTests
+      - name: Validate settings with the official Terminal schema
+        shell: pwsh
+        run: |
+          ./windows-terminal/setup.ps1 -SettingsPath "$env:RUNNER_TEMP/terminal-settings.json" -AssetDirectory "$env:RUNNER_TEMP/tmux-style-assets" -DefaultDirectory $env:RUNNER_TEMP -NoShortcut
+          if (-not (Test-Json -LiteralPath ./windows-terminal/settings.staged.json -SchemaFile ./windows-terminal/profiles.schema.json)) { throw 'Invalid settings' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TmuxStyle-Windows
+          path: |
+            dist/TmuxStyle-Setup-*.exe
+            dist/SHA256SUMS.txt
+            dist/self-test.json

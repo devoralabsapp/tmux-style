@@ -1,0 +1,684 @@
+{
+  "profiles": [
+    {
+      "guid": "{9dcb4951-7a31-56ba-9053-261bba447cbe}",
+      "name": "Tmux Style - Aurora",
+      "hidden": false,
+      "slug": "aurora",
+      "colorScheme": "Tmux Style / Aurora",
+      "tabColor": "#9fe4be",
+      "font": {
+        "face": "Cascadia Mono",
+        "size": 12
+      },
+      "padding": "14, 10, 14, 10",
+      "cursorShape": "bar",
+      "historySize": 20000,
+      "scrollbarState": "hidden",
+      "useAcrylic": false,
+      "opacity": 100,
+      "bellStyle": "taskbar",
+      "startingDirectory": "%USERPROFILE%"
+    },
+    {
+      "guid": "{ffde339a-9f04-51c1-9ff0-7e5c5aa96d9f}",
+      "name": "Tmux Style - Midnight",
+      "hidden": false,
+      "slug": "midnight",
+      "colorScheme": "Tmux Style / Midnight",
+      "tabColor": "#75d7e8",
+      "font": {
+        "face": "Cascadia Mono",
+        "size": 12
+      },
+      "padding": "14, 10, 14, 10",
+      "cursorShape": "bar",
+      "historySize": 20000,
+      "scrollbarState": "hidden",
+      "useAcrylic": false,
+      "opacity": 100,
+      "bellStyle": "taskbar",
+      "startingDirectory": "%USERPROFILE%"
+    },
+    {
+      "guid": "{57b69ef0-daf2-5137-8748-8bd2206e1311}",
+      "name": "Tmux Style - Ember",
+      "hidden": false,
+      "slug": "ember",
+      "colorScheme": "Tmux Style / Ember",
+      "tabColor": "#f3a66b",
+      "font": {
+        "face": "Cascadia Mono",
+        "size": 12
+      },
+      "padding": "14, 10, 14, 10",
+      "cursorShape": "bar",
+      "historySize": 20000,
+      "scrollbarState": "hidden",
+      "useAcrylic": false,
+      "opacity": 100,
+      "bellStyle": "taskbar",
+      "startingDirectory": "%USERPROFILE%"
+    },
+    {
+      "guid": "{0e58c8a8-6b95-5e76-9cf3-dc92b106f725}",
+      "name": "Tmux Style - Paper",
+      "hidden": false,
+      "slug": "paper",
+      "colorScheme": "Tmux Style / Paper",
+      "tabColor": "#292724",
+      "font": {
+        "face": "Cascadia Mono",
+        "size": 12
+      },
+      "padding": "14, 10, 14, 10",
+      "cursorShape": "bar",
+      "historySize": 20000,
+      "scrollbarState": "hidden",
+      "useAcrylic": false,
+      "opacity": 100,
+      "bellStyle": "taskbar",
+      "startingDirectory": "%USERPROFILE%"
+    },
+    {
+      "guid": "{defc7e5f-653a-542f-959d-5385c0e18ced}",
+      "name": "Tmux Style - Neon",
+      "hidden": false,
+      "slug": "neon",
+      "colorScheme": "Tmux Style / Neon",
+      "tabColor": "#ef88d8",
+      "font": {
+        "face": "Cascadia Mono",
+        "size": 12
+      },
+      "padding": "14, 10, 14, 10",
+      "cursorShape": "bar",
+      "historySize": 20000,
+      "scrollbarState": "hidden",
+      "useAcrylic": false,
+      "opacity": 100,
+      "bellStyle": "taskbar",
+      "startingDirectory": "%USERPROFILE%"
+    }
+  ],
+  "schemes": [
+    {
+      "name": "Tmux Style / Aurora",
+      "background": "#12201b",
+      "foreground": "#e1eee6",
+      "cursorColor": "#9fe4be",
+      "selectionBackground": "#2a3b33",
+      "black": "#182722",
+      "red": "#ed9ca8",
+      "green": "#a8d5a2",
+      "yellow": "#eed49f",
+      "blue": "#88a8f9",
+      "purple": "#c5b5ed",
+      "cyan": "#75d7e8",
+      "white": "#e1eee6",
+      "brightBlack": "#a7bdb1",
+      "brightRed": "#ed9ca8",
+      "brightGreen": "#a8d5a2",
+      "brightYellow": "#eed49f",
+      "brightBlue": "#a4bdff",
+      "brightPurple": "#c5b5ed",
+      "brightCyan": "#9fe4db",
+      "brightWhite": "#e1eee6"
+    },
+    {
+      "name": "Tmux Style / Midnight",
+      "background": "#10131e",
+      "foreground": "#e0e6f5",
+      "cursorColor": "#75d7e8",
+      "selectionBackground": "#292e42",
+      "black": "#161925",
+      "red": "#f28b98",
+      "green": "#a6d6a0",
+      "yellow": "#f0c674",
+      "blue": "#88a8f9",
+      "purple": "#b8a1f7",
+      "cyan": "#75d7e8",
+      "white": "#e0e6f5",
+      "brightBlack": "#a5aec6",
+      "brightRed": "#f28b98",
+      "brightGreen": "#a6d6a0",
+      "brightYellow": "#f0c674",
+      "brightBlue": "#a4bdff",
+      "brightPurple": "#b8a1f7",
+      "brightCyan": "#9fe4db",
+      "brightWhite": "#e0e6f5"
+    },
+    {
+      "name": "Tmux Style / Ember",
+      "background": "#1b1715",
+      "foreground": "#eee1d2",
+      "cursorColor": "#f3a66b",
+      "selectionBackground": "#3b2d24",
+      "black": "#241d1a",
+      "red": "#ed9490",
+      "green": "#b9cc93",
+      "yellow": "#f0cd83",
+      "blue": "#88a8f9",
+      "purple": "#e8bf86",
+      "cyan": "#75d7e8",
+      "white": "#eee1d2",
+      "brightBlack": "#c0ac98",
+      "brightRed": "#ed9490",
+      "brightGreen": "#b9cc93",
+      "brightYellow": "#f0cd83",
+      "brightBlue": "#a4bdff",
+      "brightPurple": "#e8bf86",
+      "brightCyan": "#9fe4db",
+      "brightWhite": "#eee1d2"
+    },
+    {
+      "name": "Tmux Style / Paper",
+      "background": "#f6f2e9",
+      "foreground": "#302e2a",
+      "cursorColor": "#292724",
+      "selectionBackground": "#ddd5c7",
+      "black": "#e9e2d5",
+      "red": "#ac454b",
+      "green": "#527344",
+      "yellow": "#8a601d",
+      "blue": "#456897",
+      "purple": "#56634e",
+      "cyan": "#426e70",
+      "white": "#302e2a",
+      "brightBlack": "#625d54",
+      "brightRed": "#ac454b",
+      "brightGreen": "#527344",
+      "brightYellow": "#8a601d",
+      "brightBlue": "#456897",
+      "brightPurple": "#56634e",
+      "brightCyan": "#426e70",
+      "brightWhite": "#302e2a"
+    },
+    {
+      "name": "Tmux Style / Neon",
+      "background": "#100e1b",
+      "foreground": "#eae1fa",
+      "cursorColor": "#ef88d8",
+      "selectionBackground": "#302441",
+      "black": "#171326",
+      "red": "#fc8cae",
+      "green": "#7de3ce",
+      "yellow": "#f5d38e",
+      "blue": "#88a8f9",
+      "purple": "#bda2f2",
+      "cyan": "#75d7e8",
+      "white": "#eae1fa",
+      "brightBlack": "#b4a2cd",
+      "brightRed": "#fc8cae",
+      "brightGreen": "#7de3ce",
+      "brightYellow": "#f5d38e",
+      "brightBlue": "#a4bdff",
+      "brightPurple": "#bda2f2",
+      "brightCyan": "#9fe4db",
+      "brightWhite": "#eae1fa"
+    }
+  ],
+  "actions": [
+    {
+      "id": "User.TmuxStyle.SplitRight",
+      "name": "Workspace: split right",
+      "command": {
+        "action": "splitPane",
+        "split": "right",
+        "splitMode": "duplicate"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.SplitDown",
+      "name": "Workspace: split below",
+      "command": {
+        "action": "splitPane",
+        "split": "down",
+        "splitMode": "duplicate"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Zoom",
+      "name": "Workspace: zoom / restore pane",
+      "command": "togglePaneZoom"
+    },
+    {
+      "id": "User.TmuxStyle.NewTab",
+      "name": "Workspace: new tab",
+      "command": "newTab"
+    },
+    {
+      "id": "User.TmuxStyle.ClosePane",
+      "name": "Workspace: close pane",
+      "command": "closePane"
+    },
+    {
+      "id": "User.TmuxStyle.NextTab",
+      "name": "Workspace: next tab",
+      "command": {
+        "action": "nextTab",
+        "tabSwitcherMode": "disabled"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.FocusLeft",
+      "name": "Workspace: focus left",
+      "command": {
+        "action": "moveFocus",
+        "direction": "left"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.ResizeLeft",
+      "name": "Workspace: resize left",
+      "command": {
+        "action": "resizePane",
+        "direction": "left"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.FocusDown",
+      "name": "Workspace: focus down",
+      "command": {
+        "action": "moveFocus",
+        "direction": "down"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.ResizeDown",
+      "name": "Workspace: resize down",
+      "command": {
+        "action": "resizePane",
+        "direction": "down"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.FocusUp",
+      "name": "Workspace: focus up",
+      "command": {
+        "action": "moveFocus",
+        "direction": "up"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.ResizeUp",
+      "name": "Workspace: resize up",
+      "command": {
+        "action": "resizePane",
+        "direction": "up"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.FocusRight",
+      "name": "Workspace: focus right",
+      "command": {
+        "action": "moveFocus",
+        "direction": "right"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.ResizeRight",
+      "name": "Workspace: resize right",
+      "command": {
+        "action": "resizePane",
+        "direction": "right"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Layout",
+      "name": "Workspace: create 3-pane layout",
+      "command": {
+        "action": "multipleActions",
+        "actions": [
+          {
+            "action": "newTab"
+          },
+          {
+            "action": "splitPane",
+            "split": "right",
+            "splitMode": "duplicate",
+            "size": 0.35
+          },
+          {
+            "action": "splitPane",
+            "split": "down",
+            "splitMode": "duplicate",
+            "size": 0.5
+          },
+          {
+            "action": "moveFocus",
+            "direction": "first"
+          }
+        ]
+      }
+    },
+    {
+      "id": "User.TmuxStyle.DuplicateTab",
+      "name": "Workspace: new tab in current profile and directory",
+      "command": "duplicateTab"
+    },
+    {
+      "id": "User.TmuxStyle.RenameTab",
+      "name": "Workspace: rename current tab",
+      "command": {
+        "action": "renameTab"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.RenameWindow",
+      "name": "Workspace: rename current window",
+      "command": "openWindowRenamer"
+    },
+    {
+      "id": "User.TmuxStyle.LastTab",
+      "name": "Workspace: most recently used tab",
+      "command": {
+        "action": "nextTab",
+        "tabSwitcherMode": "mru"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.SwapPane",
+      "name": "Workspace: swap with next pane",
+      "command": {
+        "action": "swapPane",
+        "direction": "nextInOrder"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.CloseTab",
+      "name": "Workspace: close current tab",
+      "command": "closeTab"
+    },
+    {
+      "id": "User.TmuxStyle.CloseWindow",
+      "name": "Workspace: close current window",
+      "command": "closeWindow"
+    },
+    {
+      "id": "User.TmuxStyle.CopyMode",
+      "name": "Workspace: keyboard selection",
+      "command": "markMode"
+    },
+    {
+      "id": "User.TmuxStyle.Paste",
+      "name": "Workspace: paste clipboard",
+      "command": "paste"
+    },
+    {
+      "id": "User.TmuxStyle.MoveTabLeft",
+      "name": "Workspace: move tab left",
+      "command": {
+        "action": "moveTab",
+        "direction": "backward"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.MoveTabRight",
+      "name": "Workspace: move tab right",
+      "command": {
+        "action": "moveTab",
+        "direction": "forward"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Tab1",
+      "name": "Workspace: select tab 1",
+      "command": {
+        "action": "switchToTab",
+        "index": 0
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Tab2",
+      "name": "Workspace: select tab 2",
+      "command": {
+        "action": "switchToTab",
+        "index": 1
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Tab3",
+      "name": "Workspace: select tab 3",
+      "command": {
+        "action": "switchToTab",
+        "index": 2
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Tab4",
+      "name": "Workspace: select tab 4",
+      "command": {
+        "action": "switchToTab",
+        "index": 3
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Tab5",
+      "name": "Workspace: select tab 5",
+      "command": {
+        "action": "switchToTab",
+        "index": 4
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Tab6",
+      "name": "Workspace: select tab 6",
+      "command": {
+        "action": "switchToTab",
+        "index": 5
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Tab7",
+      "name": "Workspace: select tab 7",
+      "command": {
+        "action": "switchToTab",
+        "index": 6
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Tab8",
+      "name": "Workspace: select tab 8",
+      "command": {
+        "action": "switchToTab",
+        "index": 7
+      }
+    },
+    {
+      "id": "User.TmuxStyle.Tab9",
+      "name": "Workspace: select tab 9",
+      "command": {
+        "action": "switchToTab",
+        "index": 8
+      }
+    },
+    {
+      "id": "User.TmuxStyle.EditSettings",
+      "name": "Workspace: edit Terminal settings",
+      "command": {
+        "action": "openSettings",
+        "target": "settingsFile"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.FocusMode",
+      "name": "Workspace: toggle tab/title bar",
+      "command": "toggleFocusMode"
+    },
+    {
+      "id": "User.TmuxStyle.PreviousOrderedTab",
+      "name": "Workspace: previous tab",
+      "command": {
+        "action": "prevTab",
+        "tabSwitcherMode": "disabled"
+      }
+    },
+    {
+      "id": "User.TmuxStyle.NextOrderedTab",
+      "name": "Workspace: next tab",
+      "command": {
+        "action": "nextTab",
+        "tabSwitcherMode": "disabled"
+      }
+    }
+  ],
+  "keybindings": [
+    {
+      "id": "User.TmuxStyle.SplitRight",
+      "keys": "ctrl+alt+v"
+    },
+    {
+      "id": "User.TmuxStyle.SplitDown",
+      "keys": "ctrl+alt+h"
+    },
+    {
+      "id": "User.TmuxStyle.Zoom",
+      "keys": "ctrl+shift+z"
+    },
+    {
+      "id": "User.TmuxStyle.NewTab",
+      "keys": "ctrl+shift+t"
+    },
+    {
+      "id": "User.TmuxStyle.ClosePane",
+      "keys": "ctrl+shift+w"
+    },
+    {
+      "id": "User.TmuxStyle.NextTab",
+      "keys": "ctrl+tab"
+    },
+    {
+      "id": "User.TmuxStyle.FocusLeft",
+      "keys": "alt+left"
+    },
+    {
+      "id": "User.TmuxStyle.ResizeLeft",
+      "keys": "alt+shift+left"
+    },
+    {
+      "id": "User.TmuxStyle.FocusDown",
+      "keys": "alt+down"
+    },
+    {
+      "id": "User.TmuxStyle.ResizeDown",
+      "keys": "alt+shift+down"
+    },
+    {
+      "id": "User.TmuxStyle.FocusUp",
+      "keys": "alt+up"
+    },
+    {
+      "id": "User.TmuxStyle.ResizeUp",
+      "keys": "alt+shift+up"
+    },
+    {
+      "id": "User.TmuxStyle.FocusRight",
+      "keys": "alt+right"
+    },
+    {
+      "id": "User.TmuxStyle.ResizeRight",
+      "keys": "alt+shift+right"
+    },
+    {
+      "id": "User.TmuxStyle.Layout",
+      "keys": "ctrl+alt+w"
+    },
+    {
+      "id": "User.TmuxStyle.DuplicateTab",
+      "keys": "ctrl+alt+c"
+    },
+    {
+      "id": "User.TmuxStyle.RenameTab",
+      "keys": "ctrl+alt+r"
+    },
+    {
+      "id": "User.TmuxStyle.RenameWindow",
+      "keys": "ctrl+alt+shift+r"
+    },
+    {
+      "id": "User.TmuxStyle.LastTab",
+      "keys": "ctrl+alt+l"
+    },
+    {
+      "id": "User.TmuxStyle.SwapPane",
+      "keys": "ctrl+alt+o"
+    },
+    {
+      "id": "User.TmuxStyle.CloseTab",
+      "keys": "ctrl+alt+shift+x"
+    },
+    {
+      "id": "User.TmuxStyle.CloseWindow",
+      "keys": "ctrl+alt+shift+q"
+    },
+    {
+      "id": "User.TmuxStyle.CopyMode",
+      "keys": "ctrl+alt+["
+    },
+    {
+      "id": "User.TmuxStyle.Paste",
+      "keys": "ctrl+alt+]"
+    },
+    {
+      "id": "User.TmuxStyle.MoveTabLeft",
+      "keys": "ctrl+alt+shift+left"
+    },
+    {
+      "id": "User.TmuxStyle.MoveTabRight",
+      "keys": "ctrl+alt+shift+right"
+    },
+    {
+      "id": "User.TmuxStyle.Tab1",
+      "keys": "ctrl+alt+1"
+    },
+    {
+      "id": "User.TmuxStyle.Tab2",
+      "keys": "ctrl+alt+2"
+    },
+    {
+      "id": "User.TmuxStyle.Tab3",
+      "keys": "ctrl+alt+3"
+    },
+    {
+      "id": "User.TmuxStyle.Tab4",
+      "keys": "ctrl+alt+4"
+    },
+    {
+      "id": "User.TmuxStyle.Tab5",
+      "keys": "ctrl+alt+5"
+    },
+    {
+      "id": "User.TmuxStyle.Tab6",
+      "keys": "ctrl+alt+6"
+    },
+    {
+      "id": "User.TmuxStyle.Tab7",
+      "keys": "ctrl+alt+7"
+    },
+    {
+      "id": "User.TmuxStyle.Tab8",
+      "keys": "ctrl+alt+8"
+    },
+    {
+      "id": "User.TmuxStyle.Tab9",
+      "keys": "ctrl+alt+9"
+    },
+    {
+      "id": "User.TmuxStyle.EditSettings",
+      "keys": "ctrl+alt+e"
+    },
+    {
+      "id": "User.TmuxStyle.FocusMode",
+      "keys": "ctrl+alt+s"
+    },
+    {
+      "id": "User.TmuxStyle.PreviousOrderedTab",
+      "keys": "ctrl+alt+left"
+    },
+    {
+      "id": "User.TmuxStyle.NextOrderedTab",
+      "keys": "ctrl+alt+right"
+    }
+  ]
+}
