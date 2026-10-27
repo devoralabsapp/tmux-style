@@ -2,6 +2,10 @@
 local wezterm = require 'wezterm'
 local act = wezterm.action
 local root = wezterm.config_dir
+-- WezTerm also watches the config's parent directory. Volatile files must
+-- live outside it, otherwise every metric/prompt write reloads config and
+-- clears the leader before its two-second timeout can expire.
+local state_dir = root .. '-state'
 local function read_json(path)
   local file = io.open(path, 'r')
   if not file then return nil end
@@ -41,7 +45,7 @@ local function publish_theme(window, name)
   -- Separate files per GUI process and pane keep other windows independent.
   for _, tab in ipairs(window:mux_window():tabs()) do
     for _, pane in ipairs(tab:panes()) do
-      local path = root .. '/window-theme-' .. gui_pid .. '-' .. pane:pane_id() .. '.json'
+      local path = state_dir .. '/window-theme-' .. gui_pid .. '-' .. pane:pane_id() .. '.json'
       if published_themes[path] ~= name then
         local file = io.open(path, 'w')
         if file then file:write(wezterm.json_encode { theme = name }); file:close(); published_themes[path] = name end
@@ -182,7 +186,7 @@ wezterm.on('update-status', function(window, pane)
     { Background = { Color = p.surface } }, { Foreground = { Color = p.accent } },
     { Attribute = { Intensity = 'Bold' } }, { Text = ' ' .. window:active_workspace() .. ' / ' .. mode .. ' ' },
   })
-  local sample = read_json(root .. '/metrics.json') or last_sample
+  local sample = read_json(state_dir .. '/metrics.json') or last_sample
   last_sample = sample
   local cpu, ram = '--', '--'
   if sample and sample.timestamp and os.time() - sample.timestamp < 10 then

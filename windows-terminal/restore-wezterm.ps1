@@ -8,7 +8,9 @@ foreach($entry in $state.files){
 $root=Split-Path -Parent $StatePath
 $metrics=Join-Path $root 'TmuxStyle.Metrics.exe'
 if(Test-Path -LiteralPath $metrics){
-    Start-Process -FilePath $metrics -ArgumentList ('--stop "'+(Join-Path $root 'metrics.json')+'"') -Wait -WindowStyle Hidden
+    foreach($directory in $root,($root.TrimEnd('\','/')+'-state')){
+        Start-Process -FilePath $metrics -ArgumentList ('--stop "'+(Join-Path $directory 'metrics.json')+'"') -Wait -WindowStyle Hidden
+    }
     foreach($process in @(Get-Process -Name TmuxStyle.Metrics -ErrorAction SilentlyContinue|Where-Object {$_.Path -eq $metrics})){
         if(-not $process.WaitForExit(5000)){throw 'Close Tmux Style WezTerm windows before restoring.'}
     }

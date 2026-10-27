@@ -119,6 +119,46 @@
       "opacity": 100,
       "bellStyle": "taskbar",
       "startingDirectory": "%USERPROFILE%"
+    },
+    {
+      "guid": "{80c0aee1-c4fb-52e1-925c-be63dcd73ca0}",
+      "name": "Tmux Style - Code Spectrum",
+      "hidden": false,
+      "slug": "code",
+      "colorScheme": "Tmux Style / Code Spectrum",
+      "tabColor": "#4fc1ff",
+      "font": {
+        "face": "Cascadia Mono",
+        "size": 12
+      },
+      "padding": "14, 10, 14, 10",
+      "cursorShape": "bar",
+      "historySize": 20000,
+      "scrollbarState": "hidden",
+      "useAcrylic": false,
+      "opacity": 100,
+      "bellStyle": "taskbar",
+      "startingDirectory": "%USERPROFILE%"
+    },
+    {
+      "guid": "{49bef31b-0062-5eac-bb6e-9cc3c191a8df}",
+      "name": "Tmux Style - Hacker Matrix",
+      "hidden": false,
+      "slug": "hacker",
+      "colorScheme": "Tmux Style / Hacker Matrix",
+      "tabColor": "#00ff88",
+      "font": {
+        "face": "Cascadia Mono",
+        "size": 12
+      },
+      "padding": "14, 10, 14, 10",
+      "cursorShape": "bar",
+      "historySize": 20000,
+      "scrollbarState": "hidden",
+      "useAcrylic": false,
+      "opacity": 100,
+      "bellStyle": "taskbar",
+      "startingDirectory": "%USERPROFILE%"
     }
   ],
   "schemes": [
@@ -259,6 +299,52 @@
       "brightPurple": "#ededed",
       "brightCyan": "#ededed",
       "brightWhite": "#e6e6e6"
+    },
+    {
+      "name": "Tmux Style / Code Spectrum",
+      "background": "#1e1e1e",
+      "foreground": "#d4d4d4",
+      "cursorColor": "#4fc1ff",
+      "selectionBackground": "#2d2d30",
+      "black": "#181818",
+      "red": "#f44747",
+      "green": "#6a9955",
+      "yellow": "#ce9178",
+      "blue": "#569cd6",
+      "purple": "#c586c0",
+      "cyan": "#4ec9b0",
+      "white": "#d4d4d4",
+      "brightBlack": "#6a9955",
+      "brightRed": "#f44747",
+      "brightGreen": "#b5cea8",
+      "brightYellow": "#dcdcaa",
+      "brightBlue": "#9cdcfe",
+      "brightPurple": "#c586c0",
+      "brightCyan": "#4fc1ff",
+      "brightWhite": "#ffffff"
+    },
+    {
+      "name": "Tmux Style / Hacker Matrix",
+      "background": "#020805",
+      "foreground": "#b9ffd1",
+      "cursorColor": "#00ff88",
+      "selectionBackground": "#10291c",
+      "black": "#04100a",
+      "red": "#ff5670",
+      "green": "#00c853",
+      "yellow": "#a5d66d",
+      "blue": "#20b87a",
+      "purple": "#66d9a0",
+      "cyan": "#25bdaa",
+      "white": "#b9ffd1",
+      "brightBlack": "#3e805a",
+      "brightRed": "#ff7b8e",
+      "brightGreen": "#00ff88",
+      "brightYellow": "#b9ff66",
+      "brightBlue": "#63ff9a",
+      "brightPurple": "#9affc8",
+      "brightCyan": "#49f5b3",
+      "brightWhite": "#deffea"
     }
   ],
   "actions": [

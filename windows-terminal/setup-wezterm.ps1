@@ -1,6 +1,6 @@
 param(
     [string]$SourceDirectory=$PSScriptRoot,
-    [ValidateSet('aurora','midnight','ember','paper','neon','black')][string]$Theme='aurora',
+    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')][string]$Theme='aurora',
     [string]$StartingDirectory=$HOME,
     [string]$AssetDirectory=(Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows\wezterm'),
     [string]$DesktopDirectory=[Environment]::GetFolderPath('DesktopDirectory'),
@@ -21,6 +21,8 @@ if(Test-Path -LiteralPath $statePath){
     }
 }
 New-Item -ItemType Directory -Path $AssetDirectory -Force|Out-Null
+$stateDirectory=$AssetDirectory.TrimEnd('\','/')+'-state'
+New-Item -ItemType Directory -Path $stateDirectory -Force|Out-Null
 $pin=[IO.File]::ReadAllText((Join-Path $SourceDirectory 'wezterm-runtime.json'))|ConvertFrom-Json
 if(-not $WezTermExecutable){
     # Reuse an explicitly installed copy if available; otherwise install portable
@@ -59,8 +61,13 @@ function Save-OwnedFile([string]$Path){
     $files.Add([pscustomobject]@{path=$Path;backup=$saved;installedHash=$null})
 }
 $metrics=Join-Path $AssetDirectory 'TmuxStyle.Metrics.exe'
+$restartCollector=$false
 if(Test-Path -LiteralPath $metrics){
-    $stop=Start-Process -FilePath $metrics -ArgumentList ('--stop "'+(Join-Path $AssetDirectory 'metrics.json')+'"') -PassThru -Wait -WindowStyle Hidden
+    $restartCollector=@(Get-Process -Name TmuxStyle.Metrics -ErrorAction SilentlyContinue|Where-Object {$_.Path -eq $metrics}).Count -gt 0
+    # Stop both the legacy root-path singleton and the new state-directory one.
+    foreach($directory in $AssetDirectory,$stateDirectory){
+        $stop=Start-Process -FilePath $metrics -ArgumentList ('--stop "'+(Join-Path $directory 'metrics.json')+'"') -PassThru -Wait -WindowStyle Hidden
+    }
     # Wait only for a collector from this exact installation, not another workspace.
     $owned=@(Get-Process -Name TmuxStyle.Metrics -ErrorAction SilentlyContinue|Where-Object {$_.Path -eq $metrics})
     foreach($process in $owned){if(-not $process.WaitForExit(5000)){throw 'Close Tmux Style WezTerm windows before upgrading.'}}
@@ -71,7 +78,7 @@ try{
         Copy-Item -LiteralPath (Join-Path $SourceDirectory $name) -Destination $target -Force
     }
     $template=[IO.File]::ReadAllText((Join-Path $SourceDirectory 'wezterm.lua'))
-    foreach($slug in 'aurora','midnight','ember','paper','neon','black'){
+    foreach($slug in 'aurora','midnight','ember','paper','neon','black','code','hacker'){
         $target=Join-Path $AssetDirectory ('wezterm-'+$slug+'.lua');Save-OwnedFile $target
         [IO.File]::WriteAllText($target,$template.Replace('__THEME__',$slug),[Text.UTF8Encoding]::new($false))
     }
@@ -101,6 +108,7 @@ try{
 Write-Output ('Installed WezTerm workspace: '+$config)
 Write-Output ('Backups: '+$backup)
 Write-Output 'Native bottom bar: tabs, local Windows CPU/RAM, hostname, date/time. F12 toggles pass-through.'
+if($restartCollector){Start-Process -FilePath $metrics -ArgumentList ('--watch "'+(Join-Path $stateDirectory 'metrics.json')+'"') -WindowStyle Hidden}
 if($Launch){
     try{
         Start-Process -FilePath $WezTermExecutable -ArgumentList ('--config-file "'+$config+'" start --always-new-process --cwd "'+$StartingDirectory+'"') -WindowStyle Hidden|Out-Null

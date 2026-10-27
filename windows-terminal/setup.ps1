@@ -1,7 +1,7 @@
 param(
     [switch]$Apply,
     [string]$SourceDirectory=$PSScriptRoot,
-    [ValidateSet('aurora','midnight','ember','paper','neon','black')][string]$DefaultTheme='aurora',
+    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')][string]$DefaultTheme='aurora',
     [string]$TerminalExecutable,
     [string]$SettingsPath = (Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json'),
     [string]$AssetDirectory = (Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows'),

@@ -5,7 +5,7 @@ $desktop=Join-Path $Fixture 'WezTerm Desktop'
 $setup=[scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'setup-wezterm.ps1')))
 $restore=[scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'restore-wezterm.ps1')))
 $manifest=Join-Path $assets 'install-state.json'
-foreach($theme in 'aurora','midnight','ember','paper','neon','black'){
+foreach($theme in 'aurora','midnight','ember','paper','neon','black','code','hacker'){
     & $setup -SourceDirectory $SourceDirectory -Theme $theme -StartingDirectory $Fixture -AssetDirectory $assets -DesktopDirectory $desktop -WezTermExecutable $FakeTerminal
     $backend=[IO.File]::ReadAllText((Join-Path $assets 'backend.json'))|ConvertFrom-Json
     if($backend.theme -ne $theme -or $backend.executable -ne $FakeTerminal){throw 'WezTerm backend differs'}
@@ -50,10 +50,21 @@ try{
     $signal=@(Set-TmuxStyleTheme black 6>&1)|Out-String
     if(-not $signal.Contains('SetUserVar=TmuxStyleTheme=YmxhY2s=') -or $global:TmuxStyleTheme -ne 'black'){throw 'Live theme signal/prompt differs'}
     $state=Get-TmuxStyleThemeStatePath
+    if(-not $state.StartsWith($assets+'-state'+[IO.Path]::DirectorySeparatorChar)){throw 'Prompt writes inside watched config directory'}
     [IO.File]::WriteAllText($state,'{"theme":"paper"}')
     $global:LASTEXITCODE=37;$promptText=prompt
     if($global:TmuxStyleTheme -ne 'paper' -or $global:LASTEXITCODE -ne 37 -or $promptText -ne '  > '){throw 'Peer-pane prompt theme sync damaged shell state'}
+    Import-Module PSReadLine
+    Update-TmuxStyleShellTheme code
+    $options=Get-PSReadLineOption
+    if($options.CommandColor -eq $options.StringColor -or $options.KeywordColor -eq $options.VariableColor){throw 'Code Spectrum syntax roles are not distinct'}
+    Update-TmuxStyleShellTheme hacker
+    $options=Get-PSReadLineOption
+    if($options.CommandColor -eq $options.CommentColor -or $options.ErrorColor -eq $options.CommandColor){throw 'Hacker syntax lacks readable comment/error contrast'}
+    Update-TmuxStyleShellTheme black
+    $options=Get-PSReadLineOption
+    if($options.KeywordColor -ne $options.CommandColor -or $options.VariableColor -ne $options.TypeColor){throw 'Returning to Black retained a previous theme syntax role'}
 }finally{
     foreach($key in $savedEnv.Keys){[Environment]::SetEnvironmentVariable($key,$savedEnv[$key])}
 }
-Write-Output 'PASS: WezTerm six themes, isolated files, shortcuts, upgrade/restore, edit protection, runtime checksum rejection, live Windows counters.'
+Write-Output 'PASS: WezTerm eight themes, isolated files, shortcuts, upgrade/restore, edit protection, runtime checksum rejection, live Windows counters.'

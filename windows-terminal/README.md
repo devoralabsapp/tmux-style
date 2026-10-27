@@ -1,6 +1,6 @@
 # Windows workspaces + tmux-style keys
 
-Download **TmuxStyle-Setup-1.2.1.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
+Download **TmuxStyle-Setup-1.3.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
 
 The executable is not code signed. Source, build scripts and SHA-256 checksums are provided with the release. It does not bundle or impersonate Microsoft Windows Terminal.
 
@@ -9,6 +9,14 @@ The executable is not code signed. Source, build scripts and SHA-256 checksums a
 Choose **WezTerm** for a terminal-owned bottom bar containing numbered tab names, workspace, PREFIX/ZOOM/OFF indicators, local Windows CPU/RAM, hostname and date/time. CPU/RAM refresh every two seconds; the clock refreshes every second. Small windows show a compact status; missing or stale counter data shows `--`. These are local Windows values, including during SSH sessions.
 
 The **Tmux Style WezTerm** Desktop shortcut opens three PowerShell panes. The runtime is official portable WezTerm, pinned in `wezterm-runtime.json` with the checksum published upstream. Existing WezTerm on PATH can also be used. The portable runtime targets Windows x64. It stays inside `%LOCALAPPDATA%\TmuxStyleWindows\wezterm`; `.wezterm.lua`, Windows Terminal settings and its existing shortcut remain untouched.
+
+**v1.3.0 leader fix:** live metrics and per-pane prompt state now live in the sibling `%LOCALAPPDATA%\TmuxStyleWindows\wezterm-state` directory. WezTerm watches the configuration directory itself; writing runtime data there caused repeated reloads that canceled Ctrl-a before two seconds. Upgrade migrates the collector and stops the legacy output-path instance. Configuration still reloads normally when its own files change.
+
+All eight themes are selectable: Aurora, Midnight, Ember, Paper, Neon, Command Line, **Code Spectrum** and **Hacker Matrix**. `theme code` adds editor-inspired syntax roles to the PowerShell command line; `theme hacker` uses a near-black/green palette with distinct comments and errors. Application-specific syntax highlighting remains controlled by those applications.
+
+![Illustrative Windows palette previews](../preview/windows-new-themes.png)
+
+*Illustration generated from the shipped palettes, with sample data.*
 
 WezTerm handles `Ctrl-a` natively, without the Windows Terminal keyboard bridge. Press and release `Ctrl-a`, then press the next key within **two seconds**:
 
@@ -42,7 +50,7 @@ Close Tmux Style WezTerm windows before upgrade/restore. In the installer, selec
 
 ## Windows Terminal: keys matching original tmux configuration
 
-The following section applies to the **Windows Terminal** installer option. This backend has themed prompts, tabs and panes, but **no custom bottom bar**. The screenshots in this repository are native tmux captures and do not show Windows Terminal capabilities.
+The following section applies to the **Windows Terminal** installer option. This backend has themed prompts, tabs and panes, but **no custom bottom bar**. The Black sample below is a native tmux capture and does not show Windows Terminal capabilities.
 
 Press and release **Ctrl-a**, then the second key. The prefix waits up to two seconds; Escape cancels it. `Ctrl-a Ctrl-a` forwards a literal Ctrl-a to the terminal.
 
@@ -89,7 +97,7 @@ This example was recorded from a native tmux test session with sample pane conte
 
 ## Themes and prompt
 
-Six profiles are installed: Aurora, Midnight, Ember, Paper, Neon and Command Line. `theme black` opens the monochrome profile. `theme neon` opens a new Neon tab. `workspace` opens a three-pane window at the current directory. The prompt shows the directory and Git branch, when available. No Nerd Font, Oh My Posh or Starship is required.
+Eight profiles are installed: Aurora, Midnight, Ember, Paper, Neon, Command Line, Code Spectrum and Hacker Matrix. `theme black` opens the monochrome profile. `theme code` or `theme hacker` opens the corresponding profile tab. `workspace` opens a three-pane window at the current directory. The prompt shows the directory and Git branch, when available. No Nerd Font, Oh My Posh or Starship is required.
 
 The installer preserves unrelated profiles, preferences and non-conflicting keys. It intentionally replaces the keys listed above and sets the selected theme as the default profile. `$PROFILE`, PATH, execution policy and Windows' default terminal application are not changed.
 
@@ -107,7 +115,7 @@ On Windows, from the repository root:
 .\windows-terminal\build.ps1 -RunTests
 ```
 
-The build uses the Windows .NET Framework compiler. No downloaded compiler package or PowerShell 7 runtime is included in the EXE. `dist/` contains the installer, checksums and self-test report. The packaged self-test uses temporary settings, exercises all six themes in both backends, checks backups/restore, upgrade rollback, edit protection, checksum rejection, live Windows counters, prompt exit codes and key-map resolution. It does not install a keyboard hook or touch production settings. CI validates Microsoft's settings schema and runs `test-wezterm-lua.ps1` with the pinned real WezTerm runtime to check six configurations plus status, F12, layout and Windows URL-path handling.
+The build uses the Windows .NET Framework compiler. No downloaded compiler package or PowerShell 7 runtime is included in the EXE. `dist/` contains the installer, checksums and self-test report. The packaged self-test uses temporary settings, exercises all eight themes in both backends, checks backups/restore, upgrade rollback, edit protection, checksum rejection, live Windows counters, separate volatile-state paths, native PSReadLine syntax roles, prompt exit codes and key-map resolution. It does not install a keyboard hook or touch production settings. CI validates Microsoft's settings schema and runs `test-wezterm-lua.ps1` with the pinned real WezTerm runtime to check eight configurations plus status, live switching, F12, layout and Windows URL-path handling.
 
 GUI capture was unavailable in the local test environment (capture timeout); the release was checked by compiling and running the packaged self-test and by validating the native settings, not by claiming every shortcut was pressed in UI.
 

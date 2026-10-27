@@ -28,10 +28,10 @@ $original=@'
 $originalHash=(Get-FileHash -LiteralPath $fixtureSettings).Hash
 $setup=[scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'setup.ps1')))
 $checks=@()
-foreach($theme in 'aurora','midnight','ember','paper','neon','black'){
+foreach($theme in 'aurora','midnight','ember','paper','neon','black','code','hacker'){
     & $setup -SourceDirectory $SourceDirectory -SettingsPath $fixtureSettings -AssetDirectory (Join-Path $fixture 'assets') -DefaultDirectory $fixture -DefaultTheme $theme -NoShortcut
     $merged=Read-TmuxStyleJson (Join-Path $SourceDirectory 'settings.staged.json')
-    if(@($merged.profiles.list).Count -ne 7){throw 'Existing profile lost'}
+    if(@($merged.profiles.list).Count -ne 9){throw 'Existing profile lost'}
     if($merged.profiles.defaults.font.size -ne 15 -or -not $merged.copyOnSelect){throw 'Preference lost'}
     if(-not($merged.keybindings|Where-Object {$_.id -eq 'User.Keep' -and $_.keys -eq 'ctrl+f12'})){throw 'Existing key lost'}
     if($merged.wordDelimiters -notlike 'http://example.test/a/*b*'){throw 'JSON string was damaged'}
@@ -110,11 +110,13 @@ $checks+='native key mapping resolver'
 $checks+='black palette contains only grayscale values'
 $checks+='Terminal first-launch normalization accepted; newer user edits protected'
 & ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'test-wezterm.ps1')))) -SourceDirectory $SourceDirectory -Fixture $fixture -FakeTerminal $fakeTerminal
-$checks+='WezTerm six themes, separate shortcuts, exact install/upgrade/restore, newer user edits protected'
+$checks+='WezTerm eight themes, separate shortcuts, exact install/upgrade/restore, newer user edits protected'
 $checks+='WezTerm runtime checksum mismatch rejected'
 $checks+='live Windows CPU/RAM sampling without a resident collector'
 $checks+='WezTerm OSC live theme signal and peer-pane prompt sync preserve shell exit codes'
 $checks+='Windows Terminal prefix timeout boundary at 2000 milliseconds'
+$checks+='volatile metrics/prompt files outside watched WezTerm config directory'
+$checks+='Code Spectrum and Hacker Matrix syntax roles on native PSReadLine'
 $report=[pscustomobject]@{passed=$true;powershell=$PSVersionTable.PSVersion.ToString();checks=$checks;keyboardHookInstalled=$false;productionSettingsTouched=$false}
 [IO.File]::WriteAllText($ReportFile,($report|ConvertTo-Json -Depth 10),[Text.UTF8Encoding]::new($false))
-Write-Output 'PASS: six theme installs, JSONC merge, backups/restore, prompts, native mappings, shortcut/launch regression.'
+Write-Output 'PASS: eight theme installs, JSONC merge, backups/restore, prompts, native mappings, shortcut/launch regression.'

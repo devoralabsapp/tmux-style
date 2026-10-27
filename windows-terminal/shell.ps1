@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('aurora','midnight','ember','paper','neon','black')]
+    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')]
     [string]$Theme = 'aurora',
     [switch]$NoBanner,
     [switch]$NoKeyBridge
@@ -8,19 +8,20 @@ param(
 $global:TmuxStyleTheme = $Theme
 $global:TmuxStyleBackend = if($env:TMUX_STYLE_BACKEND -eq 'wezterm'){'wezterm'}else{'windows-terminal'}
 $global:TmuxStyleAssetDirectory = if($global:TmuxStyleBackend -eq 'wezterm'){$env:TMUX_STYLE_ASSETS}else{Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows'}
+$global:TmuxStyleStateDirectory = $global:TmuxStyleAssetDirectory.TrimEnd('\','/')+'-state'
 $keyBridge=Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows\TmuxStyle.Keys.exe'
 if(-not $NoKeyBridge -and $global:TmuxStyleBackend -eq 'windows-terminal' -and $env:WT_SESSION -and (Test-Path -LiteralPath $keyBridge)){
     Start-Process -FilePath $keyBridge -WindowStyle Hidden
 }
 if(-not $NoKeyBridge -and $global:TmuxStyleBackend -eq 'wezterm'){
     $collector=Join-Path $global:TmuxStyleAssetDirectory 'TmuxStyle.Metrics.exe'
-    if(Test-Path -LiteralPath $collector){Start-Process -FilePath $collector -ArgumentList ('--watch "'+(Join-Path $global:TmuxStyleAssetDirectory 'metrics.json')+'"') -WindowStyle Hidden}
+    if(Test-Path -LiteralPath $collector){Start-Process -FilePath $collector -ArgumentList ('--watch "'+(Join-Path $global:TmuxStyleStateDirectory 'metrics.json')+'"') -WindowStyle Hidden}
 }
 $global:TmuxStyleThemeNames = @{
-    aurora='Aurora'; midnight='Midnight'; ember='Ember'; paper='Paper'; neon='Neon'; black='Command Line'
+    aurora='Aurora'; midnight='Midnight'; ember='Ember'; paper='Paper'; neon='Neon'; black='Command Line'; code='Code Spectrum'; hacker='Hacker Matrix'
 }
 function global:Update-TmuxStyleShellTheme {
-    param([ValidateSet('aurora','midnight','ember','paper','neon','black')][string]$Name)
+    param([ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')][string]$Name)
     $global:TmuxStyleTheme = $Name
     $global:TmuxStylePalette = switch ($Name) {
     'aurora' { @{Accent='Green';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
@@ -28,17 +29,25 @@ function global:Update-TmuxStyleShellTheme {
     'paper' { @{Accent='Black';Detail='DarkGreen';Muted='DarkGray';Text='Black'} }
     'neon' { @{Accent='Magenta';Detail='Cyan';Muted='DarkGray';Text='Gray'} }
     'black' { @{Accent='White';Detail='Gray';Muted='DarkGray';Text='Gray'} }
+    'code' { @{Accent='Cyan';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
+    'hacker' { @{Accent='Green';Detail='DarkGreen';Muted='DarkGray';Text='Gray'} }
     default { @{Accent='Cyan';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
     }
     if(Get-Module PSReadLine){
-        Set-PSReadLineOption -Colors @{Command=$global:TmuxStylePalette.Accent;Parameter=$global:TmuxStylePalette.Detail;String='Green';Comment='DarkGray';Error='Red'} -ErrorAction SilentlyContinue
+        $syntax=@{Command=$global:TmuxStylePalette.Accent;Parameter=$global:TmuxStylePalette.Detail;String='Green';Variable=$global:TmuxStylePalette.Text;Type=$global:TmuxStylePalette.Detail;Number='Cyan';Operator=$global:TmuxStylePalette.Text;Keyword=$global:TmuxStylePalette.Accent;Member=$global:TmuxStylePalette.Text;Comment='DarkGray';Error='Red'}
+        if($Name -eq 'code'){
+            $syntax=@{Command='Yellow';Parameter='DarkCyan';String='DarkYellow';Variable='Blue';Type='Cyan';Number='Green';Operator='Gray';Keyword='Magenta';Member='Yellow';Comment='DarkGray';Error='Red'}
+        }elseif($Name -eq 'hacker'){
+            $syntax=@{Command='Green';Parameter='Cyan';String='DarkYellow';Variable='Cyan';Type='DarkCyan';Number='Yellow';Operator='DarkGreen';Keyword='Green';Member='Green';Comment='DarkGray';Error='Red'}
+        }
+        Set-PSReadLineOption -Colors $syntax -ErrorAction SilentlyContinue
     }
 }
 function global:Get-TmuxStyleThemeStatePath {
     $guiProcessId=$env:TMUX_STYLE_GUI_PID
     if(-not $guiProcessId -and $env:WEZTERM_UNIX_SOCKET -match 'gui-sock-(\d+)$'){$guiProcessId=$Matches[1]}
     if($guiProcessId -match '^\d+$' -and $env:WEZTERM_PANE -match '^\d+$'){
-        return Join-Path $global:TmuxStyleAssetDirectory ('window-theme-'+$guiProcessId+'-'+$env:WEZTERM_PANE+'.json')
+        return Join-Path $global:TmuxStyleStateDirectory ('window-theme-'+$guiProcessId+'-'+$env:WEZTERM_PANE+'.json')
     }
 }
 function global:Sync-TmuxStyleShellTheme {
@@ -79,7 +88,7 @@ function global:Open-TmuxStyleWorkspace {
 }
 
 function global:Set-TmuxStyleTheme {
-    param([ValidateSet('aurora','midnight','ember','paper','neon','black')][string]$Name = 'aurora')
+    param([ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')][string]$Name = 'aurora')
     if($global:TmuxStyleBackend -eq 'wezterm'){
         $statePath=Get-TmuxStyleThemeStatePath
         if($statePath){[IO.File]::WriteAllText($statePath,('{"theme":"'+$Name+'"}'),[Text.UTF8Encoding]::new($false))}
@@ -110,6 +119,7 @@ function global:Show-TmuxStyleHelp {
     Write-Host '  Ctrl+Tab            next tab'
     Write-Host '  workspace           open a new 3-pane window'
     Write-Host '  theme neon          recolor this WezTerm window / open a Terminal tab'
+    Write-Host '  theme code / hacker  Code Spectrum / Hacker Matrix'
     Write-Host '  Show-TmuxStyleHelp  show these shortcuts'
     Write-Host ''
 }

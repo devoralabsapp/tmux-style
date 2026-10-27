@@ -7,9 +7,10 @@ catalog=json.loads((ROOT.parent/'themes/catalog.json').read_text())
 catalog['midnight']={'name':'Midnight','pane':'#10131e','colors':[
     '#161925','#e0e6f5','#b8a1f7','#a5aec6','#75d7e8','#a6d6a0',
     '#f0c674','#f28b98','#202435','#292e42','#3b425b']}
-names={'aurora':'Aurora','midnight':'Midnight','ember':'Ember','paper':'Paper','neon':'Neon','black':'Command Line'}
+catalog.update(json.loads((ROOT/'themes.extra.json').read_text()))
+names={'aurora':'Aurora','midnight':'Midnight','ember':'Ember','paper':'Paper','neon':'Neon','black':'Command Line','code':'Code Spectrum','hacker':'Hacker Matrix'}
 schemes=[]; profiles=[]
-for slug in ['aurora','midnight','ember','paper','neon','black']:
+for slug in names:
     spec=catalog[slug]; c=spec['colors']; label='Tmux Style / '+names[slug]
     scheme=dict(name=label,background=spec['pane'],foreground=c[1],cursorColor=c[4],
         selectionBackground=c[9],black=c[0],red=c[7],green=c[5],yellow=c[6],
@@ -28,6 +29,9 @@ for slug in ['aurora','midnight','ember','paper','neon','black']:
         for key in ['brightRed','brightGreen','brightYellow','brightBlue','brightPurple','brightCyan']:
             scheme[key]='#ededed'
         scheme['selectionBackground']='#333333'
+    if 'ansi' in spec:
+        scheme.update(zip(['black','red','green','yellow','blue','purple','cyan','white'],spec['ansi']))
+        scheme.update(zip(['brightBlack','brightRed','brightGreen','brightYellow','brightBlue','brightPurple','brightCyan','brightWhite'],spec['brights']))
     schemes.append(scheme)
     guid='{'+str(uuid.uuid5(uuid.NAMESPACE_URL,'https://local/tmux-style-windows/'+slug))+'}'
     profiles.append(dict(guid=guid,name='Tmux Style - '+names[slug],hidden=False,

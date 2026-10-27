@@ -2,6 +2,7 @@ param([Parameter(Mandatory=$true)][string]$SourceDirectory,[Parameter(Mandatory=
 $ErrorActionPreference='Stop'
 $fixture=Join-Path ([IO.Path]::GetTempPath()) ('TmuxStyleLua-'+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixture|Out-Null
+New-Item -ItemType Directory -Path ($fixture+'-state')|Out-Null
 Copy-Item -LiteralPath (Join-Path $SourceDirectory 'wezterm-palettes.json') -Destination $fixture
 [IO.File]::WriteAllText((Join-Path $fixture 'backend.json'),'{"startingDirectory":"C:/","executable":"wezterm.exe"}')
 $template=[IO.File]::ReadAllText((Join-Path $SourceDirectory 'wezterm.lua')).Replace("`r`n","`n")
@@ -25,10 +26,11 @@ function w:get_dimensions() return {pixel_width=self.width} end
 function w:set_left_status(text) self.left=text end
 function w:set_right_status(text) self.right=text end
 local function sample(timestamp)
-  local f=assert(io.open(root .. '/metrics.json','w'))
+  local f=assert(io.open(state_dir .. '/metrics.json','w'))
   f:write(wezterm.json_encode {timestamp=timestamp,cpu=42,ram=63});f:close()
 end
 sample(os.time()); status_handler(w,pane)
+assert(state_dir~=root and state_dir:sub(1,#root+1)~=root..'/', 'Volatile state is inside watched config directory')
 assert(w.right:find('CPU 42%%') and w.right:find('RAM 63%%'), 'Live counters missing')
 assert(w.right:find(wezterm.strftime('%d/%m/%Y'),1,true), 'Date missing')
 assert(w.right:find(wezterm.hostname(),1,true), 'Host missing')
@@ -44,20 +46,20 @@ w.width=800;status_handler(w,pane)
 assert(not w.right:find(wezterm.hostname(),1,true), 'Narrow status not compact')
 sample(0);status_handler(w,pane)
 assert(w.right:find('CPU %-%-') and w.right:find('RAM %-%-'), 'Stale counters displayed as fresh')
--- All six themes recolor the same window, keep OFF/zoom/chrome overrides,
+-- All eight themes recolor the same window, keep OFF/zoom/chrome overrides,
 -- publish prompt state, and configure new panes without spawning anything.
 w.overrides.enable_tab_bar=false
 pass_through(w,pane)
 local other = {get_config_overrides=function() return {} end}
 apply_theme(w,pane,'TmuxStyleTheme','paper')
-for _, name in ipairs {'black','paper','neon','ember','midnight','aurora'} do
+for _, name in ipairs {'black','paper','neon','ember','midnight','aurora','code','hacker'} do
   apply_theme(w,pane,'TmuxStyleTheme',name)
   assert(window_theme(w)==name and window_theme(other)==theme, 'Theme leaked into another window')
   assert(w.overrides.colors.background==palettes[name].colors.background, 'Pane background stale')
   assert(w.overrides.colors.tab_bar.active_tab.bg_color==palettes[name].accent, 'Tab palette stale')
   assert(w.overrides.disable_default_key_bindings and w.overrides.enable_tab_bar==false, 'Theme reset OFF/chrome state')
   assert(w.overrides.default_prog[5]:find('-Theme '..name,1,true), 'New pane theme stale')
-  local f=assert(io.open(root .. '/window-theme-'..gui_pid..'-41.json','r'))
+  local f=assert(io.open(state_dir .. '/window-theme-'..gui_pid..'-41.json','r'))
   local state=wezterm.json_parse(f:read('*a'));f:close()
   assert(state.theme==name, 'Existing prompt theme stale')
   assert(palettes[name].colors.tab_bar==nil, 'Shared palette was mutated')
@@ -76,7 +78,7 @@ layout(w,pane);assert(first.activated, 'Layout focus missing')
 local f=assert(io.open(root .. '/lua-passed.json','w'));f:write('true');f:close()
 '@
 $themes=@()
-foreach($theme in 'aurora','midnight','ember','paper','neon','black'){
+foreach($theme in 'aurora','midnight','ember','paper','neon','black','code','hacker'){
     $config=Join-Path $fixture 'test.lua'
     $passed=Join-Path $fixture 'lua-passed.json'
     if(Test-Path -LiteralPath $passed){Remove-Item -LiteralPath $passed}
@@ -88,4 +90,4 @@ foreach($theme in 'aurora','midnight','ember','paper','neon','black'){
 }
 $report=[pscustomobject]@{passed=$true;runtime=(& $WezTermExecutable --version);themes=$themes;checks=@('native Lua configuration and key action parsing; two-second leader','live theme resets all colors without opening windows; other windows independent','theme retains OFF/zoom/chrome state and updates existing/new pane prompt metadata','status: CPU/RAM/hostname/date','prefix/zoom/off states','F12 disables leader and defaults; resume restores them','narrow bar and stale sample handling','3-pane layout preserves cwd and focus');guiStarted=$false}
 if($ReportFile){[IO.File]::WriteAllText($ReportFile,($report|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))}
-Write-Output 'PASS: six themes parsed by real WezTerm; status, F12, layout callbacks verified.'
+Write-Output 'PASS: eight themes parsed by real WezTerm; status, F12, layout callbacks verified.'
