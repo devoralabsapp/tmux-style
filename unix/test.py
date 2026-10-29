@@ -141,6 +141,7 @@ try:
     stable = tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}')
     assert run(launcher, 'new', 'lab', '-d', ok=False).returncode
     assert run(launcher, 'attach', 'missing', ok=False).returncode
+    assert run(launcher, 'attach', '-t', ok=False).returncode
     assert run(launcher, 'theme', 'neon', ok=False).returncode  # ambiguous outside two sessions
     assert 'lab' in run(launcher, 'list').stdout and 'TMUX' in run(launcher, 'ls').stdout
     in_shell(primary, 'theme code')

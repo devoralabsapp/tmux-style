@@ -28,7 +28,10 @@ attach_to() {
 }
 attach_command() {
   local name=''
-  if [[ ${1:-} == -t ]]; then shift; fi
+  if [[ ${1:-} == -t ]]; then
+    [[ $# == 2 ]] || { echo 'Usage: tmux-style attach -t NAME' >&2; return 1; }
+    shift
+  fi
   [[ $# -le 1 ]] || { echo 'Usage: tmux-style attach [NAME] (or attach -t NAME)' >&2; return 1; }
   name=${1:-}
   if ! tm has-session 2>/dev/null; then

@@ -2,19 +2,22 @@
 apply_session_theme() {
   local sid=$1 selected=$2 windows staged result=0
   [[ $sid =~ ^\$[0-9]+$ ]] && valid_theme "$selected" || return 1
-  windows=$(tm list-windows -t "$sid" -F '#{window_id}') || return 1
+  # BSD awk rejects literal newlines in a -v assignment; IDs contain no spaces.
+  windows=$(tm list-windows -t "$sid" -F '#{window_id}' | tr '\n' ' ') || return 1
   staged=$(mktemp "${TMPDIR:-/tmp}/tmux-style-theme.XXXXXXXX")
   # Each session owns its status and each of its windows owns pane/tab colors.
   # Use stable tmux IDs so renamed sessions and shell metacharacters stay safe.
-  awk -v sid="$sid" -v windows="$windows" '
-    BEGIN { q=sprintf("%c",39); n=split(windows,ids,"\n") }
+  if ! awk -v sid="$sid" -v windows="$windows" '
+    BEGIN { q=sprintf("%c",39); n=split(windows,ids," ") }
     /^set -g / { sub(/^set -g /,"set -t " q sid q " "); print; next }
     /^setw -g / {
       for(i=1;i<=n;i++) { line=$0; sub(/^setw -g /,"setw -t " q ids[i] q " ",line); print line }
       next
     }
     { print }
-  ' "$root/themes/$selected.conf" > "$staged"
+  ' "$root/themes/$selected.conf" > "$staged"; then
+    rm -f -- "$staged"; return 1
+  fi
   tm source-file "$staged" || result=$?
   rm -f -- "$staged"
   return "$result"
