@@ -75,7 +75,8 @@ def wait_for(predicate, timeout=8):
 
 
 try:
-    print('Testing:', run('tmux', '-V').stdout.strip(), os.uname().sysname, flush=True)
+    tested_version = run('tmux', '-V').stdout.strip()
+    print('Testing:', tested_version, os.uname().sysname, flush=True)
     # Existing configuration/shell profile and symlink must remain byte-identical.
     original = home / 'original.conf'
     original.write_text('# existing user configuration\n')
@@ -169,7 +170,8 @@ try:
     assert run('bash', ROOT / 'unix/install.sh', ok=False).returncode
     assert not data.exists()
     checks.append('unsupported tmux rejected before writes')
-    report = dict(platform=os.uname().sysname, architecture=os.uname().machine, checks=checks)
+    report = dict(platform=os.uname().sysname, architecture=os.uname().machine,
+                  tmux=tested_version, checks=checks)
     report_path = ROOT / 'dist' / ('unix-test-' + os.uname().sysname.lower() + '.json')
     report_path.parent.mkdir(exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2) + '\n')

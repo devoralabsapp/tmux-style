@@ -59,8 +59,8 @@ case "${1:-workspace}" in
     if ! tm has-session -t "=$name" 2>/dev/null; then
       # One command queue keeps layout creation ordered and avoids shell races.
       tmux -L "$socket" -f "$root/entry.conf" new-session -d -s "$name" -n shell -c "$PWD" \; \
-        split-window -h -p 35 -t "$name:1.1" -c "$PWD" \; \
-        split-window -v -p 50 -t "$name:1.2" -c "$PWD" \; select-pane -t "$name:1.1"
+        split-window -h -l '35%' -t "$name:1.1" -c "$PWD" \; \
+        split-window -v -l '50%' -t "$name:1.2" -c "$PWD" \; select-pane -t "$name:1.1"
     fi
     if [[ -n ${TMUX:-} ]]; then tm switch-client -t "=$name"; else exec tmux -L "$socket" attach-session -t "=$name"; fi ;;
   *) echo 'Unknown command. Run tmux-style --help.' >&2; exit 1 ;;
