@@ -13,7 +13,7 @@
       "cursor_border": "#9fe4be",
       "selection_bg": "#2a3b33",
       "selection_fg": "#e1eee6",
-      "split": "#425c4c",
+      "split": "#607968",
       "ansi": [
         "#182722",
         "#ed9ca8",
@@ -33,7 +33,31 @@
         "#c5b5ed",
         "#9fe4db",
         "#e1eee6"
-      ]
+      ],
+      "copy_mode_active_highlight_fg": {
+        "Color": "#182722"
+      },
+      "copy_mode_active_highlight_bg": {
+        "Color": "#9fe4be"
+      },
+      "copy_mode_inactive_highlight_fg": {
+        "Color": "#e1eee6"
+      },
+      "copy_mode_inactive_highlight_bg": {
+        "Color": "#2a3b33"
+      },
+      "quick_select_label_fg": {
+        "Color": "#182722"
+      },
+      "quick_select_label_bg": {
+        "Color": "#9fe4be"
+      },
+      "quick_select_match_fg": {
+        "Color": "#e1eee6"
+      },
+      "quick_select_match_bg": {
+        "Color": "#2a3b33"
+      }
     }
   },
   "midnight": {
@@ -50,7 +74,7 @@
       "cursor_border": "#75d7e8",
       "selection_bg": "#292e42",
       "selection_fg": "#e0e6f5",
-      "split": "#3b425b",
+      "split": "#5e6885",
       "ansi": [
         "#161925",
         "#f28b98",
@@ -70,7 +94,31 @@
         "#b8a1f7",
         "#9fe4db",
         "#e0e6f5"
-      ]
+      ],
+      "copy_mode_active_highlight_fg": {
+        "Color": "#161925"
+      },
+      "copy_mode_active_highlight_bg": {
+        "Color": "#75d7e8"
+      },
+      "copy_mode_inactive_highlight_fg": {
+        "Color": "#e0e6f5"
+      },
+      "copy_mode_inactive_highlight_bg": {
+        "Color": "#292e42"
+      },
+      "quick_select_label_fg": {
+        "Color": "#161925"
+      },
+      "quick_select_label_bg": {
+        "Color": "#75d7e8"
+      },
+      "quick_select_match_fg": {
+        "Color": "#e0e6f5"
+      },
+      "quick_select_match_bg": {
+        "Color": "#292e42"
+      }
     }
   },
   "ember": {
@@ -87,7 +135,7 @@
       "cursor_border": "#f3a66b",
       "selection_bg": "#3b2d24",
       "selection_fg": "#eee1d2",
-      "split": "#67503e",
+      "split": "#8a7058",
       "ansi": [
         "#241d1a",
         "#ed9490",
@@ -107,14 +155,38 @@
         "#e8bf86",
         "#9fe4db",
         "#eee1d2"
-      ]
+      ],
+      "copy_mode_active_highlight_fg": {
+        "Color": "#241d1a"
+      },
+      "copy_mode_active_highlight_bg": {
+        "Color": "#f3a66b"
+      },
+      "copy_mode_inactive_highlight_fg": {
+        "Color": "#eee1d2"
+      },
+      "copy_mode_inactive_highlight_bg": {
+        "Color": "#3b2d24"
+      },
+      "quick_select_label_fg": {
+        "Color": "#241d1a"
+      },
+      "quick_select_label_bg": {
+        "Color": "#f3a66b"
+      },
+      "quick_select_match_fg": {
+        "Color": "#eee1d2"
+      },
+      "quick_select_match_bg": {
+        "Color": "#3b2d24"
+      }
     }
   },
   "paper": {
     "bar": "#e9e2d5",
     "fg": "#302e2a",
     "accent": "#292724",
-    "muted": "#625d54",
+    "muted": "#5e594f",
     "surface": "#ddd5c7",
     "colors": {
       "foreground": "#302e2a",
@@ -124,27 +196,51 @@
       "cursor_border": "#292724",
       "selection_bg": "#ddd5c7",
       "selection_fg": "#302e2a",
-      "split": "#b8ae9e",
+      "split": "#887e6e",
       "ansi": [
-        "#e9e2d5",
-        "#ac454b",
-        "#527344",
-        "#8a601d",
+        "#302e2a",
+        "#a03b43",
+        "#476b3b",
+        "#805615",
         "#456897",
-        "#56634e",
+        "#4d5945",
         "#426e70",
         "#302e2a"
       ],
       "brights": [
-        "#625d54",
-        "#ac454b",
-        "#527344",
-        "#8a601d",
+        "#5e594f",
+        "#a03b43",
+        "#476b3b",
+        "#805615",
         "#456897",
-        "#56634e",
+        "#4d5945",
         "#426e70",
         "#302e2a"
-      ]
+      ],
+      "copy_mode_active_highlight_fg": {
+        "Color": "#e9e2d5"
+      },
+      "copy_mode_active_highlight_bg": {
+        "Color": "#292724"
+      },
+      "copy_mode_inactive_highlight_fg": {
+        "Color": "#302e2a"
+      },
+      "copy_mode_inactive_highlight_bg": {
+        "Color": "#ddd5c7"
+      },
+      "quick_select_label_fg": {
+        "Color": "#e9e2d5"
+      },
+      "quick_select_label_bg": {
+        "Color": "#292724"
+      },
+      "quick_select_match_fg": {
+        "Color": "#302e2a"
+      },
+      "quick_select_match_bg": {
+        "Color": "#ddd5c7"
+      }
     }
   },
   "neon": {
@@ -161,7 +257,7 @@
       "cursor_border": "#ef88d8",
       "selection_bg": "#302441",
       "selection_fg": "#eae1fa",
-      "split": "#53406e",
+      "split": "#77608f",
       "ansi": [
         "#171326",
         "#fc8cae",
@@ -181,7 +277,31 @@
         "#bda2f2",
         "#9fe4db",
         "#eae1fa"
-      ]
+      ],
+      "copy_mode_active_highlight_fg": {
+        "Color": "#171326"
+      },
+      "copy_mode_active_highlight_bg": {
+        "Color": "#ef88d8"
+      },
+      "copy_mode_inactive_highlight_fg": {
+        "Color": "#eae1fa"
+      },
+      "copy_mode_inactive_highlight_bg": {
+        "Color": "#302441"
+      },
+      "quick_select_label_fg": {
+        "Color": "#171326"
+      },
+      "quick_select_label_bg": {
+        "Color": "#ef88d8"
+      },
+      "quick_select_match_fg": {
+        "Color": "#eae1fa"
+      },
+      "quick_select_match_bg": {
+        "Color": "#302441"
+      }
     }
   },
   "black": {
@@ -198,7 +318,7 @@
       "cursor_border": "#ededed",
       "selection_bg": "#333333",
       "selection_fg": "#e6e6e6",
-      "split": "#454545",
+      "split": "#636363",
       "ansi": [
         "#080808",
         "#bfbfbf",
@@ -218,14 +338,38 @@
         "#ededed",
         "#ededed",
         "#e6e6e6"
-      ]
+      ],
+      "copy_mode_active_highlight_fg": {
+        "Color": "#080808"
+      },
+      "copy_mode_active_highlight_bg": {
+        "Color": "#ededed"
+      },
+      "copy_mode_inactive_highlight_fg": {
+        "Color": "#e6e6e6"
+      },
+      "copy_mode_inactive_highlight_bg": {
+        "Color": "#1a1a1a"
+      },
+      "quick_select_label_fg": {
+        "Color": "#080808"
+      },
+      "quick_select_label_bg": {
+        "Color": "#ededed"
+      },
+      "quick_select_match_fg": {
+        "Color": "#e6e6e6"
+      },
+      "quick_select_match_bg": {
+        "Color": "#1a1a1a"
+      }
     }
   },
   "code": {
     "bar": "#181818",
     "fg": "#d4d4d4",
     "accent": "#4fc1ff",
-    "muted": "#858585",
+    "muted": "#929292",
     "surface": "#2d2d30",
     "colors": {
       "foreground": "#d4d4d4",
@@ -235,7 +379,7 @@
       "cursor_border": "#4fc1ff",
       "selection_bg": "#2d2d30",
       "selection_fg": "#d4d4d4",
-      "split": "#3c3c3c",
+      "split": "#707070",
       "ansi": [
         "#181818",
         "#f44747",
@@ -255,7 +399,31 @@
         "#c586c0",
         "#4fc1ff",
         "#ffffff"
-      ]
+      ],
+      "copy_mode_active_highlight_fg": {
+        "Color": "#181818"
+      },
+      "copy_mode_active_highlight_bg": {
+        "Color": "#4fc1ff"
+      },
+      "copy_mode_inactive_highlight_fg": {
+        "Color": "#d4d4d4"
+      },
+      "copy_mode_inactive_highlight_bg": {
+        "Color": "#2d2d30"
+      },
+      "quick_select_label_fg": {
+        "Color": "#181818"
+      },
+      "quick_select_label_bg": {
+        "Color": "#4fc1ff"
+      },
+      "quick_select_match_fg": {
+        "Color": "#d4d4d4"
+      },
+      "quick_select_match_bg": {
+        "Color": "#2d2d30"
+      }
     }
   },
   "hacker": {
@@ -272,7 +440,7 @@
       "cursor_border": "#00ff88",
       "selection_bg": "#10291c",
       "selection_fg": "#b9ffd1",
-      "split": "#1e5a39",
+      "split": "#347b52",
       "ansi": [
         "#04100a",
         "#ff5670",
@@ -284,7 +452,7 @@
         "#b9ffd1"
       ],
       "brights": [
-        "#3e805a",
+        "#468b61",
         "#ff7b8e",
         "#00ff88",
         "#b9ff66",
@@ -292,7 +460,31 @@
         "#9affc8",
         "#49f5b3",
         "#deffea"
-      ]
+      ],
+      "copy_mode_active_highlight_fg": {
+        "Color": "#04100a"
+      },
+      "copy_mode_active_highlight_bg": {
+        "Color": "#00ff88"
+      },
+      "copy_mode_inactive_highlight_fg": {
+        "Color": "#b9ffd1"
+      },
+      "copy_mode_inactive_highlight_bg": {
+        "Color": "#10291c"
+      },
+      "quick_select_label_fg": {
+        "Color": "#04100a"
+      },
+      "quick_select_label_bg": {
+        "Color": "#00ff88"
+      },
+      "quick_select_match_fg": {
+        "Color": "#b9ffd1"
+      },
+      "quick_select_match_bg": {
+        "Color": "#10291c"
+      }
     }
   }
 }

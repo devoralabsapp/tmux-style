@@ -58,12 +58,12 @@ internal sealed class SetupForm:Form
     ComboBox theme,backend;TextBox directory,log;CheckBox shortcut,launch,terminal;Button install,restore;Label status;
     bool busy;
     public SetupForm(){
-        Text="Tmux Style / Windows Setup "+SetupProgram.Version;ClientSize=new Size(760,670);
+        Text="TMX / Windows Setup "+SetupProgram.Version;ClientSize=new Size(760,670);
         Icon=System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
         MinimumSize=new Size(776,709);MaximumSize=new Size(1000,900);StartPosition=FormStartPosition.CenterScreen;
         BackColor=Color.FromArgb(16,22,25);ForeColor=Color.FromArgb(225,238,230);Font=new Font("Segoe UI",10);
         AutoScaleMode=AutoScaleMode.Dpi;
-        Label title=new Label{Text="TMUX STYLE",Font=new Font("Segoe UI Semibold",26),ForeColor=Color.FromArgb(159,228,190),Location=new Point(30,22),AutoSize=true};Controls.Add(title);
+        Label title=new Label{Text="TMX",Font=new Font("Segoe UI Semibold",26),ForeColor=Color.FromArgb(159,228,190),Location=new Point(30,22),AutoSize=true};Controls.Add(title);
         Controls.Add(new Label{Text="PowerShell workspaces. Your tmux muscle memory.",Location=new Point(33,78),Size=new Size(690,28),ForeColor=Color.FromArgb(167,189,177)});
         Controls.Add(new Label{Text="Terminal",Location=new Point(34,121),AutoSize=true});
         backend=new ComboBox{Location=new Point(205,117),Size=new Size(452,30),DropDownStyle=ComboBoxStyle.DropDownList};

@@ -24,7 +24,8 @@ env.pop('TMUX', None)
 env.pop('XDG_DATA_HOME', None)
 env['SHELL'] = shutil.which('bash')
 env['skip_global_compinit'] = '1'  # avoid distribution-wide completion prompts in the fake home
-launcher = home / '.local/bin/tmux-style'
+launcher = home / '.local/bin/tmx'
+legacy_launcher = home / '.local/bin/tmux-style'
 data = home / '.local/share/tmux-style'
 checks = []
 pid = None
@@ -115,6 +116,7 @@ try:
     assert not data.exists()
     run('bash', ROOT / 'unix/install.sh', '--theme', 'black')
     assert run(launcher, 'version').stdout.strip() == (ROOT / 'VERSION').read_text().strip()
+    assert run(legacy_launcher, 'version').stdout == run(launcher, 'version').stdout
     assert len(run(launcher, 'themes').stdout.splitlines()) == 8
     first_backup = Path((data / 'previous-backup').read_text().strip())
     first_launcher = launcher.read_bytes()
@@ -134,7 +136,7 @@ try:
     print('PASS:', checks[-1], flush=True)
 
     primary = tm('list-panes', '-t', 'TMUX:1', '-F', '#{pane_id}').splitlines()[0]
-    in_shell(primary, 'type theme >/dev/null && type tmux-style >/dev/null')
+    in_shell(primary, 'type theme >/dev/null && type tmx >/dev/null && type tmux-style >/dev/null')
     run(launcher, 'new', 'lab', '--theme', 'paper', '-d')
     lab_pane = tm('list-panes', '-t', 'lab:1', '-F', '#{pane_id}').splitlines()[0]
     assert len(tm('list-panes', '-t', 'lab:1', '-F', '#{pane_id}').splitlines()) == 3
@@ -175,12 +177,12 @@ try:
     checks.append('bare theme command and Ctrl-a t menu change only the current session')
 
     # Real client switching, detaching and reattaching preserve every pane PID.
-    in_shell(primary, 'tmux-style attach lab')
+    in_shell(primary, 'tmx attach lab')
     wait_for(lambda: tm('list-clients', '-F', '#{session_name}') == 'lab')
-    in_shell(lab_pane, 'tmux-style attach TMUX')
+    in_shell(lab_pane, 'tmx attach TMUX')
     wait_for(lambda: tm('list-clients', '-F', '#{session_name}') == 'TMUX')
     stable = tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}')
-    in_shell(primary, 'tmux-style detach')
+    in_shell(primary, 'tmx detach')
     wait_for(lambda: not tm('list-clients'))
     reap_child()
     os.close(master)
@@ -188,7 +190,7 @@ try:
     start_client('attach', '-t', 'lab')
     wait_for(lambda: tm('list-clients', '-F', '#{session_name}') == 'lab')
     assert stable == tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}')
-    in_shell(lab_pane, 'tmux-style attach TMUX')
+    in_shell(lab_pane, 'tmx attach TMUX')
     wait_for(lambda: tm('list-clients', '-F', '#{session_name}') == 'TMUX')
     checks.append('attach by name, switch, detach and reattach retain running processes')
 
@@ -258,6 +260,7 @@ try:
     assert all(0 <= int(n) <= 100 for n in re.findall(r'\d+', metric_sample)), metric_sample
     checks.append('local operating-system CPU/RAM sampling')
     assert run(launcher, 'restore', ok=False).returncode
+    assert run(launcher, 'uninstall', ok=False).returncode
     assert data.exists()
     checks.append('restore refuses to remove assets while sessions are running')
     tm('kill-server')
@@ -271,11 +274,44 @@ try:
     assert launcher.read_bytes() == first_launcher
     assert (data / 'previous-backup').read_text().strip() == str(first_backup)
     run(launcher, 'restore')
-    assert not launcher.exists() and not data.exists()
+    assert not launcher.exists() and not legacy_launcher.exists() and not data.exists()
     assert (home / '.tmux.conf').is_symlink()
     assert original.read_text() == '# existing user configuration\n'
     assert all((home / p).read_text() == '# existing shell profile\n' for p in ['.bashrc', '.zshrc'])
     checks.append('upgrade, exact restore and uninstall preserve dotfiles and symlink')
+
+    # Do not take over another tool's short command during installation.
+    launcher.write_text('#!/bin/sh\necho another-tool\n')
+    launcher.chmod(0o755)
+    conflicting = launcher.read_bytes()
+    assert run('bash', ROOT / 'unix/install.sh', ok=False).returncode
+    assert launcher.read_bytes() == conflicting and not data.exists()
+    launcher.unlink()
+    original_legacy = '#!/bin/sh\necho original-user-command\n'
+    legacy_launcher.write_text(original_legacy)
+    legacy_launcher.chmod(0o755)
+    run('bash', ROOT / 'unix/install.sh', '--theme', 'black')
+    run('bash', ROOT / 'unix/install.sh', '--theme', 'neon')
+    # Another tmux socket and every unrelated user file must survive uninstall.
+    run('tmux', '-L', 'user-unrelated', '-f', '/dev/null', 'new-session', '-d', '-s', 'keep')
+    unrelated = run('tmux', '-L', 'user-unrelated', 'list-panes', '-F', '#{pane_id}:#{pane_pid}').stdout
+    try:
+        installed_command = launcher.read_bytes()
+        launcher.write_bytes(installed_command + b'\n# user edit\n')
+        assert run(legacy_launcher, 'uninstall', ok=False).returncode
+        assert data.exists() and launcher.read_bytes().endswith(b'# user edit\n')
+        launcher.write_bytes(installed_command)
+        run(launcher, 'uninstall')
+        assert not launcher.exists() and not data.exists()
+        assert legacy_launcher.read_text() == original_legacy
+        assert list((home / '.local/share/tmux-style-backups').glob('uninstall.*/data/install.id'))
+        assert run('tmux', '-L', 'user-unrelated', 'list-panes', '-F', '#{pane_id}:#{pane_pid}').stdout == unrelated
+    finally:
+        run('tmux', '-L', 'user-unrelated', 'kill-server', ok=False)
+    assert (home / '.tmux.conf').is_symlink() and original.read_text() == '# existing user configuration\n'
+    assert all((home / p).read_text() == '# existing shell profile\n' for p in ['.bashrc', '.zshrc'])
+    checks.append('tmx alias compatibility, command collision protection and full uninstall across upgrades')
+    checks.append('uninstall protects edited commands, original launcher, backups, dotfiles and unrelated tmux server')
 
     # A stale/unsupported tmux must be rejected before the installer writes data.
     fakebin = work / 'fake-bin'

@@ -9,7 +9,7 @@ current_session() {
   tm display-message -p -t "$TMUX_PANE" '#{session_id}'
 }
 session_target() {
-  tm has-session -t "=$1" 2>/dev/null || { echo "Session not found: $1. Run tmux-style list." >&2; return 1; }
+  tm has-session -t "=$1" 2>/dev/null || { echo "Session not found: $1. Run tmx list." >&2; return 1; }
   tm display-message -p -t "=$1:" '#{session_id}'
 }
 check_attach_context() {
@@ -29,20 +29,20 @@ attach_to() {
 attach_command() {
   local name=''
   if [[ ${1:-} == -t ]]; then
-    [[ $# == 2 ]] || { echo 'Usage: tmux-style attach -t NAME' >&2; return 1; }
+    [[ $# == 2 ]] || { echo 'Usage: tmx attach -t NAME' >&2; return 1; }
     shift
   fi
-  [[ $# -le 1 ]] || { echo 'Usage: tmux-style attach [NAME] (or attach -t NAME)' >&2; return 1; }
+  [[ $# -le 1 ]] || { echo 'Usage: tmx attach [NAME] (or attach -t NAME)' >&2; return 1; }
   name=${1:-}
   if ! tm has-session 2>/dev/null; then
-    echo 'No Tmux Style sessions. Create one: tmux-style new work' >&2; return 1
+    echo 'No TMX sessions. Create one: tmx new work' >&2; return 1
   fi
   if [[ -n $name ]]; then name=$(session_target "$name") || return 1; fi
   attach_to "$name"
 }
 list_sessions() {
   if ! tm has-session 2>/dev/null; then
-    echo 'No Tmux Style sessions. Create one: tmux-style new work'; return
+    echo 'No TMX sessions. Create one: tmx new work'; return
   fi
   printf 'NAME\tWINDOWS\tSTATE\tTHEME\n'
   tm list-sessions -F $'#{session_name}\t#{session_windows}\t#{?session_attached,attached,detached}\t#{@tmux_style_theme}'
@@ -60,11 +60,11 @@ workspace_command() {
     esac
   done
   if [[ $mode == workspace ]]; then name=${name:-TMUX}; fi
-  [[ $name =~ ^[a-zA-Z0-9_-]+$ ]] || { echo 'Usage: tmux-style new NAME [--theme NAME] [-d]. Use letters, numbers, underscores or hyphens.' >&2; return 1; }
-  [[ -z $selected ]] || valid_theme "$selected" || { echo 'Choose a theme from: tmux-style themes' >&2; return 1; }
+  [[ $name =~ ^[a-zA-Z0-9_-]+$ ]] || { echo 'Usage: tmx new NAME [--theme NAME] [-d]. Use letters, numbers, underscores or hyphens.' >&2; return 1; }
+  [[ -z $selected ]] || valid_theme "$selected" || { echo 'Choose a theme from: tmx themes' >&2; return 1; }
   $detached || check_attach_context || return 1
   if tm has-session -t "=$name" 2>/dev/null; then
-    [[ $mode != new ]] || { echo "Session already exists: $name. Use tmux-style attach $name." >&2; return 1; }
+    [[ $mode != new ]] || { echo "Session already exists: $name. Use tmx attach $name." >&2; return 1; }
     sid=$(session_target "$name") || return 1
   else
     sid=$(tmux -L "$socket" -f "$root/entry.conf" new-session -d -P -F '#{session_id}' -s "$name" -n shell -c "$PWD" \; \
@@ -73,6 +73,6 @@ workspace_command() {
     selected=${selected:-$(tm show-option -gqv '@tmux_style_theme')}
   fi
   if [[ -n $selected ]]; then apply_session_theme "$sid" "$selected" || return 1; fi
-  if $detached; then echo "Session ready: $name. Attach: tmux-style attach $name"
+  if $detached; then echo "Session ready: $name. Attach: tmx attach $name"
   else attach_to "$sid"; fi
 }

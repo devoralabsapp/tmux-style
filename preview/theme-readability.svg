@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1344" height="930" viewBox="0 0 1344 930">
+<rect width="1344" height="930" fill="#0c0f18"/>
+<g font-family="Consolas,DejaVu Sans Mono,monospace">
+<text x="28" y="40" font-size="25" fill="#e0e6f5">TMX / READABLE THEMES</text>
+<text x="28" y="69" font-size="14" fill="#b8bfd0">Shipped color samples / text 4.5:1 minimum / dividers 3:1 minimum</text>
+<rect x="28" y="94" width="630" height="184" rx="8" fill="#12201b" stroke="#607968" stroke-width="2"/>
+<text x="46" y="122" font-size="18" fill="#e1eee6">AURORA</text>
+<text x="46" y="154" font-size="17" fill="#e1eee6">tmx new work --theme aurora -d</text>
+<text x="46" y="181" font-size="15" fill="#a7bdb1">CPU 12% / RAM 37% / demo-host</text>
+<rect x="28" y="205" width="122" height="35" fill="#2a3b33"/>
+<text x="38" y="228" font-size="16" fill="#9fe4be">work / TMX</text>
+<rect x="150" y="205" width="144" height="35" fill="#182722"/>
+<text x="160" y="228" font-size="16" fill="#a7bdb1">1 shell</text>
+<rect x="294" y="205" width="126" height="35" fill="#9fe4be"/>
+<text x="304" y="228" font-size="16" fill="#182722">2 logs</text>
+<rect x="420" y="205" width="238" height="35" fill="#182722"/>
+<text x="430" y="228" font-size="16" fill="#e1eee6">29 Oct / 12:00</text>
+<rect x="46" y="248" width="66" height="23" fill="#c5b5ed"/>
+<text x="53" y="265" font-size="14" fill="#182722">COPY</text>
+<text x="129" y="265" font-size="13" fill="#a7bdb1">Selection and menu colors are explicit.</text>
+<rect x="686" y="94" width="630" height="184" rx="8" fill="#10131e" stroke="#5e6885" stroke-width="2"/>
+<text x="704" y="122" font-size="18" fill="#e0e6f5">MIDNIGHT</text>
+<text x="704" y="154" font-size="17" fill="#e0e6f5">tmx new work --theme midnight -d</text>
+<text x="704" y="181" font-size="15" fill="#a5aec6">CPU 12% / RAM 37% / demo-host</text>
+<rect x="686" y="205" width="122" height="35" fill="#292e42"/>
+<text x="696" y="228" font-size="16" fill="#75d7e8">work / TMX</text>
+<rect x="808" y="205" width="144" height="35" fill="#161925"/>
+<text x="818" y="228" font-size="16" fill="#a5aec6">1 shell</text>
+<rect x="952" y="205" width="126" height="35" fill="#75d7e8"/>
+<text x="962" y="228" font-size="16" fill="#161925">2 logs</text>
+<rect x="1078" y="205" width="238" height="35" fill="#161925"/>
+<text x="1088" y="228" font-size="16" fill="#e0e6f5">29 Oct / 12:00</text>
+<rect x="704" y="248" width="66" height="23" fill="#b8a1f7"/>
+<text x="711" y="265" font-size="14" fill="#161925">COPY</text>
+<text x="787" y="265" font-size="13" fill="#a5aec6">Selection and menu colors are explicit.</text>
+<rect x="28" y="296" width="630" height="184" rx="8" fill="#1b1715" stroke="#8a7058" stroke-width="2"/>
+<text x="46" y="324" font-size="18" fill="#eee1d2">EMBER</text>
+<text x="46" y="356" font-size="17" fill="#eee1d2">tmx new work --theme ember -d</text>
+<text x="46" y="383" font-size="15" fill="#c0ac98">CPU 12% / RAM 37% / demo-host</text>
+<rect x="28" y="407" width="122" height="35" fill="#3b2d24"/>
+<text x="38" y="430" font-size="16" fill="#f3a66b">work / TMX</text>
+<rect x="150" y="407" width="144" height="35" fill="#241d1a"/>
+<text x="160" y="430" font-size="16" fill="#c0ac98">1 shell</text>
+<rect x="294" y="407" width="126" height="35" fill="#f3a66b"/>
+<text x="304" y="430" font-size="16" fill="#241d1a">2 logs</text>
+<rect x="420" y="407" width="238" height="35" fill="#241d1a"/>
+<text x="430" y="430" font-size="16" fill="#eee1d2">29 Oct / 12:00</text>
+<rect x="46" y="450" width="66" height="23" fill="#e8bf86"/>
+<text x="53" y="467" font-size="14" fill="#241d1a">COPY</text>
+<text x="129" y="467" font-size="13" fill="#c0ac98">Selection and menu colors are explicit.</text>
+<rect x="686" y="296" width="630" height="184" rx="8" fill="#f6f2e9" stroke="#887e6e" stroke-width="2"/>
+<text x="704" y="324" font-size="18" fill="#302e2a">PAPER</text>
+<text x="704" y="356" font-size="17" fill="#302e2a">tmx new work --theme paper -d</text>
+<text x="704" y="383" font-size="15" fill="#5e594f">CPU 12% / RAM 37% / demo-host</text>
+<rect x="686" y="407" width="122" height="35" fill="#ddd5c7"/>
+<text x="696" y="430" font-size="16" fill="#292724">work / TMX</text>
+<rect x="808" y="407" width="144" height="35" fill="#e9e2d5"/>
+<text x="818" y="430" font-size="16" fill="#5e594f">1 shell</text>
+<rect x="952" y="407" width="126" height="35" fill="#292724"/>
+<text x="962" y="430" font-size="16" fill="#e9e2d5">2 logs</text>
+<rect x="1078" y="407" width="238" height="35" fill="#e9e2d5"/>
+<text x="1088" y="430" font-size="16" fill="#302e2a">29 Oct / 12:00</text>
+<rect x="704" y="450" width="66" height="23" fill="#4d5945"/>
+<text x="711" y="467" font-size="14" fill="#e9e2d5">COPY</text>
+<text x="787" y="467" font-size="13" fill="#5e594f">Selection and menu colors are explicit.</text>
+<rect x="28" y="498" width="630" height="184" rx="8" fill="#100e1b" stroke="#77608f" stroke-width="2"/>
+<text x="46" y="526" font-size="18" fill="#eae1fa">NEON</text>
+<text x="46" y="558" font-size="17" fill="#eae1fa">tmx new work --theme neon -d</text>
+<text x="46" y="585" font-size="15" fill="#b4a2cd">CPU 12% / RAM 37% / demo-host</text>
+<rect x="28" y="609" width="122" height="35" fill="#302441"/>
+<text x="38" y="632" font-size="16" fill="#ef88d8">work / TMX</text>
+<rect x="150" y="609" width="144" height="35" fill="#171326"/>
+<text x="160" y="632" font-size="16" fill="#b4a2cd">1 shell</text>
+<rect x="294" y="609" width="126" height="35" fill="#ef88d8"/>
+<text x="304" y="632" font-size="16" fill="#171326">2 logs</text>
+<rect x="420" y="609" width="238" height="35" fill="#171326"/>
+<text x="430" y="632" font-size="16" fill="#eae1fa">29 Oct / 12:00</text>
+<rect x="46" y="652" width="66" height="23" fill="#bda2f2"/>
+<text x="53" y="669" font-size="14" fill="#171326">COPY</text>
+<text x="129" y="669" font-size="13" fill="#b4a2cd">Selection and menu colors are explicit.</text>
+<rect x="686" y="498" width="630" height="184" rx="8" fill="#000000" stroke="#636363" stroke-width="2"/>
+<text x="704" y="526" font-size="18" fill="#e6e6e6">COMMAND LINE</text>
+<text x="704" y="558" font-size="17" fill="#e6e6e6">tmx new work --theme black -d</text>
+<text x="704" y="585" font-size="15" fill="#a0a0a0">CPU 12% / RAM 37% / demo-host</text>
+<rect x="686" y="609" width="122" height="35" fill="#1a1a1a"/>
+<text x="696" y="632" font-size="16" fill="#ededed">work / TMX</text>
+<rect x="808" y="609" width="144" height="35" fill="#080808"/>
+<text x="818" y="632" font-size="16" fill="#a0a0a0">1 shell</text>
+<rect x="952" y="609" width="126" height="35" fill="#ededed"/>
+<text x="962" y="632" font-size="16" fill="#080808">2 logs</text>
+<rect x="1078" y="609" width="238" height="35" fill="#080808"/>
+<text x="1088" y="632" font-size="16" fill="#e6e6e6">29 Oct / 12:00</text>
+<rect x="704" y="652" width="66" height="23" fill="#c4c4c4"/>
+<text x="711" y="669" font-size="14" fill="#080808">COPY</text>
+<text x="787" y="669" font-size="13" fill="#a0a0a0">Selection and menu colors are explicit.</text>
+<rect x="28" y="700" width="630" height="184" rx="8" fill="#1e1e1e" stroke="#707070" stroke-width="2"/>
+<text x="46" y="728" font-size="18" fill="#d4d4d4">CODE SPECTRUM</text>
+<text x="46" y="760" font-size="17" fill="#d4d4d4">tmx new work --theme code -d</text>
+<text x="46" y="787" font-size="15" fill="#929292">CPU 12% / RAM 37% / demo-host</text>
+<rect x="28" y="811" width="122" height="35" fill="#2d2d30"/>
+<text x="38" y="834" font-size="16" fill="#4fc1ff">work / TMX</text>
+<rect x="150" y="811" width="144" height="35" fill="#181818"/>
+<text x="160" y="834" font-size="16" fill="#929292">1 shell</text>
+<rect x="294" y="811" width="126" height="35" fill="#4fc1ff"/>
+<text x="304" y="834" font-size="16" fill="#181818">2 logs</text>
+<rect x="420" y="811" width="238" height="35" fill="#181818"/>
+<text x="430" y="834" font-size="16" fill="#d4d4d4">29 Oct / 12:00</text>
+<rect x="46" y="854" width="66" height="23" fill="#c586c0"/>
+<text x="53" y="871" font-size="14" fill="#181818">COPY</text>
+<text x="129" y="871" font-size="13" fill="#929292">Selection and menu colors are explicit.</text>
+<rect x="686" y="700" width="630" height="184" rx="8" fill="#020805" stroke="#347b52" stroke-width="2"/>
+<text x="704" y="728" font-size="18" fill="#b9ffd1">HACKER MATRIX</text>
+<text x="704" y="760" font-size="17" fill="#b9ffd1">tmx new work --theme hacker -d</text>
+<text x="704" y="787" font-size="15" fill="#5d9c77">CPU 12% / RAM 37% / demo-host</text>
+<rect x="686" y="811" width="122" height="35" fill="#10291c"/>
+<text x="696" y="834" font-size="16" fill="#00ff88">work / TMX</text>
+<rect x="808" y="811" width="144" height="35" fill="#04100a"/>
+<text x="818" y="834" font-size="16" fill="#5d9c77">1 shell</text>
+<rect x="952" y="811" width="126" height="35" fill="#00ff88"/>
+<text x="962" y="834" font-size="16" fill="#04100a">2 logs</text>
+<rect x="1078" y="811" width="238" height="35" fill="#04100a"/>
+<text x="1088" y="834" font-size="16" fill="#b9ffd1">29 Oct / 12:00</text>
+<rect x="704" y="854" width="66" height="23" fill="#49f5b3"/>
+<text x="711" y="871" font-size="14" fill="#04100a">COPY</text>
+<text x="787" y="871" font-size="13" fill="#5d9c77">Selection and menu colors are explicit.</text>
+<text x="28" y="918" font-size="13" fill="#b8bfd0">584 app-controlled color pairs checked. Samples, not terminal screenshots.</text></g></svg>

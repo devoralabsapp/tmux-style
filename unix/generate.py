@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BASE = (ROOT / 'tmux.conf').read_text(encoding='utf-8')
 ORIGINAL = ['#161925', '#e0e6f5', '#b8a1f7', '#a5aec6', '#75d7e8',
-            '#a6d6a0', '#f0c674', '#f28b98', '#202435', '#292e42', '#3b425b']
+            '#a6d6a0', '#f0c674', '#f28b98', '#202435', '#292e42', '#5e6885']
 catalog = json.loads((ROOT / 'themes/catalog.json').read_text())
 catalog['midnight'] = dict(name='Midnight / Cyan', colors=ORIGINAL, pane='#10131e')
 catalog.update(json.loads((ROOT / 'windows-terminal/themes.extra.json').read_text()))
@@ -30,7 +30,5 @@ for slug in ['aurora', 'midnight', 'ember', 'paper', 'neon', 'black', 'code', 'h
     text += f"\nset -g @tmux_style_theme '{slug}'\n"
     text += f"setw -g window-style 'bg={spec['pane']},fg={spec['colors'][1]}'\n"
     text += f"setw -g window-active-style 'bg={spec['pane']},fg={spec['colors'][1]}'\n"
-    if slug == 'paper':
-        text = text.replace('bg=#f0d8a5#,fg=#e9e2d5', 'bg=#f0d8a5#,fg=#302e2a')
     (folder / (slug + '.conf')).write_text(text, encoding='utf-8', newline='\n')
 print('Generated 8 standalone Linux/macOS themes')

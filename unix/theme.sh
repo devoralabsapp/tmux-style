@@ -4,7 +4,7 @@ apply_session_theme() {
   [[ $sid =~ ^\$[0-9]+$ ]] && valid_theme "$selected" || return 1
   # BSD awk rejects literal newlines in a -v assignment; IDs contain no spaces.
   windows=$(tm list-windows -t "$sid" -F '#{window_id}' | tr '\n' ' ') || return 1
-  staged=$(mktemp "${TMPDIR:-/tmp}/tmux-style-theme.XXXXXXXX")
+  staged=$(mktemp "${TMPDIR:-/tmp}/tmx-theme.XXXXXXXX")
   # Each session owns its status and each of its windows owns pane/tab colors.
   # Use stable tmux IDs so renamed sessions and shell metacharacters stay safe.
   if ! awk -v sid="$sid" -v windows="$windows" '
@@ -35,10 +35,10 @@ sync_session_theme() {
 theme_session() {
   local sessions
   if [[ -n ${TMUX:-} ]]; then
-    current_session || { echo 'Run theme inside a Tmux Style session, or specify --session NAME.' >&2; return 1; }
+    current_session || { echo 'Run theme inside a TMX session, or specify --session NAME.' >&2; return 1; }
   else
     sessions=$(tm list-sessions -F '#{session_id}') || return 1
-    [[ $sessions != *$'\n'* ]] || { echo 'Several sessions are running. Use tmux-style theme NAME --session SESSION.' >&2; return 1; }
+    [[ $sessions != *$'\n'* ]] || { echo 'Several sessions are running. Use tmx theme NAME --session SESSION.' >&2; return 1; }
     printf '%s\n' "$sessions"
   fi
 }
@@ -56,7 +56,7 @@ theme_command() {
       *) [[ -z $selected ]] || { echo 'Specify one theme name.' >&2; return 1; }; selected=$1; shift ;;
     esac
   done
-  valid_theme "$selected" || { echo 'Choose a name from: tmux-style themes' >&2; return 1; }
+  valid_theme "$selected" || { echo 'Choose a name from: tmx themes' >&2; return 1; }
   if $default || { [[ -z $target && -z $pane ]] && ! tm has-session 2>/dev/null; }; then
     [[ -z $target && -z $pane ]] || { echo '--default cannot target a session.' >&2; return 1; }
     staged=$(mktemp "$root/theme.XXXXXXXX")
@@ -77,7 +77,7 @@ theme_command() {
 choose_theme() {
   local pane=${TMUX_PANE:-} sid selected key=1
   if [[ $# -gt 0 ]]; then [[ $# == 2 && $1 == --pane ]] || return 1; pane=$2; fi
-  sid=$(pane_session "$pane") || { echo 'Attach to a Tmux Style session to open the theme menu.' >&2; return 1; }
+  sid=$(pane_session "$pane") || { echo 'Attach to a TMX session to open the theme menu.' >&2; return 1; }
   local menu=()
   for selected in aurora midnight ember paper neon black code hacker; do
     menu+=("$selected" "$key" "run-shell 'bash \"\$TMUX_STYLE_HOME/cli.sh\" theme $selected --pane $pane >/dev/null'")

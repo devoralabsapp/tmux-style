@@ -6,36 +6,36 @@ import re
 ROOT = Path(__file__).resolve().parent
 BASE = (ROOT / 'tmux.conf').read_text(encoding='utf-8')
 ORIGINAL = ['#161925', '#e0e6f5', '#b8a1f7', '#a5aec6', '#75d7e8',
-            '#a6d6a0', '#f0c674', '#f28b98', '#202435', '#292e42', '#3b425b']
+            '#a6d6a0', '#f0c674', '#f28b98', '#202435', '#292e42', '#5e6885']
 THEMES = {
     'black': {
         'name': 'Command Line', 'subtitle': 'Pure black. Crisp whites. Quiet gray dividers.',
         'colors': ['#080808','#e6e6e6','#c4c4c4','#a0a0a0','#ededed',
-                   '#cccccc','#b8b8b8','#ffffff','#202020','#1a1a1a','#454545'],
+                   '#cccccc','#b8b8b8','#ffffff','#202020','#1a1a1a','#636363'],
         'pane': '#000000', 'position': 'bottom', 'rows': 1,
     },
     'aurora': {
         'name': 'Aurora', 'subtitle': 'Mint accents. Lavender details. Tabs on top.',
         'colors': ['#182722','#e1eee6','#c5b5ed','#a7bdb1','#9fe4be',
-                   '#a8d5a2','#eed49f','#ed9ca8','#22382e','#2a3b33','#425c4c'],
+                   '#a8d5a2','#eed49f','#ed9ca8','#22382e','#2a3b33','#607968'],
         'pane': '#12201b', 'position': 'top', 'rows': 1,
     },
     'ember': {
         'name': 'Ember', 'subtitle': 'Warm amber. Charcoal canvas. Numbered pane headers.',
         'colors': ['#241d1a','#eee1d2','#e8bf86','#c0ac98','#f3a66b',
-                   '#b9cc93','#f0cd83','#ed9490','#32261f','#3b2d24','#67503e'],
+                   '#b9cc93','#f0cd83','#ed9490','#32261f','#3b2d24','#8a7058'],
         'pane': '#1b1715', 'position': 'bottom', 'rows': 1,
     },
     'paper': {
         'name': 'Paper / Ink', 'subtitle': 'Warm paper. Ink-black tabs. A calm light workspace.',
-        'colors': ['#e9e2d5','#302e2a','#56634e','#625d54','#292724',
-                   '#527344','#f0d8a5','#ac454b','#ddd5c7','#ddd5c7','#b8ae9e'],
+        'colors': ['#e9e2d5','#302e2a','#4d5945','#5e594f','#292724',
+                   '#476b3b','#805615','#a03b43','#ddd5c7','#ddd5c7','#887e6e'],
         'pane': '#f6f2e9', 'position': 'bottom', 'rows': 1,
     },
     'neon': {
         'name': 'Neon / Circuit', 'subtitle': 'Orchid tabs. Electric mint. Two rows of context.',
         'colors': ['#171326','#eae1fa','#bda2f2','#b4a2cd','#ef88d8',
-                   '#7de3ce','#f5d38e','#fc8cae','#28203b','#302441','#53406e'],
+                   '#7de3ce','#f5d38e','#fc8cae','#28203b','#302441','#77608f'],
         'pane': '#100e1b', 'position': 'bottom', 'rows': 2,
     },
 }
@@ -74,8 +74,7 @@ def build(slug, spec):
         text = re.sub(r"^midnight_status_left=.*$",
             "midnight_status_left='#[fg=#302e2a,bold] #{?#{e|>=:#{client_width},100},#{=18:session_name},#{=10:session_name}} / #[default] '",
             text,flags=re.M)
-        # Pale OFF badge stays readable on paper; selections use an ink-green fill.
-        text = text.replace('bg=#f0d8a5#,fg=#e9e2d5','bg=#f0d8a5#,fg=#302e2a')
+        # Dark amber warnings contrast against paper, with a light badge label.
     if slug == 'neon':
         text = replace_setting(text,'window-status-format',
             ' #I / #{?#{e|>=:#{client_width},100},#{=14:window_name},#{=8:window_name}}#{?window_bell_flag, !,#{?window_activity_flag, +,}} ', 'setw -g')

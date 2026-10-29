@@ -9,7 +9,7 @@ version = (ROOT / 'VERSION').read_text().strip()
 out = ROOT / 'dist'
 out.mkdir(exist_ok=True)
 for platform in ['linux', 'macos']:
-    prefix = f'tmux-style-{platform}-{version}'
+    prefix = f'tmx-{platform}-{version}'
     archive = out / f'{prefix}.tar.gz'
     files = [ROOT / p for p in ['VERSION', 'NOTICE.md', 'unix/README.md', 'windows-terminal/LICENSE']]
     files += [p for p in (ROOT / 'unix').rglob('*') if p.is_file() and p.suffix in ['.sh', '.conf']]

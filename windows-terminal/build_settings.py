@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parent
 catalog=json.loads((ROOT.parent/'themes/catalog.json').read_text())
 catalog['midnight']={'name':'Midnight','pane':'#10131e','colors':[
     '#161925','#e0e6f5','#b8a1f7','#a5aec6','#75d7e8','#a6d6a0',
-    '#f0c674','#f28b98','#202435','#292e42','#3b425b']}
+    '#f0c674','#f28b98','#202435','#292e42','#5e6885']}
 catalog.update(json.loads((ROOT/'themes.extra.json').read_text()))
 names={'aurora':'Aurora','midnight':'Midnight','ember':'Ember','paper':'Paper','neon':'Neon','black':'Command Line','code':'Code Spectrum','hacker':'Hacker Matrix'}
 schemes=[]; profiles=[]
@@ -21,8 +21,8 @@ for slug in names:
         brightCyan=('#426e70' if slug=='paper' else '#9fe4db'),brightWhite=c[1])
     # Paper needs strong prompt/syntax colors against its pale background.
     if slug=='paper':
-        scheme.update(yellow='#8a601d',brightYellow='#8a601d',
-                      green='#527344',brightGreen='#527344',brightBlack='#625d54')
+        scheme.update(black=c[1],yellow=c[6],brightYellow=c[6],
+                      green=c[5],brightGreen=c[5],brightBlack=c[3])
     if slug=='black':
         for key in ['red','green','yellow','blue','purple','cyan']:
             scheme[key]='#bfbfbf'
@@ -87,5 +87,12 @@ for slug,scheme in zip(names,schemes):
         selection_bg=scheme['selectionBackground'],selection_fg=scheme['foreground'],split=c[10],
         ansi=[scheme[k] for k in ['black','red','green','yellow','blue','purple','cyan','white']],
         brights=[scheme[k] for k in ['brightBlack','brightRed','brightGreen','brightYellow','brightBlue','brightPurple','brightCyan','brightWhite']]))
+    # Copy/search highlights must contrast in light themes as well as dark ones.
+    for prefix,fg,bg in [('copy_mode_active_highlight',c[0],c[4]),
+                         ('copy_mode_inactive_highlight',c[1],c[9]),
+                         ('quick_select_label',c[0],c[4]),
+                         ('quick_select_match',c[1],c[9])]:
+        wezterm[slug]['colors'][prefix+'_fg']={'Color':fg}
+        wezterm[slug]['colors'][prefix+'_bg']={'Color':bg}
 (ROOT/'wezterm-palettes.json').write_text(json.dumps(wezterm,indent=2)+'\n',encoding='utf-8')
 print('Built',len(profiles),'profiles,',len(schemes),'color schemes and',len(actions),'actions.')

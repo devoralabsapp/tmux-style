@@ -4,6 +4,8 @@ The tmux baseline is an independently maintained configuration originally based 
 
 New Linux/macOS installer, launcher, metrics, clipboard, packaging and test scripts use the MIT terms in `windows-terminal/LICENSE`. Those terms do not relicense the pre-existing tmux configuration. Unix packages include configuration derived from that baseline without requiring the upstream helpers or TPM.
 
+The contrast checker and generated vector color samples also use those MIT terms.
+
 The new Windows installer, key bridge, prompt and build scripts are licensed under `windows-terminal/LICENSE`. That license does not replace the terms applicable to the original tmux configuration or third-party files.
 
 The WezTerm integration, Lua configuration and local Windows metric collector also use that Windows MIT license. WezTerm itself is an independent third-party terminal by its upstream contributors, distributed under its own MIT license, with bundled fonts under OFL terms. Its upstream notice is included in `windows-terminal/WEZTERM_LICENSE.md`. The optional portable download keeps the upstream package unchanged; this project's EXE does not bundle the terminal binary. The pinned official release and upstream SHA-256 are recorded in `windows-terminal/wezterm-runtime.json`.

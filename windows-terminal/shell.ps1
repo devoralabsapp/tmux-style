@@ -40,6 +40,11 @@ function global:Update-TmuxStyleShellTheme {
         }elseif($Name -eq 'hacker'){
             $syntax=@{Command='Green';Parameter='Cyan';String='DarkYellow';Variable='Cyan';Type='DarkCyan';Number='Yellow';Operator='DarkGreen';Keyword='Green';Member='Green';Comment='DarkGray';Error='Red'}
         }
+        # Reset to the theme's foreground/background before reversing selection.
+        # This avoids inherited light-on-light or dark-on-dark selection colors.
+        $syntax.Selection = [string][char]27+'[0;7m'
+        $syntax.Emphasis = $global:TmuxStylePalette.Detail
+        $syntax.ContinuationPrompt = $global:TmuxStylePalette.Muted
         Set-PSReadLineOption -Colors $syntax -ErrorAction SilentlyContinue
     }
 }

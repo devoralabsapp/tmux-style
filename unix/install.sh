@@ -27,7 +27,8 @@ if ! awk -v v="$version" 'BEGIN {split(v,n,"."); exit !(n[1]>3 || (n[1]==3 && n[
 fi
 source_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 data="${XDG_DATA_HOME:-$HOME/.local/share}/tmux-style"
-launcher="$HOME/.local/bin/tmux-style"
+launcher="$HOME/.local/bin/tmx"
+legacy_launcher="$HOME/.local/bin/tmux-style"
 case "$data$HOME" in *$'\n'*|*$'\r'*) echo 'Paths must not contain line breaks.' >&2; exit 1 ;; esac
 [[ $data == /* && $HOME == /* ]] || { echo 'HOME and XDG_DATA_HOME must be absolute.' >&2; exit 1; }
 # Avoid destructive replacement of an unrelated directory or launcher.
@@ -36,13 +37,20 @@ if [[ -e $data && ! -f $data/install.id ]]; then
 fi
 if [[ -L $data ]]; then echo 'The owned asset directory must not be a symlink.' >&2; exit 1; fi
 if [[ -d $launcher ]]; then echo "Launcher path is a directory: $launcher" >&2; exit 1; fi
+if [[ -d $legacy_launcher ]]; then echo "Launcher path is a directory: $legacy_launcher" >&2; exit 1; fi
+if [[ -e $launcher || -L $launcher ]]; then
+  if [[ ! -f $data/launcher ]] || ! cmp -s "$launcher" "$data/launcher"; then
+    echo "tmx already exists and belongs to another tool: $launcher. No files changed." >&2; exit 1
+  fi
+fi
 mkdir -p "$(dirname "$data")" "$(dirname "$launcher")" "$data-backups"
 backup=$(mktemp -d "$data-backups/install.XXXXXXXX")
 stage=$(mktemp -d "$data.stage.XXXXXXXX")
 cleanup() { [[ ! -d $stage ]] || rm -rf -- "$stage"; }
 trap cleanup EXIT
 if [[ -d $data ]]; then cp -pR "$data" "$backup/data"; fi
-if [[ -e $launcher || -L $launcher ]]; then cp -pP "$launcher" "$backup/launcher"; fi
+if [[ -e $legacy_launcher || -L $legacy_launcher ]]; then cp -pP "$legacy_launcher" "$backup/launcher"; fi
+if [[ -e $launcher || -L $launcher ]]; then cp -pP "$launcher" "$backup/launcher-tmx"; fi
 cp "$source_dir/"*.sh "$source_dir/tmux.conf" "$stage/"
 cp -R "$source_dir/themes" "$stage/themes"
 cp -R "$source_dir/shell" "$stage/shell"
@@ -60,14 +68,21 @@ if ! mv "$stage" "$data"; then
   [[ ! -d $backup/replaced ]] || mv "$backup/replaced" "$data"
   exit 1
 fi
-launcher_stage=$(mktemp "$HOME/.local/bin/.tmux-style.XXXXXXXX")
-if ! cp "$data/launcher" "$launcher_stage" || ! chmod 755 "$launcher_stage" || ! mv -f "$launcher_stage" "$launcher"; then
-  rm -f -- "$launcher_stage"
-  rm -rf -- "$data"
-  [[ ! -d $backup/replaced ]] || mv "$backup/replaced" "$data"
-  echo 'Could not install launcher; restored previous assets.' >&2; exit 1
-fi
-printf '\nInstalled Tmux Style %s for %s (%s).\n' "$(cat "$data/VERSION")" "$(uname -s)" "$theme"
-printf 'Start:   %s\nTheme:   %s theme hacker\nRestore: %s restore\nBackup:  %s\n' "$launcher" "$launcher" "$launcher" "$backup"
+for command_path in "$launcher" "$legacy_launcher"; do
+  launcher_stage=$(mktemp "$HOME/.local/bin/.tmx.XXXXXXXX")
+  if ! cp "$data/launcher" "$launcher_stage" || ! chmod 755 "$launcher_stage" || ! mv -f "$launcher_stage" "$command_path"; then
+    rm -f -- "$launcher_stage"
+    rm -rf -- "$data"
+    [[ ! -d $backup/replaced ]] || mv "$backup/replaced" "$data"
+    for command_path in "$launcher" "$legacy_launcher"; do
+      rm -f -- "$command_path"
+      if [[ $command_path == "$launcher" ]]; then prior="$backup/launcher-tmx"; else prior="$backup/launcher"; fi
+      [[ ! -e $prior && ! -L $prior ]] || cp -pP "$prior" "$command_path"
+    done
+    echo 'Could not install commands; restored previous assets and launchers.' >&2; exit 1
+  fi
+done
+printf '\nInstalled TMX %s for %s (%s).\n' "$(cat "$data/VERSION")" "$(uname -s)" "$theme"
+printf 'Start: %s\nNew: %s new work\nAttach: %s attach work\nUninstall: %s uninstall\nBackup: %s\n' "$launcher" "$launcher" "$launcher" "$launcher" "$backup"
 case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) echo 'Use the full command above, or add ~/.local/bin to PATH yourself.' ;; esac
 echo 'Existing tmux sessions and ~/.tmux.conf were left in place.'

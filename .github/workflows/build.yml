@@ -28,6 +28,7 @@ jobs:
         run: |
           for script in unix/*.sh linux/*.sh macos/*.command; do bash -n "$script"; done
           python3 unix/generate.py
+          python3 scripts/check-theme-contrast.py
           git diff --exit-code -- unix/themes
       - name: Exercise installed workspace on an isolated tmux server
         run: python3 unix/test.py
@@ -35,11 +36,12 @@ jobs:
         run: python3 unix/package.py
       - uses: actions/upload-artifact@v4
         with:
-          name: TmuxStyle-${{ runner.os }}
+          name: TMX-${{ runner.os }}
           path: |
-            dist/tmux-style-*.tar.gz
-            dist/tmux-style-*.sha256
+            dist/tmx-*.tar.gz
+            dist/tmx-*.sha256
             dist/unix-test-*.json
+            dist/theme-contrast.json
   windows:
     runs-on: windows-latest
     steps:
@@ -49,6 +51,7 @@ jobs:
         run: |
           python build_themes.py
           python windows-terminal/build_settings.py
+          python scripts/check-theme-contrast.py
           git diff --exit-code -- themes windows-terminal/settings.additions.json windows-terminal/wezterm-palettes.json
       - name: Compile and test packaged EXE on Windows PowerShell
         shell: pwsh
@@ -70,9 +73,10 @@ jobs:
           ./windows-terminal/test-wezterm-lua.ps1 -SourceDirectory ./windows-terminal -WezTermExecutable (Join-Path $runtime ($pin.folder+'/wezterm.exe')) -ReportFile ./dist/wezterm-lua-test.json
       - uses: actions/upload-artifact@v4
         with:
-          name: TmuxStyle-Windows
+          name: TMX-Windows
           path: |
-            dist/TmuxStyle-Setup-*.exe
+            dist/TMX-Setup-*.exe
             dist/SHA256SUMS.txt
             dist/self-test.json
             dist/wezterm-lua-test.json
+            dist/theme-contrast.json

@@ -55,6 +55,10 @@ try{
     $global:LASTEXITCODE=37;$promptText=prompt
     if($global:TmuxStyleTheme -ne 'paper' -or $global:LASTEXITCODE -ne 37 -or $promptText -ne '  > '){throw 'Peer-pane prompt theme sync damaged shell state'}
     Import-Module PSReadLine
+    foreach($paletteName in 'aurora','midnight','ember','paper','neon','black','code','hacker'){
+        Update-TmuxStyleShellTheme $paletteName
+        if((Get-PSReadLineOption).SelectionColor -ne ([string][char]27+'[0;7m')){throw 'Selection must reset and reverse the active terminal palette'}
+    }
     Update-TmuxStyleShellTheme code
     $options=Get-PSReadLineOption
     if($options.CommandColor -eq $options.StringColor -or $options.KeywordColor -eq $options.VariableColor){throw 'Code Spectrum syntax roles are not distinct'}

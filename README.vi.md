@@ -1,12 +1,18 @@
-# Tmux Style
+# TMX
 
 [English](README.md) · Tiếng Việt
 
-## Linux và macOS: bộ cài độc lập v1.5.0
+## Linux và macOS: bộ cài độc lập v1.6.0
 
-**Mới ở v1.5.0:** gõ trực tiếp `theme hacker`, `theme code`, hoặc `theme` trong pane Bash/Zsh của Tmux Style. Mỗi phiên giữ màu riêng. Dùng `tmux-style new work --theme code`, `tmux-style new lab --theme hacker -d`, `tmux-style list`, rồi `tmux-style attach work` / `tmux-style attach lab`. `Ctrl-a d` detach và giữ tiến trình chạy. Sau khi nâng cấp từ 1.4, nhấn `Ctrl-a Ctrl-r` để nạp cấu hình mới; trong pane cũ chạy `. "$TMUX_STYLE_HOME/shell/commands.sh"` để có lệnh `theme` ngay, không cần khởi động lại shell.
+**Mới ở v1.6.0:** lệnh chính đổi thành **`tmx`**; `tmux-style` vẫn dùng được để tương thích. Thêm `tmx uninstall` để gỡ bộ cài Linux/macOS qua mọi lần nâng cấp, giữ bản sao lưu phục hồi. Đã tăng độ tương phản của Paper, chữ ở trạng thái OFF, viền pane, menu, phần chọn chữ và màu prompt Windows.
 
-Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.5.0/tmux-style-linux-1.5.0.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.5.0/tmux-style-macos-1.5.0.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
+Dùng `tmx new work --theme code`, `tmx new lab --theme hacker -d`, `tmx list`, rồi `tmx attach work` / `tmx attach lab`. Trong pane Bash/Zsh, gõ `theme hacker`, `theme code`, hoặc `theme` để đổi màu tại chỗ. `Ctrl-a d` detach và giữ tiến trình chạy. Sau khi cài bản mới, nhấn `Ctrl-a Ctrl-r` và chạy `. "$TMUX_STYLE_HOME/shell/commands.sh"` trong pane cũ để có tên lệnh mới ngay.
+
+Các cặp màu chữ do tool quản lý được kiểm tra với mục tiêu tương phản tối thiểu **4.5:1**, viền pane **3:1**. Xem báo cáo `theme-contrast.json` trên Release. Màu do ứng dụng hoặc cấu hình terminal riêng đặt sẽ phụ thuộc ứng dụng đó.
+
+![Mẫu màu chữ và nền của tám theme](preview/theme-readability.svg)
+
+Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.6.0/tmx-linux-1.6.0.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.6.0/tmx-macos-1.6.0.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
 
 ```bash
 # Linux / WSL
@@ -15,13 +21,13 @@ bash linux/install.sh --theme hacker
 # macOS: chạy brew install tmux trước
 bash macos/install.command --theme code
 
-~/.local/bin/tmux-style
-~/.local/bin/tmux-style theme black
+~/.local/bin/tmx
+~/.local/bin/tmx theme black
 ```
 
 Cả hai gói hỗ trợ máy Intel/x86_64 và ARM64 qua tmux native. Có đủ **8 theme**, workspace ba pane, thanh CPU/RAM, hostname, ngày giờ và tên cửa sổ không giới hạn ký tự cấu hình. `Ctrl-a t` chọn theme ngay trong phiên đang mở; `Ctrl-a d` detach để tiến trình tiếp tục chạy.
 
-Bộ cài dùng server tmux riêng, không sửa `~/.tmux.conf`, `.bashrc` hay `.zshrc`. Có sao lưu và lệnh `~/.local/bin/tmux-style restore` để hoàn tác sau khi thoát các phiên Tmux Style. Trên tmux có `prefix-timeout`, Ctrl-a chờ 2 giây; bản tmux cũ giữ prefix tới phím tiếp theo. Theme Code đổi màu giao diện tmux; màu cú pháp Bash/Zsh do shell/ứng dụng quản lý. [Hướng dẫn đầy đủ](unix/README.md).
+Bộ cài dùng server tmux riêng, không sửa `~/.tmux.conf`, `.bashrc` hay `.zshrc`. Có sao lưu và lệnh `~/.local/bin/tmx restore` để hoàn tác sau khi thoát các phiên Tmux Style. Trên tmux có `prefix-timeout`, Ctrl-a chờ 2 giây; bản tmux cũ giữ prefix tới phím tiếp theo. Theme Code đổi màu giao diện tmux; màu cú pháp Bash/Zsh do shell/ứng dụng quản lý. [Hướng dẫn đầy đủ](unix/README.md).
 
 Bản 1.2.0 thêm **WezTerm + PowerShell với bottom bar thật**: tên tab, CPU/RAM Windows, hostname, ngày giờ và trạng thái PREFIX/ZOOM/OFF. Giữ nguyên Windows Terminal hiện có. Bản sửa lỗi mở workspace sau khi cài ở 1.1.0 vẫn được giữ.
 
@@ -39,7 +45,7 @@ Sáu giao diện tmux nền: **Aurora**, **Midnight / Cyan**, **Ember**, **Paper
 
 ## Windows: tải EXE và cài
 
-Tải **[TmuxStyle-Setup-1.5.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
+Tải **[TMX-Setup-1.6.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
 
 Bản **1.3.1** bỏ giới hạn ký tự tên tab WezTerm: tên dài hiển thị đầy đủ khi thanh tab còn đủ chỗ. Nếu tổng các tab vượt chiều rộng cửa sổ, WezTerm xử lý phần tràn theo không gian thực tế.
 

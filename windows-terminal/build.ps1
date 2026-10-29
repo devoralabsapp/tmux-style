@@ -10,7 +10,7 @@ New-Item -ItemType Directory -Path $build -Force|Out-Null
 $compiler=Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 if(-not(Test-Path $compiler)){$compiler=Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe'}
 $assemblyInfo=Join-Path $build 'AssemblyInfo.cs'
-[IO.File]::WriteAllText($assemblyInfo,'using System.Reflection; [assembly:AssemblyVersion("'+$Version+'.0")] [assembly:AssemblyFileVersion("'+$Version+'.0")] [assembly:AssemblyProduct("Tmux Style Windows Workspace")]')
+[IO.File]::WriteAllText($assemblyInfo,'using System.Reflection; [assembly:AssemblyVersion("'+$Version+'.0")] [assembly:AssemblyFileVersion("'+$Version+'.0")] [assembly:AssemblyProduct("TMX Windows Workspace")]')
 $bridge=Join-Path $build 'TmuxStyle.Keys.exe'
 & $compiler /nologo /target:winexe /platform:anycpu "/out:$bridge" "/win32icon:$(Join-Path $root 'tmux-style.ico')" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Web.Extensions.dll (Join-Path $root 'installer\KeyBridge.cs') $assemblyInfo
 if($LASTEXITCODE -ne 0){throw 'Key bridge compilation failed'}
@@ -31,7 +31,7 @@ try{
     [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$metrics,'TmuxStyle.Metrics.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$bridge,'TmuxStyle.Keys.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
 }finally{$archive.Dispose()}
-$installer=Join-Path $output ('TmuxStyle-Setup-'+$Version+'.exe')
+$installer=Join-Path $output ('TMX-Setup-'+$Version+'.exe')
 & $compiler /nologo /target:winexe /platform:anycpu "/out:$installer" "/win32icon:$(Join-Path $root 'tmux-style.ico')" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll "/resource:$payload,TmuxStyle.Payload.zip" "/win32manifest:$(Join-Path $root 'installer\app.manifest')" (Join-Path $root 'installer\Setup.cs') $assemblyInfo
 if($LASTEXITCODE -ne 0){throw 'Setup compilation failed'}
 if($RunTests){

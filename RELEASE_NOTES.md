@@ -1,4 +1,14 @@
-# Tmux Style v1.5.0
+# TMX v1.6.0
+
+- Renamed the Linux/macOS command to `tmx`. The `tmux-style` command, existing data paths and socket remain compatible with running sessions. Installer refuses collisions with an unrelated `tmx` command.
+- Added `tmx uninstall` to deactivate the tool and both owned commands across upgrades, retaining recovery backups and original user launchers. It refuses active TMX sessions or edited commands; unrelated tmux servers and dotfiles remain in place. `tmx restore` still rolls back only the most recent installation.
+- Fixed low-contrast Paper warning/error/status colors and Windows Paper prompt text, improved Code OFF text, Hacker comments and all pane dividers. Native menus, PSReadLine selections and WezTerm copy/search highlights now use explicit readable colors.
+- Added a build-time contrast audit covering native tmux, eight Unix themes and eight Windows palettes, plus labeled vector samples and the downloadable `theme-contrast.json` report. Text targets 4.5:1, pane dividers 3:1, for the shipped tool-controlled RGB pairs.
+- Renamed distribution files to `tmx-linux-1.6.0.tar.gz`, `tmx-macos-1.6.0.tar.gz` and `TMX-Setup-1.6.0.exe`. GitHub repository/downloads for older releases stay available.
+
+After installing, reload open Unix sessions with Ctrl-a Ctrl-r and source `. "$TMUX_STYLE_HOME/shell/commands.sh"` in old Bash/Zsh panes to load `tmx` without restarting them. To uninstall, exit the TMX sessions and run `tmx uninstall` from an outer terminal. Windows uses the existing installer restore flow.
+
+## v1.5.0 historical notes
 
 - Added `theme hacker`, `theme code` and a bare `theme` menu inside owned Bash/Zsh panes. User shell startup files remain unchanged, including custom Zsh `ZDOTDIR` support.
 - Added `tmux-style new NAME [--theme NAME] [-d]`, `list` / `ls`, `attach [NAME]` / `attach -t NAME`, and `detach`. Named sessions retain pane processes through client switching and detach/reattach. Existing `workspace [NAME]` keeps its create-or-reattach behavior.
