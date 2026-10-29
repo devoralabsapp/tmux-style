@@ -75,6 +75,7 @@ def wait_for(predicate, timeout=8):
 
 
 try:
+    print('Testing:', run('tmux', '-V').stdout.strip(), os.uname().sysname, flush=True)
     # Existing configuration/shell profile and symlink must remain byte-identical.
     original = home / 'original.conf'
     original.write_text('# existing user configuration\n')
@@ -173,6 +174,9 @@ try:
     report_path.parent.mkdir(exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report, indent=2))
+except BaseException:
+    print('Captured test terminal:', terminal_output.decode('utf-8', errors='replace')[-16000:], flush=True)
+    raise
 finally:
     env['PATH'] = os.environ['PATH']
     try:
