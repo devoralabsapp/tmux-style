@@ -18,9 +18,10 @@ case "$(uname -s)" in
         END {if(t>0 && found) printf "%.0f",100*(t-a)/t; else printf "--"}' /proc/meminfo)
     fi ;;
   Darwin)
-    cpu=$(LC_ALL=C top -l 1 -n 0 2>/dev/null | awk '/CPU usage:/ {
-      for(i=1;i<=NF;i++) if($i=="idle") {gsub(/%/,"",$(i-1)); printf "%.0f",100-$(i-1); found=1; exit}}
-      END {if(!found) printf "--"}') || cpu='--'
+    # Discard the first top snapshot; use the delta over a real sample interval.
+    cpu=$(LC_ALL=C top -l 2 -s 1 -n 0 2>/dev/null | awk '/CPU usage:/ {
+      for(i=1;i<=NF;i++) if($i=="idle") {gsub(/%/,"",$(i-1)); idle=$(i-1); found=1}}
+      END {if(found) printf "%.0f",100-idle; else printf "--"}') || cpu='--'
     total=$(sysctl -n hw.memsize 2>/dev/null) || total=0
     mem=$(vm_stat 2>/dev/null | awk -v total="$total" '
       /page size of/ {for(i=1;i<=NF;i++) if($i=="bytes)") page=$(i-1)}
