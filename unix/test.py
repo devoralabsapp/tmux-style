@@ -139,7 +139,9 @@ try:
     os.write(master, b'\x1b[24~')
     wait_for(lambda: tm('show-option', '-Av', 'prefix') == 'C-a')
     checks.append('real F12 pass-through toggles off and on')
-    assert re.fullmatch(r'CPU (?:\d+|--)%  RAM (?:\d+|--)%\n', run(launcher, 'metrics').stdout)
+    metric_sample = run(launcher, 'metrics').stdout.strip()
+    assert re.fullmatch(r'CPU \d+%  RAM \d+%', metric_sample), metric_sample
+    assert all(0 <= int(n) <= 100 for n in re.findall(r'\d+', metric_sample)), metric_sample
     checks.append('local operating-system CPU/RAM sampling')
     assert run(launcher, 'restore', ok=False).returncode
     assert data.exists()
@@ -171,7 +173,7 @@ try:
     assert not data.exists()
     checks.append('unsupported tmux rejected before writes')
     report = dict(platform=os.uname().sysname, architecture=os.uname().machine,
-                  tmux=tested_version, checks=checks)
+                  tmux=tested_version, metricSample=metric_sample, checks=checks)
     report_path = ROOT / 'dist' / ('unix-test-' + os.uname().sysname.lower() + '.json')
     report_path.parent.mkdir(exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2) + '\n')
