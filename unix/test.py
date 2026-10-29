@@ -23,6 +23,7 @@ env = dict(os.environ, HOME=str(home), TMUX_TMPDIR=str(work), TERM='xterm-256col
 env.pop('TMUX', None)
 env.pop('XDG_DATA_HOME', None)
 env['SHELL'] = shutil.which('bash')
+env['skip_global_compinit'] = '1'  # avoid distribution-wide completion prompts in the fake home
 launcher = home / '.local/bin/tmux-style'
 data = home / '.local/share/tmux-style'
 checks = []
@@ -204,12 +205,13 @@ try:
         zdot = home / 'zsh settings'
         zdot.mkdir()
         zenv = 'export TMUX_STYLE_TEST_ZSHENV=loaded\n'
-        zrc = 'export TMUX_STYLE_TEST_ZSHRC=loaded\n'
+        zrc = "export TMUX_STYLE_TEST_ZSHRC=loaded\nPS1='TMUX_STYLE_TEST_READY> '\n"
         (zdot / '.zshenv').write_text(zenv)
         (zdot / '.zshrc').write_text(zrc)
         tm('set-environment', '-g', 'ZDOTDIR', str(zdot))
         tm('set-option', '-g', 'default-shell', zsh)
         zsh_pane = tm('new-window', '-d', '-P', '-F', '#{pane_id}', '-t', 'lab', '-n', 'zsh')
+        wait_for(lambda: 'TMUX_STYLE_TEST_READY>' in tm('capture-pane', '-p', '-t', zsh_pane))
         in_shell(zsh_pane, 'test "$TMUX_STYLE_TEST_ZSHENV" = loaded && test "$TMUX_STYLE_TEST_ZSHRC" = loaded && theme hacker')
         assert session_theme('lab') == 'hacker' and session_theme('TMUX') == 'code'
         assert (zdot / '.zshenv').read_text() == zenv and (zdot / '.zshrc').read_text() == zrc
