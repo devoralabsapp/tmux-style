@@ -2,6 +2,25 @@
 
 [English](README.md) · Tiếng Việt
 
+## Linux và macOS: bộ cài độc lập v1.4.0
+
+Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.4.0/tmux-style-linux-1.4.0.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.4.0/tmux-style-macos-1.4.0.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
+
+```bash
+# Linux / WSL
+bash linux/install.sh --theme hacker
+
+# macOS: chạy brew install tmux trước
+bash macos/install.command --theme code
+
+~/.local/bin/tmux-style
+~/.local/bin/tmux-style theme black
+```
+
+Cả hai gói hỗ trợ máy Intel/x86_64 và ARM64 qua tmux native. Có đủ **8 theme**, workspace ba pane, thanh CPU/RAM, hostname, ngày giờ và tên cửa sổ không giới hạn ký tự cấu hình. `Ctrl-a t` chọn theme ngay trong phiên đang mở; `Ctrl-a d` detach để tiến trình tiếp tục chạy.
+
+Bộ cài dùng server tmux riêng, không sửa `~/.tmux.conf`, `.bashrc` hay `.zshrc`. Có sao lưu và lệnh `~/.local/bin/tmux-style restore` để hoàn tác sau khi thoát các phiên Tmux Style. Trên tmux có `prefix-timeout`, Ctrl-a chờ 2 giây; bản tmux cũ giữ prefix tới phím tiếp theo. Theme Code đổi màu giao diện tmux; màu cú pháp Bash/Zsh do shell/ứng dụng quản lý. [Hướng dẫn đầy đủ](unix/README.md).
+
 Bản 1.2.0 thêm **WezTerm + PowerShell với bottom bar thật**: tên tab, CPU/RAM Windows, hostname, ngày giờ và trạng thái PREFIX/ZOOM/OFF. Giữ nguyên Windows Terminal hiện có. Bản sửa lỗi mở workspace sau khi cài ở 1.1.0 vẫn được giữ.
 
 Bản **1.2.1** chỉnh thời gian chờ sau `Ctrl-a` thành **2 giây**. Lệnh `theme black` đổi màu ngay cửa sổ WezTerm hiện tại, giữ nguyên tab, pane và tiến trình. Các cửa sổ khác giữ màu riêng; prompt ở pane khác cập nhật khi được vẽ lại.
@@ -12,13 +31,13 @@ Bản **1.3.0** sửa nguyên nhân `Ctrl-a` bị hủy sớm: dữ liệu CPU/R
 
 ![Command Line / Black](preview/black-terminal.png)
 
-Sáu giao diện cho tmux, WezTerm và Windows Terminal: **Aurora**, **Midnight / Cyan**, **Ember**, **Paper / Ink**, **Neon / Circuit**, **Command Line / Black**. Giữ cấu hình tmux cá nhân của the original tmux configuration, dựa trên [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config).
+Sáu giao diện tmux nền: **Aurora**, **Midnight / Cyan**, **Ember**, **Paper / Ink**, **Neon / Circuit**, **Command Line / Black**, dựa trên [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config). Bộ cài độc lập và Windows có thêm **Code Spectrum** và **Hacker Matrix**.
 
 ![Theme gallery](preview/theme-gallery.png)
 
 ## Windows: tải EXE và cài
 
-Tải **[TmuxStyle-Setup-1.3.1.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
+Tải **[TmuxStyle-Setup-1.4.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
 
 Bản **1.3.1** bỏ giới hạn ký tự tên tab WezTerm: tên dài hiển thị đầy đủ khi thanh tab còn đủ chỗ. Nếu tổng các tab vượt chiều rộng cửa sổ, WezTerm xử lý phần tràn theo không gian thực tế.
 
@@ -46,7 +65,7 @@ Riêng lựa chọn Windows Terminal:
 
 Lệnh `theme neon` mở tab màu Neon; `workspace` mở workspace ba pane tại thư mục hiện tại. Tiến trình vẫn theo vòng đời cửa sổ Terminal; đây không phải tmux native hay cơ chế detach/attach. [Bảng phím đầy đủ, khác biệt và hướng dẫn build](windows-terminal/README.md).
 
-## Linux / macOS / WSL: tmux
+## Bộ nền samoshkin đã cài: overlay tmux cũ
 
 Yêu cầu tmux **>= 3.2** và bộ nền samoshkin đã cài ở `~/.tmux`.
 

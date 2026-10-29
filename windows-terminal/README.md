@@ -1,6 +1,6 @@
 # Windows workspaces + tmux-style keys
 
-Download **TmuxStyle-Setup-1.3.1.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
+Download **TmuxStyle-Setup-1.4.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
 
 The executable is not code signed. Source, build scripts and SHA-256 checksums are provided with the release. It does not bundle or impersonate Microsoft Windows Terminal.
 
@@ -50,7 +50,7 @@ The small `TmuxStyle.Metrics.exe` collector reads Windows CPU/memory counters an
 
 Close Tmux Style WezTerm windows before upgrade/restore. In the installer, select **WezTerm** and click **Restore previous settings**. Owned configs, prompt and shortcut are backed up in the separate `wezterm\backups` directory. Restore and upgrade refuse to overwrite files edited since installation. The portable runtime remains available after restoring the configuration.
 
-## Windows Terminal: keys matching original tmux configuration
+## Windows Terminal: familiar tmux keys
 
 The following section applies to the **Windows Terminal** installer option. This backend has themed prompts, tabs and panes, but **no custom bottom bar**. The Black sample below is a native tmux capture and does not show Windows Terminal capabilities.
 
@@ -121,7 +121,7 @@ The build uses the Windows .NET Framework compiler. No downloaded compiler packa
 
 GUI capture was unavailable in the local test environment (capture timeout); the release was checked by compiling and running the packaged self-test and by validating the native settings, not by claiming every shortcut was pressed in UI.
 
-References: the original tmux configuration, [Terminal actions](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/actions), [upstream multi-key prefix request](https://github.com/microsoft/terminal/issues/1334).
+References: [Terminal actions](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/actions), [upstream multi-key prefix request](https://github.com/microsoft/terminal/issues/1334).
 
 ## v1.1.0 launch fix
 

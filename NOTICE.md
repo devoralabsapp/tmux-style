@@ -1,6 +1,8 @@
 # Provenance
 
-The tmux baseline comes from the original tmux configuration, commit `original baseline`, originally based on [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config). Personal author identifiers have been removed at the contributor's request. No blanket license is applied to those pre-existing configuration files.
+The tmux baseline is an independently maintained configuration originally based on [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config). Personal source identifiers have been removed at the contributor's request. No blanket license is applied to those pre-existing configuration files.
+
+New Linux/macOS installer, launcher, metrics, clipboard, packaging and test scripts use the MIT terms in `windows-terminal/LICENSE`. Those terms do not relicense the pre-existing tmux configuration. Unix packages include configuration derived from that baseline without requiring the upstream helpers or TPM.
 
 The new Windows installer, key bridge, prompt and build scripts are licensed under `windows-terminal/LICENSE`. That license does not replace the terms applicable to the original tmux configuration or third-party files.
 

@@ -1,4 +1,4 @@
-name: Build and test Windows installer
+name: Build and test Windows, Linux and macOS
 on:
   push:
     branches: [main]
@@ -8,6 +8,38 @@ on:
 permissions:
   contents: read
 jobs:
+  unix:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native tmux
+        run: |
+          if [[ "$RUNNER_OS" == macOS ]]; then
+            brew list tmux >/dev/null 2>&1 || brew install tmux
+          else
+            sudo apt-get update
+            sudo apt-get install -y tmux
+          fi
+      - name: Check shell syntax and generated palettes
+        run: |
+          for script in unix/*.sh linux/*.sh macos/*.command; do bash -n "$script"; done
+          python3 unix/generate.py
+          git diff --exit-code -- unix/themes
+      - name: Exercise installed workspace on an isolated tmux server
+        run: python3 unix/test.py
+      - name: Build Unix packages
+        run: python3 unix/package.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TmuxStyle-${{ runner.os }}
+          path: |
+            dist/tmux-style-*.tar.gz
+            dist/tmux-style-*.sha256
+            dist/unix-test-*.json
   windows:
     runs-on: windows-latest
     steps:

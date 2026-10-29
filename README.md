@@ -4,7 +4,26 @@
 
 English · [Tiếng Việt](README.vi.md)
 
-Six themes for **tmux** and eight for **WezTerm + PowerShell / Windows Terminal + PowerShell**, with familiar `Ctrl-a` shortcuts based on the original tmux configuration and [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config).
+Eight themes for the standalone **Linux/macOS tmux** and **Windows WezTerm / Windows Terminal + PowerShell** workspaces, with familiar `Ctrl-a` shortcuts derived from the original configuration and [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config). The legacy tmux overlay retains its six themes.
+
+## Linux and macOS: standalone packages (v1.4.0)
+
+Download the [Linux archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.4.0/tmux-style-linux-1.4.0.tar.gz) or [macOS archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.4.0/tmux-style-macos-1.4.0.tar.gz), plus its `.sha256` file from the [release](https://github.com/devoralabsapp/tmux-style/releases/tag/v1.4.0). Install tmux >= 3.2, extract the archive, enter its folder, then run:
+
+```bash
+# Linux / WSL (install tmux with your distribution's package manager)
+bash linux/install.sh --theme hacker
+
+# macOS (brew install tmux first)
+bash macos/install.command --theme code
+
+~/.local/bin/tmux-style
+~/.local/bin/tmux-style theme black
+```
+
+Both packages are architecture-independent scripts for Intel/x86_64 and ARM64 hosts with native tmux. They open a three-pane workspace with a real bottom bar (CPU/RAM, hostname, date/time and window names), preserve processes while switching themes, and support detach/reattach. `Ctrl-a t` opens the theme menu. Installation and backup/restore use owned user files and a separate tmux server; your current `~/.tmux.conf` and shell profiles stay in place. See [Unix setup, shortcuts and restore](unix/README.md).
+
+On tmux versions supporting `prefix-timeout`, Ctrl-a waits two seconds; older versions keep it pending until the next key. The Code theme colors tmux's interface; Bash/Zsh command syntax highlighting remains a separate shell feature.
 
 ## New Windows themes
 
@@ -31,7 +50,7 @@ A pure black canvas, white text and quiet gray dividers. Every color in the Blac
 
 ## Windows: download the EXE
 
-**[Download TmuxStyle-Setup-1.3.1.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.3.1/TmuxStyle-Setup-1.3.1.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
+**[Download TmuxStyle-Setup-1.4.0.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.4.0/TmuxStyle-Setup-1.4.0.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
 
 1. Run the installer, choose **WezTerm** for the real bottom status bar, then a theme and starting folder.
 2. Keep the Desktop shortcut and launch options enabled if you want a ready-to-use, three-pane workspace.
@@ -69,7 +88,7 @@ WezTerm uses its own configuration and **Tmux Style WezTerm** shortcut under `%L
 
 The installer backs up existing settings and owned assets, preserves unrelated profiles/preferences/non-conflicting keys, and includes **Restore previous settings**. It changes neither the shared `$PROFILE` nor execution policy or Windows' default terminal application.
 
-## Linux / macOS / WSL: tmux
+## Existing samoshkin setup: legacy tmux overlay
 
 Requires **tmux >= 3.2** and the samoshkin base configuration already installed under `~/.tmux`.
 

@@ -1,4 +1,17 @@
-# Tmux Style v1.1.0
+# Tmux Style v1.4.0
+
+- Added standalone Linux and macOS packages with eight themes, native three-pane tmux workspaces, a bottom CPU/RAM/hostname/date bar, full window names, clipboard integration and detach/reattach.
+- Added `tmux-style theme NAME` and the Ctrl-a t menu to switch themes in existing sessions without restarting processes.
+- Added per-user install/upgrade/restore with backups and an independent tmux socket. Existing tmux and Bash/Zsh configurations stay in place. No separate samoshkin installation is required.
+- Uses a two-second native prefix timeout when supported; older tmux keeps the prefix pending until the next key.
+- Added Ubuntu and macOS integration tests alongside Windows packaged EXE and real WezTerm Lua checks.
+- Removed personal account/author identifiers from maintained history and replaced local machine details in published previews with demo names. Historical source ZIPs and checksum manifests are regenerated separately. GitHub may retain cached views of old commits.
+
+Downloads: `TmuxStyle-Setup-1.4.0.exe`, `tmux-style-linux-1.4.0.tar.gz`, `tmux-style-macos-1.4.0.tar.gz`, checksums and validation reports.
+
+Linux: extract, then `bash linux/install.sh --theme hacker`. macOS: install tmux with Homebrew, extract, then `bash macos/install.command --theme code`. Launch with `~/.local/bin/tmux-style`. Both archives contain architecture-independent scripts using native tmux >= 3.2. See `unix/README.md` for setup, shortcuts, metrics and restore. The Code palette colors tmux's UI; shell/application syntax highlighting is separate. Windows functionality and the legacy samoshkin overlay remain available.
+
+## v1.1.0 historical notes
 
 ## Fixed
 
