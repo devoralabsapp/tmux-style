@@ -2,9 +2,11 @@
 
 [English](README.md) · Tiếng Việt
 
-## Linux và macOS: bộ cài độc lập v1.4.0
+## Linux và macOS: bộ cài độc lập v1.5.0
 
-Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.4.0/tmux-style-linux-1.4.0.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.4.0/tmux-style-macos-1.4.0.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
+**Mới ở v1.5.0:** gõ trực tiếp `theme hacker`, `theme code`, hoặc `theme` trong pane Bash/Zsh của Tmux Style. Mỗi phiên giữ màu riêng. Dùng `tmux-style new work --theme code`, `tmux-style new lab --theme hacker -d`, `tmux-style list`, rồi `tmux-style attach work` / `tmux-style attach lab`. `Ctrl-a d` detach và giữ tiến trình chạy. Sau khi nâng cấp từ 1.4, nhấn `Ctrl-a Ctrl-r` để nạp cấu hình mới; trong pane cũ chạy `. "$TMUX_STYLE_HOME/shell/commands.sh"` để có lệnh `theme` ngay, không cần khởi động lại shell.
+
+Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.5.0/tmux-style-linux-1.5.0.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.5.0/tmux-style-macos-1.5.0.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
 
 ```bash
 # Linux / WSL
@@ -37,7 +39,7 @@ Sáu giao diện tmux nền: **Aurora**, **Midnight / Cyan**, **Ember**, **Paper
 
 ## Windows: tải EXE và cài
 
-Tải **[TmuxStyle-Setup-1.4.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
+Tải **[TmuxStyle-Setup-1.5.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
 
 Bản **1.3.1** bỏ giới hạn ký tự tên tab WezTerm: tên dài hiển thị đầy đủ khi thanh tab còn đủ chỗ. Nếu tổng các tab vượt chiều rộng cửa sổ, WezTerm xử lý phần tràn theo không gian thực tế.
 

@@ -6,9 +6,11 @@ English · [Tiếng Việt](README.vi.md)
 
 Eight themes for the standalone **Linux/macOS tmux** and **Windows WezTerm / Windows Terminal + PowerShell** workspaces, with familiar `Ctrl-a` shortcuts derived from the original configuration and [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config). The legacy tmux overlay retains its six themes.
 
-## Linux and macOS: standalone packages (v1.4.0)
+## Linux and macOS: standalone packages (v1.5.0)
 
-Download the [Linux archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.4.0/tmux-style-linux-1.4.0.tar.gz) or [macOS archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.4.0/tmux-style-macos-1.4.0.tar.gz), plus its `.sha256` file from the [release](https://github.com/devoralabsapp/tmux-style/releases/tag/v1.4.0). Install tmux >= 3.2, extract the archive, enter its folder, then run:
+**New in v1.5.0:** type `theme hacker`, `theme code`, or `theme` directly in a Tmux Style Bash/Zsh pane. Each named session keeps its own colors. Create with `tmux-style new work --theme code`, list with `tmux-style list`, then enter with `tmux-style attach work`. Ctrl-a d detaches without ending processes. [Shell helpers, independent themes and upgrade instructions](unix/README.md).
+
+Download the [Linux archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.5.0/tmux-style-linux-1.5.0.tar.gz) or [macOS archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.5.0/tmux-style-macos-1.5.0.tar.gz), plus its `.sha256` file from the [release](https://github.com/devoralabsapp/tmux-style/releases/tag/v1.5.0). Install tmux >= 3.2, extract the archive, enter its folder, then run:
 
 ```bash
 # Linux / WSL (install tmux with your distribution's package manager)
@@ -50,7 +52,7 @@ A pure black canvas, white text and quiet gray dividers. Every color in the Blac
 
 ## Windows: download the EXE
 
-**[Download TmuxStyle-Setup-1.4.0.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.4.0/TmuxStyle-Setup-1.4.0.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
+**[Download TmuxStyle-Setup-1.5.0.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.5.0/TmuxStyle-Setup-1.5.0.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
 
 1. Run the installer, choose **WezTerm** for the real bottom status bar, then a theme and starting folder.
 2. Keep the Desktop shortcut and launch options enabled if you want a ready-to-use, three-pane workspace.

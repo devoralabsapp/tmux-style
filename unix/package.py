@@ -13,6 +13,7 @@ for platform in ['linux', 'macos']:
     archive = out / f'{prefix}.tar.gz'
     files = [ROOT / p for p in ['VERSION', 'NOTICE.md', 'unix/README.md', 'windows-terminal/LICENSE']]
     files += [p for p in (ROOT / 'unix').rglob('*') if p.is_file() and p.suffix in ['.sh', '.conf']]
+    files += [p for p in (ROOT / 'unix/shell').rglob('*') if p.is_file()]
     files += [p for p in (ROOT / platform).iterdir() if p.is_file()]
     with archive.open('wb') as raw, gzip.GzipFile(filename='', fileobj=raw, mode='wb', mtime=0) as zipped:
         with tarfile.open(fileobj=zipped, mode='w') as tar:

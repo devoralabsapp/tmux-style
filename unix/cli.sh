@@ -5,29 +5,30 @@ root=${TMUX_STYLE_HOME:?Run the installed tmux-style launcher.}
 socket=tmux-style
 tm() { tmux -L "$socket" "$@"; }
 valid_theme() { case "$1" in aurora|midnight|ember|paper|neon|black|code|hacker) return 0 ;; *) return 1 ;; esac; }
-case "${1:-workspace}" in
+source "$root/session.sh"
+source "$root/theme.sh"
+command_name=${1:-workspace}
+if [[ $# -gt 0 ]]; then shift; fi
+case "$command_name" in
   --version|version) cat "$root/VERSION" ;;
   --help|-h|help)
-    echo 'tmux-style [workspace [name] | theme NAME | themes | metrics | restore | version]'
+    echo 'tmux-style new NAME [--theme NAME] [-d] | attach [NAME] | list | detach'
+    echo 'tmux-style workspace [NAME] | theme [NAME] [--session NAME | --default]'
+    echo 'tmux-style themes | metrics | restore | version'
     echo 'Ctrl-a t selects a theme; Ctrl-a d detaches; F12 toggles SSH pass-through.' ;;
   themes) printf '%s\n' aurora midnight ember paper neon black code hacker ;;
-  theme)
-    [[ $# == 2 ]] && valid_theme "$2" || { echo 'Choose a name from: tmux-style themes' >&2; exit 1; }
-    staged=$(mktemp "$root/theme.XXXXXXXX")
-    cp "$root/themes/$2.conf" "$staged"
-    mv "$staged" "$root/theme.conf"
+  theme) theme_command "$@" ;;
+  choose-theme) choose_theme "$@" ;;
+  sync-theme) sid=$(pane_session "${1:-}") || exit 1; sync_session_theme "$sid" ;;
+  sync-themes)
     if tm has-session 2>/dev/null; then
-      tm source-file "$root/entry.conf"
-      tm refresh-client -S 2>/dev/null || true
-    fi
-    echo "Theme: $2 (current Tmux Style server and future sessions)." ;;
-  choose-theme)
-    # Only predefined names are used in these tmux command strings.
-    menu=()
-    for name in aurora midnight ember paper neon black code hacker; do
-      menu+=("$name" "" "run-shell 'bash \"\$TMUX_STYLE_HOME/cli.sh\" theme $name'")
-    done
-    tm display-menu -T 'Choose a theme' "${menu[@]}" ;;
+      while IFS= read -r sid; do sync_session_theme "$sid"; done < <(tm list-sessions -F '#{session_id}')
+    fi ;;
+  new|new-session) workspace_command new "$@" ;;
+  workspace) workspace_command workspace "$@" ;;
+  attach|attach-session|a) attach_command "$@" ;;
+  list|ls|sessions) list_sessions ;;
+  detach) current_session >/dev/null || { echo 'Run detach inside a Tmux Style session.' >&2; exit 1; }; tm detach-client ;;
   metrics) exec bash "$root/metrics.sh" ;;
   restore)
     if tm has-session 2>/dev/null; then
@@ -47,21 +48,5 @@ case "${1:-workspace}" in
     rm -f -- "$launcher"
     if [[ -e $backup/launcher || -L $backup/launcher ]]; then cp -pP "$backup/launcher" "$launcher"; fi
     echo "Previous installation restored. Recovery copy: $saved" ;;
-  workspace)
-    [[ $# -le 2 ]] || { echo 'Usage: tmux-style workspace [name]' >&2; exit 1; }
-    name=${2:-TMUX}
-    [[ $name =~ ^[a-zA-Z0-9_-]+$ ]] || { echo 'Session name: letters, numbers, underscores or hyphens only.' >&2; exit 1; }
-    if [[ -n ${TMUX:-} ]]; then
-      current=$(tmux display-message -p '#{socket_path}')
-      expected=$(tm display-message -p '#{socket_path}' 2>/dev/null || true)
-      [[ $current == "$expected" ]] || { echo 'Detach from the other tmux server first (Ctrl-a d or Ctrl-b d).' >&2; exit 1; }
-    fi
-    if ! tm has-session -t "=$name" 2>/dev/null; then
-      # One command queue keeps layout creation ordered and avoids shell races.
-      tmux -L "$socket" -f "$root/entry.conf" new-session -d -s "$name" -n shell -c "$PWD" \; \
-        split-window -h -l '35%' -t "$name:1.1" -c "$PWD" \; \
-        split-window -v -l '50%' -t "$name:1.2" -c "$PWD" \; select-pane -t "$name:1.1"
-    fi
-    if [[ -n ${TMUX:-} ]]; then tm switch-client -t "=$name"; else exec tmux -L "$socket" attach-session -t "=$name"; fi ;;
   *) echo 'Unknown command. Run tmux-style --help.' >&2; exit 1 ;;
 esac

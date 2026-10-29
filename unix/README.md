@@ -21,14 +21,44 @@ The installer uses your user account and does not need sudo. It installs assets 
 ## Open and use
 
 ```bash
-~/.local/bin/tmux-style                     # open/reattach a three-pane workspace
-~/.local/bin/tmux-style workspace project   # another named session
-~/.local/bin/tmux-style themes
-~/.local/bin/tmux-style theme code          # recolor existing sessions in place
-~/.local/bin/tmux-style theme hacker
+~/.local/bin/tmux-style                     # open/reattach the default workspace
+~/.local/bin/tmux-style new work --theme code
+# Ctrl-a d detaches and leaves processes running
+~/.local/bin/tmux-style new lab --theme hacker -d
+~/.local/bin/tmux-style list
+~/.local/bin/tmux-style attach work
+~/.local/bin/tmux-style attach lab
 ```
 
-If `~/.local/bin` is on PATH, use `tmux-style` directly. No shell startup changes are required. The workspace uses its own **tmux-style** socket, separate from your existing tmux server. Detach from another tmux before opening it. Sessions survive closing the terminal window and can be reattached with the same launcher. `theme` changes all sessions on the Tmux Style server and saves the choice for future starts; pane processes keep running. Applications such as Vim retain their own color schemes. The Code Spectrum theme colors tmux's UI; it does not add PowerShell-style command syntax highlighting to Bash/Zsh.
+If `~/.local/bin` is on PATH, use `tmux-style` directly from your outer terminal. Inside Tmux Style's Bash/Zsh panes, `tmux-style`, `theme` and `workspace` are available automatically. The owned shell wrappers read your existing `.bashrc` or Zsh startup files, including a custom `ZDOTDIR`, without editing them. Other shells can use the full launcher path. The workspace uses its own **tmux-style** socket, separate from your existing tmux server. Detach from another tmux before opening it.
+
+`new NAME` creates a three-pane session; `-d` leaves it detached. It rejects an existing name instead of resetting that session. `workspace [NAME]` preserves the older create-or-reattach behavior. `attach NAME` (also `attach -t NAME`) enters an existing session, or switches to it from inside Tmux Style. It never creates a missing session. `attach` without a name reattaches the most recently used session from an outer terminal; inside Tmux Style it opens the native session chooser. `list` / `ls` shows names, windows, attachment state and themes. `tmux-style detach` and Ctrl-a d leave pane processes running. Closing a terminal also leaves the sessions available for later attach.
+
+## Change theme in the terminal
+
+Inside a Tmux Style Bash/Zsh pane, use the same short command as on Windows:
+
+```bash
+theme hacker                       # recolor this session in place
+theme code
+theme                              # native theme menu (also Ctrl-a t)
+tmux-style theme paper --session lab # target a named session
+tmux-style theme black --default     # default for NEW sessions
+```
+
+Each session keeps its own palette. All its existing windows/panes change in place, new windows inherit it, and other sessions retain their colors. Theme changes preserve processes, zoom and F12 pass-through. Choices last for the session's lifetime; `--default` saves the starting palette for future sessions. With several sessions running, an outer-terminal theme command needs `--session NAME`; with one session it targets that session, and with none it updates the starting default. Native linked windows share pane colors because both sessions refer to the same window.
+
+Applications such as Vim retain their own color schemes. Code Spectrum colors tmux's UI; it does not add PowerShell-style command syntax highlighting to Bash/Zsh.
+
+## Upgrade an open v1.4 workspace
+
+Run the new installer, then press **Ctrl-a Ctrl-r** in each open Tmux Style client to reload. New panes load the shell helpers automatically. To add the short commands to an existing Bash/Zsh pane without restarting its shell, run:
+
+```bash
+. "$TMUX_STYLE_HOME/shell/commands.sh"
+```
+
+The scoped Bash wrapper loads `.bashrc`; the Zsh wrapper loads the user's `.zshenv` and interactive `.zshrc`. It starts an interactive shell, not a new login shell. Existing sessions and running applications remain available through `tmux-style attach NAME`.
 
 All eight themes use a bottom bar in this standalone version. Names: `aurora`, `midnight` (default), `ember`, `paper`, `neon`, `black`, `code`, `hacker`. Window names have no configured character truncation; tmux scrolls the window list when it exceeds the available width.
 
@@ -70,6 +100,6 @@ This restores the previous installation and launcher. After the first installati
 
 Release files have SHA-256 sidecars. Linux: `sha256sum -c FILE.tar.gz.sha256`; macOS: `shasum -a 256 -c FILE.tar.gz.sha256`.
 
-From the repository, `python3 unix/generate.py` regenerates palettes; `python3 unix/test.py` exercises install, three real panes, all themes, long names, prefix timing, F12, metrics, upgrade and restore on an isolated socket/home. `python3 unix/package.py` builds both archives under `dist/`. GitHub Actions runs the integration test on both Ubuntu and macOS in addition to the existing Windows tests.
+From the repository, `python3 unix/generate.py` regenerates palettes; `python3 unix/test.py` exercises install, independent named sessions, real Bash/Zsh commands, both theme menus, new-window palette inheritance, attach/detach with process retention, defaults/reload, long names, prefix timing, F12, metrics, upgrade and restore on an isolated socket/home. Zsh coverage runs when Zsh is installed; CI provides it on both Ubuntu and macOS. `python3 unix/package.py` builds both archives under `dist/`.
 
 See `NOTICE.md` for the original configuration's provenance and license scope. New installer/launcher/metrics/clipboard/package/test code uses the MIT terms in `windows-terminal/LICENSE`; those terms do not relicense the pre-existing tmux baseline.

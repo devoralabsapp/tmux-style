@@ -6,6 +6,7 @@ from pathlib import Path
 import pty
 import re
 import signal
+import shlex
 import shutil
 import struct
 import subprocess
@@ -16,15 +17,18 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 work = Path(tempfile.mkdtemp(prefix='ts-'))
-home = work / "home with $ spaces'"
+home = work / "home with $HOME spaces'"
 home.mkdir()
 env = dict(os.environ, HOME=str(home), TMUX_TMPDIR=str(work), TERM='xterm-256color')
 env.pop('TMUX', None)
 env.pop('XDG_DATA_HOME', None)
+env['SHELL'] = shutil.which('bash')
 launcher = home / '.local/bin/tmux-style'
 data = home / '.local/share/tmux-style'
 checks = []
 pid = None
+master = None
+probe_index = 0
 terminal_output = bytearray()
 
 
@@ -74,6 +78,29 @@ def wait_for(predicate, timeout=8):
     raise AssertionError('Timed out waiting for tmux state')
 
 
+def start_client(*args):
+    global pid, master
+    pid, master = pty.fork()
+    if pid == 0:
+        os.execvpe('bash', ['bash', str(launcher), *args], env)
+    fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 38, 170, 0, 0))
+    threading.Thread(target=drain_terminal, args=(master,), daemon=True).start()
+
+
+def in_shell(pane, command):
+    global probe_index
+    probe_index += 1
+    result = work / f'shell-probe-{probe_index}'
+    tm('send-keys', '-t', pane, '-l', command + '; printf "%s\\n" "$?" > ' + shlex.quote(str(result)))
+    tm('send-keys', '-t', pane, 'Enter')
+    wait_for(result.exists)
+    assert result.read_text().strip() == '0', (command, tm('capture-pane', '-p', '-t', pane))
+
+
+def session_theme(name):
+    return tm('show-option', '-qv', '-t', name, '@tmux_style_theme')
+
+
 try:
     tested_version = run('tmux', '-V').stdout.strip()
     print('Testing:', tested_version, os.uname().sysname, flush=True)
@@ -93,21 +120,103 @@ try:
     checks.append('install without base config; paths with spaces, dollar and apostrophe')
     print('PASS:', checks[-1], flush=True)
 
-    pid, master = pty.fork()
-    if pid == 0:
-        os.execvpe('bash', ['bash', str(launcher)], env)
-    fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack('HHHH', 38, 170, 0, 0))
-    threading.Thread(target=drain_terminal, args=(master,), daemon=True).start()
+    start_client()
     wait_for(lambda: len(run('tmux', '-L', 'tmux-style', 'list-panes', '-F', '#{pane_id}', ok=False).stdout.splitlines()) == 3)
     before = tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}')
     assert len(before.splitlines()) == 3
     for theme in run(launcher, 'themes').stdout.splitlines():
         run(launcher, 'theme', theme)
-        assert tm('show-option', '-gqv', '@tmux_style_theme') == theme
+        assert tm('show-option', '-qv', '-t', 'TMUX', '@tmux_style_theme') == theme
         assert before == tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}')
         assert tm('show-option', '-gv', 'status-position') == 'bottom'
     checks.append('eight themes switch in place; same panes/processes; bottom status')
     print('PASS:', checks[-1], flush=True)
+
+    primary = tm('list-panes', '-t', 'TMUX:1', '-F', '#{pane_id}').splitlines()[0]
+    in_shell(primary, 'type theme >/dev/null && type tmux-style >/dev/null')
+    run(launcher, 'new', 'lab', '--theme', 'paper', '-d')
+    lab_pane = tm('list-panes', '-t', 'lab:1', '-F', '#{pane_id}').splitlines()[0]
+    assert len(tm('list-panes', '-t', 'lab:1', '-F', '#{pane_id}').splitlines()) == 3
+    stable = tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}')
+    assert run(launcher, 'new', 'lab', '-d', ok=False).returncode
+    assert run(launcher, 'attach', 'missing', ok=False).returncode
+    assert run(launcher, 'theme', 'neon', ok=False).returncode  # ambiguous outside two sessions
+    assert 'lab' in run(launcher, 'list').stdout and 'TMUX' in run(launcher, 'ls').stdout
+    in_shell(primary, 'theme code')
+    assert session_theme('TMUX') == 'code' and session_theme('lab') == 'paper'
+    run(launcher, 'theme', 'hacker', '--session', 'lab')
+    assert session_theme('TMUX') == 'code' and session_theme('lab') == 'hacker'
+    assert tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}') == stable
+    checks.append('named sessions, duplicate/missing validation, list and independent live themes')
+    print('PASS:', checks[-1], flush=True)
+
+    new_pane = tm('new-window', '-d', '-P', '-F', '#{pane_id}', '-t', 'lab', '-n', 'extra')
+    wait_for(lambda: '#020805' in tm('show-option', '-wv', '-t', new_pane, 'window-style'))
+    code_pane = tm('new-window', '-d', '-P', '-F', '#{pane_id}', '-t', 'TMUX', '-n', 'extra')
+    wait_for(lambda: '#1e1e1e' in tm('show-option', '-wv', '-t', code_pane, 'window-style'))
+    checks.append('new windows inherit their own session palette')
+
+    # Both a shell command and Ctrl-a t invoke the real native menu.
+    run(launcher, 'theme', 'paper', '-t', 'lab')
+    start = len(terminal_output)
+    tm('send-keys', '-t', primary, '-l', 'theme')
+    tm('send-keys', '-t', primary, 'Enter')
+    wait_for(lambda: b'Choose a theme for this session' in terminal_output[start:])
+    os.write(master, b'8')
+    wait_for(lambda: session_theme('TMUX') == 'hacker')
+    assert session_theme('lab') == 'paper'
+    start = len(terminal_output)
+    os.write(master, b'\x01t')
+    wait_for(lambda: b'Choose a theme for this session' in terminal_output[start:])
+    os.write(master, b'7')
+    wait_for(lambda: session_theme('TMUX') == 'code')
+    checks.append('bare theme command and Ctrl-a t menu change only the current session')
+
+    # Real client switching, detaching and reattaching preserve every pane PID.
+    in_shell(primary, 'tmux-style attach lab')
+    wait_for(lambda: tm('list-clients', '-F', '#{session_name}') == 'lab')
+    in_shell(lab_pane, 'tmux-style attach TMUX')
+    wait_for(lambda: tm('list-clients', '-F', '#{session_name}') == 'TMUX')
+    stable = tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}')
+    in_shell(primary, 'tmux-style detach')
+    wait_for(lambda: not tm('list-clients'))
+    reap_child()
+    os.close(master)
+    master = None
+    start_client('attach', '-t', 'lab')
+    wait_for(lambda: tm('list-clients', '-F', '#{session_name}') == 'lab')
+    assert stable == tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}')
+    in_shell(lab_pane, 'tmux-style attach TMUX')
+    wait_for(lambda: tm('list-clients', '-F', '#{session_name}') == 'TMUX')
+    checks.append('attach by name, switch, detach and reattach retain running processes')
+
+    run(launcher, 'theme', 'neon', '--default')
+    assert session_theme('TMUX') == 'code' and session_theme('lab') == 'paper'
+    run(launcher, 'new', 'fresh', '-d')
+    assert session_theme('fresh') == 'neon'
+    tm('kill-session', '-t', '=fresh')
+    tm('source-file', str(data / 'entry.conf'))
+    assert session_theme('TMUX') == 'code' and session_theme('lab') == 'paper'
+    checks.append('new-session defaults and reload preserve existing per-session choices')
+
+    zsh = shutil.which('zsh')
+    if zsh:
+        zdot = home / 'zsh settings'
+        zdot.mkdir()
+        zenv = 'export TMUX_STYLE_TEST_ZSHENV=loaded\n'
+        zrc = 'export TMUX_STYLE_TEST_ZSHRC=loaded\n'
+        (zdot / '.zshenv').write_text(zenv)
+        (zdot / '.zshrc').write_text(zrc)
+        tm('set-environment', '-g', 'ZDOTDIR', str(zdot))
+        tm('set-option', '-g', 'default-shell', zsh)
+        zsh_pane = tm('new-window', '-d', '-P', '-F', '#{pane_id}', '-t', 'lab', '-n', 'zsh')
+        in_shell(zsh_pane, 'test "$TMUX_STYLE_TEST_ZSHENV" = loaded && test "$TMUX_STYLE_TEST_ZSHRC" = loaded && theme hacker')
+        assert session_theme('lab') == 'hacker' and session_theme('TMUX') == 'code'
+        assert (zdot / '.zshenv').read_text() == zenv and (zdot / '.zshrc').read_text() == zrc
+        tm('set-option', '-g', 'default-shell', env['SHELL'])
+        tm('set-environment', '-gu', 'ZDOTDIR')
+        checks.append('Zsh theme helper preserves custom ZDOTDIR and user startup files')
+    checks.append('Bash theme helper is scoped to owned panes; shell profiles unchanged')
 
     long_title = 'workspace-with-a-full-length-name-0123456789'
     tm('rename-window', long_title)
@@ -136,6 +245,8 @@ try:
     tm('resize-pane', '-Z')
     os.write(master, b'\x1b[24~')
     wait_for(lambda: tm('show-option', '-v', 'prefix') == 'None')
+    run(launcher, 'theme', 'ember', '--session', 'TMUX')
+    assert tm('show-option', '-v', 'prefix') == 'None'
     os.write(master, b'\x1b[24~')
     wait_for(lambda: tm('show-option', '-Av', 'prefix') == 'C-a')
     checks.append('real F12 pass-through toggles off and on')
@@ -149,6 +260,7 @@ try:
     tm('kill-server')
     reap_child()
     os.close(master)
+    master = None
 
     run('bash', ROOT / 'unix/install.sh', '--theme', 'code')
     assert first_backup != Path((data / 'previous-backup').read_text().strip())
@@ -179,7 +291,9 @@ try:
     report_path.write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report, indent=2))
 except BaseException:
-    print('Captured test terminal:', terminal_output.decode('utf-8', errors='replace')[-16000:], flush=True)
+    diagnostic = terminal_output.decode('utf-8', errors='replace').replace(os.uname().nodename, 'demo-host')
+    diagnostic = re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]|\x1b\([AB]', '', diagnostic)
+    print('Captured test terminal:', diagnostic[-2500:], flush=True)
     raise
 finally:
     env['PATH'] = os.environ['PATH']
@@ -187,4 +301,6 @@ finally:
         run('tmux', '-L', 'tmux-style', 'kill-server', ok=False)
     finally:
         reap_child()
+        if master is not None:
+            os.close(master)
     shutil.rmtree(work)

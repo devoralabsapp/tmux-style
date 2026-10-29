@@ -1,4 +1,14 @@
-# Tmux Style v1.4.0
+# Tmux Style v1.5.0
+
+- Added `theme hacker`, `theme code` and a bare `theme` menu inside owned Bash/Zsh panes. User shell startup files remain unchanged, including custom Zsh `ZDOTDIR` support.
+- Added `tmux-style new NAME [--theme NAME] [-d]`, `list` / `ls`, `attach [NAME]` / `attach -t NAME`, and `detach`. Named sessions retain pane processes through client switching and detach/reattach. Existing `workspace [NAME]` keeps its create-or-reattach behavior.
+- Theme changes now affect the selected session. Other sessions keep their palettes, new windows inherit the correct colors, and `--default` changes the starting theme for future sessions. Zoom/F12 state and running shells remain in place.
+- Existing v1.4 users can reload with Ctrl-a Ctrl-r and source `. "$TMUX_STYLE_HOME/shell/commands.sh"` in open Bash/Zsh panes to load helpers without restarting their process.
+- Extended real-terminal tests for independent themes, native menu selection, Bash/Zsh helpers, named attach, detach, new-window inheritance, default changes and reload.
+
+Downloads: `TmuxStyle-Setup-1.5.0.exe`, `tmux-style-linux-1.5.0.tar.gz`, `tmux-style-macos-1.5.0.tar.gz`, source, checksums and validation reports. Native Unix packages require tmux >= 3.2. Windows workspace behavior is retained.
+
+## v1.4.0 historical notes
 
 - Added standalone Linux and macOS packages with eight themes, native three-pane tmux workspaces, a bottom CPU/RAM/hostname/date bar, full window names, clipboard integration and detach/reattach.
 - Added `tmux-style theme NAME` and the Ctrl-a t menu to switch themes in existing sessions without restarting processes.

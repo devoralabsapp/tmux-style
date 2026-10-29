@@ -1,0 +1,2 @@
+if [[ -f $HOME/.bashrc ]]; then source "$HOME/.bashrc"; fi
+source "$TMUX_STYLE_HOME/shell/commands.sh"
