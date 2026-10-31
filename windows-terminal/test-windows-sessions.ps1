@@ -13,7 +13,7 @@ foreach($key in 'WEZTERM_UNIX_SOCKET','WEZTERM_PANE','TMX_SESSION','TMX_SESSION_
 function Wait-Until([scriptblock]$Condition){
     $until=[DateTime]::UtcNow.AddSeconds(15)
     do{if(& $Condition){return};Start-Sleep -Milliseconds 100}while([DateTime]::UtcNow -lt $until)
-    throw 'Timed out waiting for native Windows session state.'
+    throw ('Timed out waiting for native Windows session state: '+$Condition.ToString().Trim())
 }
 function Invoke-TestTmx([string[]]$Arguments,[switch]$Fail){
     $out=@(& (Join-Path $commands 'tmx.exe') @Arguments 2>&1)
@@ -50,6 +50,10 @@ try{
     Invoke-TestTmx @('new','../invalid','-d') -Fail|Out-Null
     Invoke-TestTmx @('attach','missing') -Fail|Out-Null
     $panes=@(Panes work);$first=[string]$panes[0].pane_id
+    # RPC pane creation can precede PowerShell/PSReadLine startup on CI hosts.
+    # Wait for the prompt before injecting commands into its input stream.
+    Wait-Until {(Mux work @('get-text','--pane-id',$first)).Contains('  > ')}
+    Start-Sleep -Milliseconds 300
     $ids=($panes.pane_id -join ',')
     $pidFile=Join-Path $fixture 'shell-pid.txt'
     $tickFile=Join-Path $fixture 'heartbeat.txt'
