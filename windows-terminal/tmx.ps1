@@ -44,10 +44,9 @@ function Start-SessionProcess([string]$Name,[string]$Executable,[string]$Process
         $env:TMX_SESSION=$Name;$env:TMX_SESSION_KEY=Session-Key $Name
         $env:TMX_CWD=$PWD.ProviderPath
         $style=if($ShowWindow){'Normal'}else{'Hidden'}
-        if($ShowWindow){
-            $log=Join-Path $state ('gui-'+[Guid]::NewGuid().ToString('N')+'.log')
-            Start-Process -FilePath $Executable -ArgumentList $ProcessArguments -WindowStyle $style -RedirectStandardError $log -RedirectStandardOutput ($log+'.out')|Out-Null
-        }else{Start-Process -FilePath $Executable -ArgumentList $ProcessArguments -WindowStyle $style|Out-Null}
+        # ShellExecute keeps the long-lived GUI independent of a short-lived
+        # command launcher's redirected console streams.
+        Start-Process -FilePath $Executable -ArgumentList $ProcessArguments -WindowStyle $style|Out-Null
     }finally{$env:TMX_SESSION=$oldName;$env:TMX_SESSION_KEY=$oldKey;$env:TMX_CWD=$oldCwd}
 }
 function Attach-Session([string]$Name){

@@ -223,6 +223,9 @@ wezterm.on('format-tab-title', function(tab)
 end)
 local last_sample
 wezterm.on('update-status', function(window, pane)
+  -- A queued status event can run just after its domain was detached.
+  local valid, active_tab = pcall(function() return window:active_tab() end)
+  if not valid or not active_tab then return end
   if session_path then
     local saved = read_json(session_path)
     if saved and palettes[saved.theme] and window_theme(window) ~= saved.theme then
@@ -235,7 +238,7 @@ wezterm.on('update-status', function(window, pane)
   local overrides = window:get_config_overrides() or {}
   local off = overrides.disable_default_key_bindings == true
   local mode = off and 'OFF' or (window:leader_is_active() and 'PREFIX' or 'CTRL-A')
-  for _, info in ipairs(window:active_tab():panes_with_info()) do
+  for _, info in ipairs(active_tab:panes_with_info()) do
     if info.is_zoomed then mode = mode .. ' ZOOM'; break end
   end
   window:set_left_status(wezterm.format {
@@ -252,7 +255,7 @@ wezterm.on('update-status', function(window, pane)
   local host = wezterm.hostname():gsub('[%c]', '')
   local text = ' CPU ' .. cpu .. '  RAM ' .. ram .. ' | ' .. host .. ' | ' .. wezterm.strftime('%d/%m/%Y %H:%M:%S') .. ' '
   -- Use all tab columns, rather than the focused pane or pixel/DPI size.
-  if window:active_tab():get_size().cols < 110 then text = ' CPU ' .. cpu .. ' RAM ' .. ram .. ' | ' .. wezterm.strftime('%H:%M') .. ' ' end
+  if active_tab:get_size().cols < 110 then text = ' CPU ' .. cpu .. ' RAM ' .. ram .. ' | ' .. wezterm.strftime('%H:%M') .. ' ' end
   window:set_right_status(wezterm.format { { Background = { Color = p.bar } }, { Foreground = { Color = p.fg } }, { Text = text } })
 end)
 return config
