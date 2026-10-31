@@ -117,6 +117,9 @@ try{
     $report=[pscustomobject]@{passed=$true;platform='Windows';runtime=(& $WezTermExecutable --version);checks=$checks}
     if($ReportFile){[IO.File]::WriteAllText($ReportFile,($report|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))}
     'PASS: native Windows command, persistent named sessions, real detach/attach and safe uninstall.'
+}catch{
+    foreach($log in Get-ChildItem -LiteralPath $state -Filter 'gui-*.log' -ErrorAction SilentlyContinue){Get-Content -LiteralPath $log.FullName -Tail 20|Write-Output}
+    throw
 }finally{
     # Only terminate test processes whose command line contains this exact,
     # freshly created fixture. Do not touch installed workspaces or other muxes.

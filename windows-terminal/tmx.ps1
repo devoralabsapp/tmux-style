@@ -44,7 +44,10 @@ function Start-SessionProcess([string]$Name,[string]$Executable,[string]$Process
         $env:TMX_SESSION=$Name;$env:TMX_SESSION_KEY=Session-Key $Name
         $env:TMX_CWD=$PWD.ProviderPath
         $style=if($ShowWindow){'Normal'}else{'Hidden'}
-        Start-Process -FilePath $Executable -ArgumentList $ProcessArguments -WindowStyle $style|Out-Null
+        if($ShowWindow){
+            $log=Join-Path $state ('gui-'+[Guid]::NewGuid().ToString('N')+'.log')
+            Start-Process -FilePath $Executable -ArgumentList $ProcessArguments -WindowStyle $style -RedirectStandardError $log|Out-Null
+        }else{Start-Process -FilePath $Executable -ArgumentList $ProcessArguments -WindowStyle $style|Out-Null}
     }finally{$env:TMX_SESSION=$oldName;$env:TMX_SESSION_KEY=$oldKey;$env:TMX_CWD=$oldCwd}
 }
 function Attach-Session([string]$Name){
