@@ -46,7 +46,7 @@ function Start-SessionProcess([string]$Name,[string]$Executable,[string]$Process
         $style=if($ShowWindow){'Normal'}else{'Hidden'}
         if($ShowWindow){
             $log=Join-Path $state ('gui-'+[Guid]::NewGuid().ToString('N')+'.log')
-            Start-Process -FilePath $Executable -ArgumentList $ProcessArguments -WindowStyle $style -RedirectStandardError $log|Out-Null
+            Start-Process -FilePath $Executable -ArgumentList $ProcessArguments -WindowStyle $style -RedirectStandardError $log -RedirectStandardOutput ($log+'.out')|Out-Null
         }else{Start-Process -FilePath $Executable -ArgumentList $ProcessArguments -WindowStyle $style|Out-Null}
     }finally{$env:TMX_SESSION=$oldName;$env:TMX_SESSION_KEY=$oldKey;$env:TMX_CWD=$oldCwd}
 }
@@ -54,7 +54,7 @@ function Attach-Session([string]$Name){
     if(-not @(Session-Panes $Name).Count){throw ('Session not found: '+$Name+'. Run tmx list or tmx new '+$Name+'.')}
     $gui=Join-Path (Split-Path -Parent $backend.executable) 'wezterm-gui.exe'
     if(-not(Test-Path -LiteralPath $gui)){$gui=$backend.executable}
-    Start-SessionProcess $Name $gui ('--config-file "'+(Join-Path $root ('wezterm-'+$backend.theme+'.lua'))+'" connect --class TMX-'+(Session-Key $Name)+' --workspace '+$Name+' TMX') -ShowWindow
+    Start-SessionProcess $Name $gui ('--config-file "'+(Join-Path $root ('wezterm-'+$backend.theme+'.lua'))+'" start --always-new-process --workspace '+$Name) -ShowWindow
     [IO.File]::WriteAllText((Join-Path $state 'last-attached.json'),(@{name=$Name}|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
 }
 function Assert-NoSessions {

@@ -106,7 +106,7 @@ if persistent then
   config.unix_domains = {{name='TMX',socket_path=state_dir .. '/mux-' .. session_key .. '.sock',no_serve_automatically=true}}
   config.default_domain = 'TMX'
   config.default_mux_server_domain = 'local'
-  config.default_gui_startup_args = {'connect','--workspace',session_name,'TMX'}
+  config.default_gui_startup_args = {'start','--always-new-process','--workspace',session_name}
 end
 config.set_environment_variables = shell_environment(theme)
 config.font = wezterm.font_with_fallback { 'Cascadia Mono', 'Consolas' }
@@ -204,7 +204,13 @@ end
 for i = 1, 9 do table.insert(config.keys, { key = tostring(i), mods = 'LEADER', action = act.ActivateTab(i - 1) }) end
 
 wezterm.on('gui-startup', function(cmd)
-  if persistent then return end -- connect attaches existing server panes; never duplicate the layout.
+  if persistent then
+    -- Attach without a speculative empty primary window. The pinned runtime's
+    -- connect command can prune that window while awaiting a slow mux reply.
+    -- Domain:attach() lets the server's existing windows populate the GUI.
+    wezterm.mux.get_domain('TMX'):attach()
+    return
+  end
   local _, first = wezterm.mux.spawn_window(cmd or {})
   local right = first:split { direction = 'Right', size = 0.35 }
   right:split { direction = 'Bottom', size = 0.5 }
