@@ -1,8 +1,19 @@
 param([Parameter(Mandatory=$true)][string]$SourceDirectory,
-      [Parameter(Mandatory=$true)][string]$WezTermExecutable,[string]$ReportFile)
+      [Parameter(Mandatory=$true)][string]$WezTermExecutable,[string]$ReportFile,[switch]$SoftwareRendering)
 $ErrorActionPreference='Stop'
 $fixture=Join-Path ([IO.Path]::GetTempPath()) ('tmx-native-'+[Guid]::NewGuid().ToString('N').Substring(0,8))
 New-Item -ItemType Directory -Path $fixture|Out-Null
+if($SoftwareRendering){
+    # Hosted Windows runners may have no usable GPU. Exercise real GUI/mux
+    # behavior with WezTerm's supported CPU renderer, in a private source copy.
+    $renderSource=Join-Path $fixture 'source'
+    New-Item -ItemType Directory -Path $renderSource|Out-Null
+    Get-ChildItem -LiteralPath $SourceDirectory -File|ForEach-Object {Copy-Item -LiteralPath $_.FullName -Destination $renderSource}
+    $template=Join-Path $renderSource 'wezterm.lua'
+    $text=[IO.File]::ReadAllText($template).Replace('return config',"config.front_end = 'Software'`nreturn config")
+    [IO.File]::WriteAllText($template,$text,[Text.UTF8Encoding]::new($false))
+    $SourceDirectory=$renderSource
+}
 $assets=Join-Path $fixture 'assets'
 $commands=Join-Path $fixture 'commands'
 $state=$assets+'-state'
@@ -114,7 +125,7 @@ try{
     if((Test-Path -LiteralPath (Join-Path $commands 'tmx.exe')) -or (Test-Path -LiteralPath (Join-Path $assets 'backend.json'))){throw 'Uninstall left an active command or backend'}
     if(-not(Get-ChildItem -LiteralPath (Join-Path $assets 'backups') -Filter 'uninstall-*')){throw 'Uninstall recovery copy missing'}
     $checks+='command restore and full uninstall across upgrades preserve recovery backups and refuse edited files'
-    $report=[pscustomobject]@{passed=$true;platform='Windows';runtime=(& $WezTermExecutable --version);checks=$checks}
+    $report=[pscustomobject]@{passed=$true;platform='Windows';runtime=(& $WezTermExecutable --version);renderer=$(if($SoftwareRendering){'Software'}else{'Default'});checks=$checks}
     if($ReportFile){[IO.File]::WriteAllText($ReportFile,($report|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))}
     'PASS: native Windows command, persistent named sessions, real detach/attach and safe uninstall.'
 }catch{
