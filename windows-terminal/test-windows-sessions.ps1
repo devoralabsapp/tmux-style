@@ -130,6 +130,12 @@ try{
     'PASS: native Windows command, persistent named sessions, real detach/attach and safe uninstall.'
 }catch{
     foreach($log in Get-ChildItem -LiteralPath $state -Filter 'gui-*.log' -ErrorAction SilentlyContinue){Get-Content -LiteralPath $log.FullName -Tail 20|Write-Output}
+    foreach($directory in @((Join-Path $env:USERPROFILE '.local\share\wezterm'),(Join-Path $env:LOCALAPPDATA 'wezterm'),(Join-Path $env:TEMP 'wezterm'))){
+        foreach($log in Get-ChildItem -LiteralPath $directory -Filter 'wezterm-gui*-log-*.txt' -ErrorAction SilentlyContinue|Sort-Object LastWriteTime -Descending|Select-Object -First 2){
+            Get-Content -LiteralPath $log.FullName -Tail 30|Write-Output
+        }
+    }
+    Get-CimInstance Win32_Process -Filter "Name='wezterm-gui.exe'"|Where-Object {$_.CommandLine -and $_.CommandLine.Contains($fixture)}|Select-Object ProcessId,SessionId,CommandLine|Format-List|Out-String|Write-Output
     throw
 }finally{
     # Only terminate test processes whose command line contains this exact,
