@@ -20,9 +20,6 @@ if($LASTEXITCODE -ne 0){throw 'Metrics helper compilation failed'}
 $command=Join-Path $build 'TmuxStyle.Command.exe'
 & $compiler /nologo /target:exe /platform:anycpu "/out:$command" "/win32icon:$(Join-Path $root 'tmux-style.ico')" (Join-Path $root 'installer\Command.cs') $assemblyInfo
 if($LASTEXITCODE -ne 0){throw 'Command launcher compilation failed'}
-$command=Join-Path $build 'TmuxStyle.Command.exe'
-& $compiler /nologo /target:exe /platform:anycpu "/out:$command" "/win32icon:$(Join-Path $root 'tmux-style.ico')" (Join-Path $root 'installer\Command.cs') $assemblyInfo
-if($LASTEXITCODE -ne 0){throw 'Command launcher compilation failed'}
 $payload=Join-Path $build 'payload.zip'
 if(Test-Path $payload){Remove-Item -LiteralPath $payload}
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -37,8 +34,8 @@ try{
     [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path (Split-Path -Parent $root) 'VERSION'),'VERSION',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$metrics,'TmuxStyle.Metrics.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$command,'TmuxStyle.Command.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
-    [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$command,'TmuxStyle.Command.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$bridge,'TmuxStyle.Keys.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
+    if(@($archive.Entries.FullName|Select-Object -Unique).Count -ne $archive.Entries.Count){throw 'Duplicate installer payload entries'}
 }finally{$archive.Dispose()}
 $installer=Join-Path $output ('TMX-Setup-'+$Version+'.exe')
 & $compiler /nologo /target:winexe /platform:anycpu "/out:$installer" "/win32icon:$(Join-Path $root 'tmux-style.ico')" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll "/resource:$payload,TmuxStyle.Payload.zip" "/win32manifest:$(Join-Path $root 'installer\app.manifest')" (Join-Path $root 'installer\Setup.cs') $assemblyInfo

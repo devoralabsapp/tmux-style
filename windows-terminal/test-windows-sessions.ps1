@@ -72,7 +72,7 @@ try{
     Send work $first ("[IO.File]::WriteAllText('$quotePid',[string]`$PID)")
     Start-Sleep -Milliseconds 400
     if([IO.File]::ReadAllText($pidFile) -ne $shellPid){throw 'Reattach started another shell'}
-    Send work $first 'tmx detach'
+    Send work $first ("& '"+(Join-Path $commands 'tmx.exe').Replace("'","''")+"' detach")
     Wait-Until {(Clients work).Count -eq 0}
     $checks+='real GUI attach/detach/reattach twice retains pane IDs, original PowerShell PID and running background job'
     Invoke-TestTmx @('theme','paper','--session','work')|Out-Null
