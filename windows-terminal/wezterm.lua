@@ -16,13 +16,20 @@ end
 local backend = assert(read_json(root .. '/backend.json'), 'Reinstall the Tmux Style WezTerm workspace: backend.json is missing')
 local palettes = assert(read_json(root .. '/wezterm-palettes.json'))
 local theme = '__THEME__'
+local session_name = os.getenv 'TMX_SESSION'
+local session_key = os.getenv 'TMX_SESSION_KEY'
+local persistent = session_name and session_name:match('^[%w_-]+$') and session_key and session_key:match('^%x+$') and #session_key == 16
+local session_path = persistent and (state_dir .. '/session-' .. session_key .. '.json') or nil
+local session_state = session_path and read_json(session_path)
+if session_state and palettes[session_state.theme] then theme = session_state.theme end
 local gui_pid = tostring(wezterm.procinfo.pid())
 local function shell_command(name)
   return { 'powershell.exe', '-NoLogo', '-NoExit', '-Command',
     ". ([scriptblock]::Create([IO.File]::ReadAllText('" .. root:gsub("'", "''") .. "/shell.ps1'))) -Theme " .. name }
 end
 local function shell_environment(name)
-  return { TMUX_STYLE_BACKEND = 'wezterm', TMUX_STYLE_ASSETS = root, TMUX_STYLE_GUI_PID = gui_pid, TMUX_STYLE_THEME = name }
+  return { TMUX_STYLE_BACKEND = 'wezterm', TMUX_STYLE_ASSETS = root, TMUX_STYLE_GUI_PID = gui_pid, TMUX_STYLE_THEME = name,
+    TMX_SESSION = persistent and session_name or '', TMX_SESSION_KEY = persistent and session_key or '' }
 end
 local function theme_colors(name)
   local p = palettes[name]
@@ -42,6 +49,7 @@ local function window_theme(window)
 end
 local published_themes = {}
 local function publish_theme(window, name)
+  if persistent then return end -- Shared session state is written only on an explicit theme change.
   -- Separate files per GUI process and pane keep other windows independent.
   for _, tab in ipairs(window:mux_window():tabs()) do
     for _, pane in ipairs(tab:panes()) do
@@ -63,12 +71,43 @@ local function apply_theme(window, pane, name, value)
     window:set_config_overrides(o)
   end
   publish_theme(window, value)
+  if session_path then
+    local file = io.open(session_path, 'w')
+    if file then file:write(wezterm.json_encode {name=session_name,theme=value});file:close() end
+  end
 end
-wezterm.on('user-var-changed', apply_theme)
+local function detach_session(window, pane)
+  if persistent and pane:get_domain_name() == 'TMX' then
+    window:perform_action(act.DetachDomain {DomainName='TMX'}, pane)
+  else
+    window:toast_notification('TMX', 'Open a new TMX session after upgrading to use detach.', nil, 5000)
+  end
+end
+local function choose_theme(window, pane)
+  local choices = {}
+  for _, name in ipairs {'aurora','midnight','ember','paper','neon','black','code','hacker'} do
+    table.insert(choices, {id=name,label=name})
+  end
+  window:perform_action(act.InputSelector {
+    title='Choose a theme for this session',choices=choices,
+    action=wezterm.action_callback(function(w,p,id) if id then apply_theme(w,p,'TmuxStyleTheme',id) end end)
+  }, pane)
+end
+wezterm.on('user-var-changed', function(window,pane,name,value)
+  if name == 'TmuxStyleTheme' then apply_theme(window,pane,name,value) end
+  if name == 'TmuxStyleCommand' and value:match('^detach:') then detach_session(window,pane) end
+  if name == 'TmuxStyleCommand' and value:match('^choose%-theme:') then choose_theme(window,pane) end
+end)
 local config = wezterm.config_builder()
 config.default_prog = shell_command(theme)
-config.default_cwd = backend.startingDirectory
-config.default_workspace = 'TMUX'
+config.default_cwd = persistent and os.getenv 'TMX_CWD' or backend.startingDirectory
+config.default_workspace = persistent and session_name or 'TMUX'
+if persistent then
+  config.unix_domains = {{name='TMX',socket_path=state_dir .. '/mux-' .. session_key .. '.sock',no_serve_automatically=true}}
+  config.default_domain = 'TMX'
+  config.default_mux_server_domain = 'local'
+  config.default_gui_startup_args = {'connect','--workspace',session_name,'TMX'}
+end
 config.set_environment_variables = shell_environment(theme)
 config.font = wezterm.font_with_fallback { 'Cascadia Mono', 'Consolas' }
 config.font_size = 11
@@ -122,6 +161,8 @@ local function resume(window, pane)
 end
 wezterm.on('tmux-style-resume', resume)
 config.keys = {
+  { key = 'd', mods = 'LEADER', action = wezterm.action_callback(detach_session) },
+  { key = 't', mods = 'LEADER', action = wezterm.action_callback(choose_theme) },
   { key = 'F12', action = wezterm.action_callback(pass_through) },
   { key = 'UpArrow', mods = 'SHIFT', action = wezterm.action_callback(pass_through) },
   { key = 'DownArrow', mods = 'SHIFT', action = wezterm.action_callback(resume) },
@@ -131,7 +172,8 @@ config.keys = {
   { key = '-', mods = 'LEADER', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
   { key = 'r', mods = 'LEADER', action = rename('Rename tab (empty resets)', function(w, _, s) w:active_tab():set_title(s) end) },
   { key = 'R', mods = 'LEADER|SHIFT', action = rename('Rename workspace', function(w, _, s)
-      if s ~= '' then wezterm.mux.rename_workspace(w:active_workspace(), s) end
+      if persistent then w:toast_notification('TMX', 'Create a named session with tmx new NAME.', nil, 5000)
+      elseif s ~= '' then wezterm.mux.rename_workspace(w:active_workspace(), s) end
     end) },
   { key = 'z', mods = 'LEADER', action = act.TogglePaneZoomState },
   { key = 'x', mods = 'LEADER', action = act.CloseCurrentPane { confirm = true } },
@@ -162,6 +204,7 @@ end
 for i = 1, 9 do table.insert(config.keys, { key = tostring(i), mods = 'LEADER', action = act.ActivateTab(i - 1) }) end
 
 wezterm.on('gui-startup', function(cmd)
+  if persistent then return end -- connect attaches existing server panes; never duplicate the layout.
   local _, first = wezterm.mux.spawn_window(cmd or {})
   local right = first:split { direction = 'Right', size = 0.35 }
   right:split { direction = 'Bottom', size = 0.5 }
@@ -174,6 +217,12 @@ wezterm.on('format-tab-title', function(tab)
 end)
 local last_sample
 wezterm.on('update-status', function(window, pane)
+  if session_path then
+    local saved = read_json(session_path)
+    if saved and palettes[saved.theme] and window_theme(window) ~= saved.theme then
+      apply_theme(window, pane, 'TmuxStyleTheme', saved.theme)
+    end
+  end
   local selected_theme = window_theme(window)
   local p = palettes[selected_theme]
   publish_theme(window, selected_theme)

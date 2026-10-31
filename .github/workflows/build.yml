@@ -71,6 +71,9 @@ jobs:
           $runtime=Join-Path $env:RUNNER_TEMP 'wezterm-runtime'
           Expand-Archive $archive $runtime
           ./windows-terminal/test-wezterm-lua.ps1 -SourceDirectory ./windows-terminal -WezTermExecutable (Join-Path $runtime ($pin.folder+'/wezterm.exe')) -ReportFile ./dist/wezterm-lua-test.json
+          $source=Join-Path $env:RUNNER_TEMP 'tmx-session-payload'
+          Expand-Archive ./dist/build/payload.zip $source
+          ./windows-terminal/test-windows-sessions.ps1 -SourceDirectory $source -WezTermExecutable (Join-Path $runtime ($pin.folder+'/wezterm.exe')) -ReportFile ./dist/windows-session-test.json
       - uses: actions/upload-artifact@v4
         with:
           name: TMX-Windows
@@ -79,4 +82,5 @@ jobs:
             dist/SHA256SUMS.txt
             dist/self-test.json
             dist/wezterm-lua-test.json
+            dist/windows-session-test.json
             dist/theme-contrast.json

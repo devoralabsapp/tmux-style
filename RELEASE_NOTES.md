@@ -1,4 +1,15 @@
-# TMX v1.6.0
+# TMX v1.7.0
+
+- Install the Windows EXE once with WezTerm selected, then run `tmx` directly from PowerShell or CMD. The console launcher preserves arguments and Unicode paths without editing shell profiles or execution policy.
+- Added named Windows sessions: `tmx new NAME [--theme NAME] [-d]`, `list` / `ls`, `attach [NAME]` / `attach -t NAME`, `detach`, `theme`, `themes`, `metrics`, `restore`, `uninstall`, `help` and `version`. Bare `tmx` creates or reattaches the default workspace.
+- Native WezTerm mux servers keep pane processes and running jobs alive after detach or GUI close. Reattach reconnects to the same session; sessions do not survive Windows shutdown. Existing pre-1.7 windows remain usable but must be replaced by new sessions to gain persistence.
+- Ctrl-a d detaches; Ctrl-a t and bare `tmx theme` open a native theme picker. Session themes survive detach/reattach; `tmx theme NAME --session SESSION` and `--default` match the Unix command style.
+- Removed the blocking installation-success popup. Completion and command guidance appear inline in the installer.
+- Added safe Windows restore/uninstall guards for running sessions and edited files, with recovery backups retained. Legacy Windows Terminal behavior and Unix tmux configurations remain available.
+
+Downloads: `TMX-Setup-1.7.0.exe`, `tmx-linux-1.7.0.tar.gz`, `tmx-macos-1.7.0.tar.gz`, source, SHA-256 checksums, theme contrast report and platform validation reports.
+
+## v1.6.0 historical notes
 
 - Renamed the Linux/macOS command to `tmx`. The `tmux-style` command, existing data paths and socket remain compatible with running sessions. Installer refuses collisions with an unrelated `tmx` command.
 - Added `tmx uninstall` to deactivate the tool and both owned commands across upgrades, retaining recovery backups and original user launchers. It refuses active TMX sessions or edited commands; unrelated tmux servers and dotfiles remain in place. `tmx restore` still rolls back only the most recent installation.

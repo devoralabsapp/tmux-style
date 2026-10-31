@@ -1,8 +1,35 @@
 # Windows workspaces + tmux-style keys
 
-Download **TMX-Setup-1.6.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
+Download **TMX-Setup-1.7.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
 
 The executable is not code signed. Source, build scripts and SHA-256 checksums are provided with the release. It does not bundle or impersonate Microsoft Windows Terminal.
+
+## Windows command line
+
+After installing v1.7.0 with **WezTerm** selected, open PowerShell or CMD and use `tmx` directly. No profile edits or PowerShell execution-policy changes are needed. The per-user `tmx.exe` launcher is installed in `%LOCALAPPDATA%\Microsoft\WindowsApps`, normally already on PATH. If that directory was absent from PATH, the installer adds it to the user PATH; reopen the terminal application to receive the updated environment. The installer shows success inline, without an extra popup.
+
+```powershell
+tmx                          # create/reattach the default TMUX workspace
+tmx new work --theme code
+tmx new lab --theme hacker -d # start detached
+tmx list                     # ls / sessions also work
+tmx attach work              # attach -t work also works
+tmx detach                   # inside an attached TMX pane; Ctrl-a d also works
+tmx attach                   # most recently attached session
+tmx theme paper --session lab
+tmx theme black --default    # new sessions only
+tmx themes
+tmx help
+tmx version
+```
+
+Each named session uses its own local WezTerm mux server, with three PowerShell panes. Detaching or closing its GUI leaves the server and pane processes running. `attach` reconnects to those same panes in a WezTerm window; it does not reset the session or create a missing one. Different sessions retain their own themes. Sessions last until their shells exit or Windows shuts down; this is not a reboot-resume feature. Existing windows from v1.6 and earlier use the old local backend and cannot be converted into persistent sessions while running: leave them available and create new ones with `tmx` after upgrading.
+
+Inside a managed PowerShell pane, `tmx theme hacker`, `theme hacker`, bare `theme`, or Ctrl-a t change the session's colors without restarting processes. Theme state survives detach/reattach and synchronizes with other clients of that same session. `workspace` creates a new three-pane session at the current directory. Use `tmx new NAME` to choose a stable session name; Ctrl-a r still renames individual tabs. Ctrl-a R is kept for legacy nonpersistent windows; persistent session names are fixed.
+
+Exit every TMX session before `tmx restore` (undo the last install) or `tmx uninstall` (remove the active tool across upgrades). Detaching alone leaves a live session. Both refuse live sessions and edited installed files. Uninstall retains recovery backups and the portable WezTerm runtime, restores original backed-up files, and leaves Windows Terminal and user shell profiles in place. The Windows Terminal installer option continues to provide themed tabs/panes; installing the **WezTerm** option supplies the persistent `tmx` commands, usable from either terminal application.
+
+The session implementation uses WezTerm's [native multiplexer domains](https://wezterm.org/multiplexing.html#unix-domains) and [DetachDomain](https://wezterm.org/config/lua/keyassignment/DetachDomain.html), rather than simulating detach by hiding a window.
 
 ## WezTerm: real bottom bar (default)
 
@@ -24,6 +51,7 @@ WezTerm handles `Ctrl-a` natively, without the Windows Terminal keyboard bridge.
 
 | Keys | WezTerm behavior |
 | --- | --- |
+| `Ctrl-a d`, `Ctrl-a t` | Detach persistent session / choose a theme |
 | `Ctrl-a c`, `Ctrl-a \|`, `Ctrl-a -` | New tab, split right, split below; inherit current directory |
 | `Ctrl-a r` / `Ctrl-a R` | Rename tab / workspace |
 | `Ctrl-a z`, `Ctrl-a x` / `Ctrl-a X` | Zoom, close pane / tab with confirmation when needed |
@@ -38,7 +66,7 @@ WezTerm handles `Ctrl-a` natively, without the Windows Terminal keyboard bridge.
 | `Shift+Left/Right`, `Ctrl+Shift+Left/Right`, `Ctrl+T` | Change tab, move tab, new tab while local bindings are enabled |
 | `Ctrl+Alt+W` | New three-pane tab at the current directory |
 
-`theme black` recolors the **current WezTerm window**, including all its tabs, panes and bottom bar. Shells and processes stay alive; other windows keep their theme. Existing prompts synchronize at their next redraw; newly created panes use the selected palette. Theme switching preserves F12 pass-through, zoom and hidden-bar settings. It applies to this window's lifetime; the Desktop shortcut still uses the installer-selected starting theme. `workspace` opens another three-pane window at the current directory. Native WezTerm defaults such as `Ctrl+Shift+C/V` remain available in normal mode. The personal tmux session-link/merge, monitor, detach/attach and buffer-history commands are not implemented. WezTerm's Shift+Up/Down controls local pass-through; it does not emit the original Alt+F12/Alt+F11 remote signals. Closing windows ends their panes.
+`theme black` recolors the **current WezTerm session**, including its tabs, panes and bottom bar. Shells and processes stay alive; other sessions keep their themes. Existing prompts synchronize at their next redraw; newly created panes use the selected palette. Theme switching preserves F12 pass-through, zoom and hidden-bar settings. Native WezTerm defaults such as `Ctrl+Shift+C/V` remain available in normal mode. Personal tmux session-link/merge, monitor and buffer-history commands are not implemented. WezTerm's Shift+Up/Down controls local pass-through; it does not emit the original Alt+F12/Alt+F11 remote signals. See the persistent-session commands above for detach/attach and lifetime rules.
 
 After upgrading from v1.2.0 with shells still open, open one new tab with `Ctrl-a c` to load the updated `theme` command. Existing PowerShell panes can load the updated prompt without restarting their process:
 
@@ -48,7 +76,7 @@ After upgrading from v1.2.0 with shells still open, open one new tab with `Ctrl-
 
 The small `TmuxStyle.Metrics.exe` collector reads Windows CPU/memory counters and writes a local JSON sample. It runs once for this asset directory and exits after all WezTerm GUI processes have been closed for about 20 seconds. It has no network access, keyboard hook or startup entry.
 
-Close Tmux Style WezTerm windows before upgrade/restore. In the installer, select **WezTerm** and click **Restore previous settings**. Owned configs, prompt and shortcut are backed up in the separate `wezterm\backups` directory. Restore and upgrade refuse to overwrite files edited since installation. The portable runtime remains available after restoring the configuration.
+Exit the shells of persistent sessions before restore. In the installer, select **WezTerm** and click **Restore previous settings**, or run `tmx restore` from an outer terminal. Owned configs, prompt, command and shortcut are backed up in the separate `wezterm\backups` directory. Restore and upgrade refuse to overwrite files edited since installation. The portable runtime remains available after restoring the configuration.
 
 ## Windows Terminal: familiar tmux keys
 

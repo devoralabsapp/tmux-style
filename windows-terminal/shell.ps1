@@ -49,6 +49,9 @@ function global:Update-TmuxStyleShellTheme {
     }
 }
 function global:Get-TmuxStyleThemeStatePath {
+    if($env:TMX_SESSION_KEY -match '^[a-f0-9]{16}$'){
+        return Join-Path $global:TmuxStyleStateDirectory ('session-'+$env:TMX_SESSION_KEY+'.json')
+    }
     $guiProcessId=$env:TMUX_STYLE_GUI_PID
     if(-not $guiProcessId -and $env:WEZTERM_UNIX_SOCKET -match 'gui-sock-(\d+)$'){$guiProcessId=$Matches[1]}
     if($guiProcessId -match '^\d+$' -and $env:WEZTERM_PANE -match '^\d+$'){
@@ -84,8 +87,8 @@ function global:Open-TmuxStyleWorkspace {
     param([string]$Path = $PWD.Path)
     $terminal = Get-TmuxStyleTerminal
     if($global:TmuxStyleBackend -eq 'wezterm'){
-        $config=Join-Path $global:TmuxStyleAssetDirectory ('wezterm-'+$global:TmuxStyleTheme+'.lua')
-        Start-Process -FilePath $terminal -ArgumentList ('--config-file "'+$config+'" start --always-new-process --cwd "'+$Path+'"') -WindowStyle Hidden
+        Push-Location -LiteralPath $Path
+        try{tmx new ('workspace-'+[Guid]::NewGuid().ToString('N').Substring(0,8)) --theme $global:TmuxStyleTheme}finally{Pop-Location}
         return
     }
     $profileName = 'Tmux Style - ' + $global:TmuxStyleThemeNames[$global:TmuxStyleTheme]
@@ -94,9 +97,14 @@ function global:Open-TmuxStyleWorkspace {
 
 function global:Set-TmuxStyleTheme {
     param([ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')][string]$Name = 'aurora')
+    if($env:TMX_SESSION -and $PSBoundParameters.Count -eq 0){tmx theme;return}
     if($global:TmuxStyleBackend -eq 'wezterm'){
         $statePath=Get-TmuxStyleThemeStatePath
-        if($statePath){[IO.File]::WriteAllText($statePath,('{"theme":"'+$Name+'"}'),[Text.UTF8Encoding]::new($false))}
+        if($statePath){
+            $state=@{theme=$Name}
+            if($env:TMX_SESSION){$state.name=$env:TMX_SESSION}
+            [IO.File]::WriteAllText($statePath,($state|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
+        }
         Update-TmuxStyleShellTheme $Name
         $encoded=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($Name))
         Write-Host -NoNewline ([string][char]27+']1337;SetUserVar=TmuxStyleTheme='+$encoded+[char]7)
@@ -123,10 +131,19 @@ function global:Show-TmuxStyleHelp {
     Write-Host '  Ctrl+Shift+T / W    new tab / close pane'
     Write-Host '  Ctrl+Tab            next tab'
     Write-Host '  workspace           open a new 3-pane window'
+    Write-Host '  tmx new work [-d]    create a persistent WezTerm session'
+    Write-Host '  tmx list / attach work / detach    manage sessions; Ctrl-a d detaches'
     Write-Host '  theme neon          recolor this WezTerm window / open a Terminal tab'
     Write-Host '  theme code / hacker  Code Spectrum / Hacker Matrix'
     Write-Host '  Show-TmuxStyleHelp  show these shortcuts'
     Write-Host ''
+}
+
+function global:tmx {
+    $assets=if($global:TmuxStyleBackend -eq 'wezterm'){$global:TmuxStyleAssetDirectory}else{Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows\wezterm'}
+    $cli=Join-Path $assets 'tmx.ps1'
+    if(-not(Test-Path -LiteralPath $cli)){throw 'Install the TMX WezTerm backend to use persistent sessions on Windows.'}
+    & ([scriptblock]::Create([IO.File]::ReadAllText($cli))) -AssetDirectory $assets -Arguments $args
 }
 
 function global:prompt {

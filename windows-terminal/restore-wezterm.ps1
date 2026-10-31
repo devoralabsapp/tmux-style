@@ -6,6 +6,8 @@ foreach($entry in $state.files){
     if($hash -ne $entry.installedHash){throw ('WezTerm workspace changed since installation. Compare the backup before restoring: '+$entry.path)}
 }
 $root=Split-Path -Parent $StatePath
+$cli=Join-Path $root 'tmx.ps1'
+if(Test-Path -LiteralPath $cli){& ([scriptblock]::Create([IO.File]::ReadAllText($cli))) -AssetDirectory $root -Arguments @('__check-no-sessions')}
 $metrics=Join-Path $root 'TmuxStyle.Metrics.exe'
 if(Test-Path -LiteralPath $metrics){
     foreach($directory in $root,($root.TrimEnd('\','/')+'-state')){
@@ -15,10 +17,24 @@ if(Test-Path -LiteralPath $metrics){
         if(-not $process.WaitForExit(5000)){throw 'Close Tmux Style WezTerm windows before restoring.'}
     }
 }
-foreach($entry in $state.files){
-    if($entry.backup){Copy-Item -LiteralPath $entry.backup -Destination $entry.path -Force}
-    else{Remove-Item -LiteralPath $entry.path}
+$recovery=Join-Path $root ('backups\before-restore-'+[Guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $recovery|Out-Null
+$moved=@();$index=0
+try{
+    foreach($entry in $state.files){
+        $target=Join-Path $recovery ($index.ToString()+'-'+[IO.Path]::GetFileName($entry.path))
+        Move-Item -LiteralPath $entry.path -Destination $target
+        $moved+=@{from=$entry.path;to=$target};$index++
+    }
+    foreach($entry in $state.files){if($entry.backup){Copy-Item -LiteralPath $entry.backup -Destination $entry.path}}
+}catch{
+    foreach($entry in $moved){Copy-Item -LiteralPath $entry.to -Destination $entry.from -Force}
+    throw
 }
 if($state.previousState){Copy-Item -LiteralPath $state.previousState -Destination $StatePath -Force}
 else{Remove-Item -LiteralPath $StatePath}
+if($state.addedCommandPath){
+    $userPath=[string][Environment]::GetEnvironmentVariable('PATH','User')
+    [Environment]::SetEnvironmentVariable('PATH',((@($userPath.Split(';')|Where-Object {$_.TrimEnd('\','/') -ine $state.commandDirectory.TrimEnd('\','/')})) -join ';'),'User')
+}
 Write-Output 'Previous WezTerm workspace files restored. Windows Terminal settings were untouched.'

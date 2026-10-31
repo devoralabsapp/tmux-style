@@ -104,8 +104,7 @@ internal sealed class SetupForm:Form
                 if(!createShortcut)command+=" -NoShortcut";if(open)command+=" -Launch";if(download)command+=" -InstallTerminal";
                 return SetupProgram.RunPowerShell(command,Write);
             });
-            status.Text=result==0?"Installed. Ctrl-a is ready in new Tmux Style PowerShell tabs.":"Installation failed. See the log above; existing sessions remain open.";
-            if(result==0)MessageBox.Show(this,"Workspace installed. Use Ctrl-a then |, -, c, r, z or x.\nF12 toggles pass-through.\nDesktop shortcut: "+(engine=="wezterm"?"Tmux Style WezTerm":"Tmux Style Workspace"),"Tmux Style",MessageBoxButtons.OK,MessageBoxIcon.Information);
+            status.Text=result==0?(engine=="wezterm"?"Installed. Open PowerShell or CMD and run tmx. Ctrl-a d detaches.":"Installed. Ctrl-a is ready in new Tmux Style PowerShell tabs."):"Installation failed. See the log above; existing sessions remain open.";
         }catch(Exception ex){Write(ex.Message);status.Text="Installation failed.";}finally{SetBusy(false);}
     }
     async Task Restore(){

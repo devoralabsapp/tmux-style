@@ -17,6 +17,12 @@ if($LASTEXITCODE -ne 0){throw 'Key bridge compilation failed'}
 $metrics=Join-Path $build 'TmuxStyle.Metrics.exe'
 & $compiler /nologo /target:winexe /platform:anycpu "/out:$metrics" "/win32icon:$(Join-Path $root 'tmux-style.ico')" (Join-Path $root 'installer\Metrics.cs') $assemblyInfo
 if($LASTEXITCODE -ne 0){throw 'Metrics helper compilation failed'}
+$command=Join-Path $build 'TmuxStyle.Command.exe'
+& $compiler /nologo /target:exe /platform:anycpu "/out:$command" "/win32icon:$(Join-Path $root 'tmux-style.ico')" (Join-Path $root 'installer\Command.cs') $assemblyInfo
+if($LASTEXITCODE -ne 0){throw 'Command launcher compilation failed'}
+$command=Join-Path $build 'TmuxStyle.Command.exe'
+& $compiler /nologo /target:exe /platform:anycpu "/out:$command" "/win32icon:$(Join-Path $root 'tmux-style.ico')" (Join-Path $root 'installer\Command.cs') $assemblyInfo
+if($LASTEXITCODE -ne 0){throw 'Command launcher compilation failed'}
 $payload=Join-Path $build 'payload.zip'
 if(Test-Path $payload){Remove-Item -LiteralPath $payload}
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -25,10 +31,13 @@ try{
     foreach($name in @('shell.ps1','setup.ps1','restore.ps1','common.ps1','settings.additions.json','profiles.schema.json','install-runner.ps1','test-release.ps1','tmux-style.ico')){
         [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path $root $name),$name,[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     }
-    foreach($name in @('setup-wezterm.ps1','restore-wezterm.ps1','wezterm.lua','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md','test-wezterm.ps1','test-wezterm-lua.ps1')){
+    foreach($name in @('setup-wezterm.ps1','tmx.ps1','restore-wezterm.ps1','wezterm.lua','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md','test-wezterm.ps1','test-wezterm-lua.ps1','test-windows-sessions.ps1')){
         [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path $root $name),$name,[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     }
+    [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path (Split-Path -Parent $root) 'VERSION'),'VERSION',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$metrics,'TmuxStyle.Metrics.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
+    [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$command,'TmuxStyle.Command.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
+    [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$command,'TmuxStyle.Command.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$bridge,'TmuxStyle.Keys.exe',[IO.Compression.CompressionLevel]::Optimal)|Out-Null
 }finally{$archive.Dispose()}
 $installer=Join-Path $output ('TMX-Setup-'+$Version+'.exe')

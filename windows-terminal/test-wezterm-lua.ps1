@@ -68,6 +68,16 @@ local previous=w.overrides
 apply_theme(w,pane,'TmuxStyleTheme','invalid')
 apply_theme(w,pane,'other-var','black')
 assert(w.overrides==previous, 'Unrelated/invalid signal changed theme')
+-- Parse and exercise real detach/input-selector actions in the pinned runtime.
+local was_persistent=persistent
+persistent=true
+function pane:get_domain_name() return 'TMX' end
+function w:perform_action(action, target) self.performed=action end
+detach_session(w,pane)
+assert(w.performed~=nil, 'Detach action missing')
+choose_theme(w,pane)
+assert(w.performed~=nil, 'Theme selector action missing')
+persistent=was_persistent
 local first, right = {}, {}
 function pane:get_current_working_dir() return {file_path='/C:/test space'} end
 function w:mux_window() return {spawn_tab=function(_,cmd) assert(cmd.cwd=='C:/test space');return tab,first end} end

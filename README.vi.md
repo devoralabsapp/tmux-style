@@ -2,9 +2,11 @@
 
 [English](README.md) · Tiếng Việt
 
-## Linux và macOS: bộ cài độc lập v1.6.0
+**Mới ở v1.7.0 — lệnh Windows tương tự Linux/macOS:** cài EXE một lần, chọn **WezTerm**, rồi gọi `tmx` từ PowerShell hoặc CMD. Có `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` và `tmx uninstall`. `Ctrl-a d` detach để tiến trình tiếp tục chạy; `Ctrl-a t` chọn theme. Đã bỏ hộp thoại “Workspace installed”. [Hướng dẫn Windows](windows-terminal/README.md#windows-command-line).
 
-**Mới ở v1.6.0:** lệnh chính đổi thành **`tmx`**; `tmux-style` vẫn dùng được để tương thích. Thêm `tmx uninstall` để gỡ bộ cài Linux/macOS qua mọi lần nâng cấp, giữ bản sao lưu phục hồi. Đã tăng độ tương phản của Paper, chữ ở trạng thái OFF, viền pane, menu, phần chọn chữ và màu prompt Windows.
+## Linux và macOS: bộ cài độc lập v1.7.0
+
+**Từ v1.6.0:** lệnh chính đổi thành **`tmx`**; `tmux-style` vẫn dùng được để tương thích. Thêm `tmx uninstall` để gỡ bộ cài Linux/macOS qua mọi lần nâng cấp, giữ bản sao lưu phục hồi. Đã tăng độ tương phản của Paper, chữ ở trạng thái OFF, viền pane, menu, phần chọn chữ và màu prompt Windows.
 
 Dùng `tmx new work --theme code`, `tmx new lab --theme hacker -d`, `tmx list`, rồi `tmx attach work` / `tmx attach lab`. Trong pane Bash/Zsh, gõ `theme hacker`, `theme code`, hoặc `theme` để đổi màu tại chỗ. `Ctrl-a d` detach và giữ tiến trình chạy. Sau khi cài bản mới, nhấn `Ctrl-a Ctrl-r` và chạy `. "$TMUX_STYLE_HOME/shell/commands.sh"` trong pane cũ để có tên lệnh mới ngay.
 
@@ -12,7 +14,7 @@ Các cặp màu chữ do tool quản lý được kiểm tra với mục tiêu t
 
 ![Mẫu màu chữ và nền của tám theme](preview/theme-readability.svg)
 
-Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.6.0/tmx-linux-1.6.0.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.6.0/tmx-macos-1.6.0.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
+Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.7.0/tmx-linux-1.7.0.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.7.0/tmx-macos-1.7.0.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
 
 ```bash
 # Linux / WSL
@@ -45,11 +47,11 @@ Sáu giao diện tmux nền: **Aurora**, **Midnight / Cyan**, **Ember**, **Paper
 
 ## Windows: tải EXE và cài
 
-Tải **[TMX-Setup-1.6.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
+Tải **[TMX-Setup-1.7.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở PowerShell/CMD và gõ **`tmx`**, hoặc dùng shortcut **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
 
 Bản **1.3.1** bỏ giới hạn ký tự tên tab WezTerm: tên dài hiển thị đầy đủ khi thanh tab còn đủ chỗ. Nếu tổng các tab vượt chiều rộng cửa sổ, WezTerm xử lý phần tràn theo không gian thực tế.
 
-WezTerm dùng phím `Ctrl-a` native, không cần bộ remap ngoài. CPU/RAM là số liệu của máy Windows, kể cả khi SSH; cập nhật mỗi 2 giây, đồng hồ mỗi giây. `F12` bật/tắt chế độ chuyển phím cho tmux từ xa. `theme black` đổi màu cửa sổ WezTerm hiện tại; `workspace` mở 3 pane tại thư mục hiện tại. `Ctrl-a R` đổi tên workspace. Các ảnh minh họa bên dưới là phiên tmux thử nghiệm, không phải thanh trạng thái Windows Terminal.
+WezTerm dùng phím `Ctrl-a` native, không cần bộ remap ngoài. CPU/RAM là số liệu của máy Windows, kể cả khi SSH; cập nhật mỗi 2 giây, đồng hồ mỗi giây. `F12` bật/tắt chế độ chuyển phím cho tmux từ xa. `theme black` đổi màu phiên WezTerm hiện tại; `workspace` mở phiên mới có 3 pane tại thư mục hiện tại. Đặt tên phiên bằng `tmx new NAME`; `Ctrl-a r` đổi tên tab. Các ảnh minh họa bên dưới là phiên tmux thử nghiệm, không phải thanh trạng thái Windows Terminal.
 
 Riêng lựa chọn Windows Terminal:
 
