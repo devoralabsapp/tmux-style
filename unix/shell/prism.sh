@@ -11,8 +11,8 @@ tmx_prism_run() {
   if [[ $1 == ls ]]; then
     shift
     case $(uname -s) in
-      Darwin) CLICOLOR=1 CLICOLOR_FORCE=1 command ls -G "$@" ;;
-      *) command ls --color=always "$@" ;;
+      Darwin) LSCOLORS=GxFxCxDxBxDxDxFxFxCxCx CLICOLOR=1 CLICOLOR_FORCE=1 command ls -G "$@" ;;
+      *) LS_COLORS="di=01;96:ln=01;95:so=01;92:pi=01;93:ex=01;92:bd=01;93:cd=01;93:or=01;91:mi=01;91:su=01;95:sg=01;95:tw=01;96:ow=01;96:st=01;96" command ls --color=always "$@" ;;
     esac
     return $?
   fi
