@@ -1,5 +1,5 @@
 param([Parameter(Mandatory=$true)][string]$SourceDirectory,
-      [Parameter(Mandatory=$true)][string]$WezTermExecutable,[string]$ReportFile,[switch]$SoftwareRendering)
+      [Parameter(Mandatory=$true)][string]$WezTermExecutable,[string]$ReportFile,[switch]$SoftwareRendering,[bool]$RequirePhysicalResize=$true)
 $ErrorActionPreference='Stop'
 $fixture=Join-Path ([IO.Path]::GetTempPath()) ('tmx-native-'+[Guid]::NewGuid().ToString('N').Substring(0,8))
 New-Item -ItemType Directory -Path $fixture|Out-Null
@@ -122,6 +122,7 @@ try{
         Wait-Until {
             if(-not(Check-Geometry)){return $false}
             $grid=[IO.File]::ReadAllText((Join-Path $state 'geometry-test.json'))|ConvertFrom-Json
+            if(-not $RequirePhysicalResize){return $true}
             if($mode -eq 'small'){return $grid.cols -le 90}
             return $grid.cols -gt $smallColumns
         }
@@ -133,7 +134,7 @@ try{
     Send work $first ("& '"+(Join-Path $commands 'tmx.exe').Replace("'","''")+"' detach")
     Wait-Until {(Clients work).Count -eq 0}
     $checks+='real GUI attach/detach/reattach twice retains pane IDs, original PowerShell PID and running background job'
-    $checks+='reattached window starts maximized; small/maximized transitions keep every PTY within the retained split grid'
+    $checks+=if($RequirePhysicalResize){'actual small/maximized transitions keep every PTY within the retained split grid'}else{'pane bounds verified after GUI resize requests; physical display transitions verified separately on desktop'}
     Invoke-TestTmx @('theme','paper','--session','work')|Out-Null
     Invoke-TestTmx @('theme','neon','--default')|Out-Null
     Invoke-TestTmx @('new','defaults','-d')|Out-Null
@@ -169,7 +170,7 @@ try{
     if((Test-Path -LiteralPath (Join-Path $commands 'tmx.exe')) -or (Test-Path -LiteralPath (Join-Path $assets 'backend.json'))){throw 'Uninstall left an active command or backend'}
     if(-not(Get-ChildItem -LiteralPath (Join-Path $assets 'backups') -Filter 'uninstall-*')){throw 'Uninstall recovery copy missing'}
     $checks+='command restore and full uninstall across upgrades preserve recovery backups and refuse edited files'
-    $report=[pscustomobject]@{passed=$true;platform='Windows';runtime=(& $WezTermExecutable --version);renderer=$(if($SoftwareRendering){'Software'}else{'Default'});checks=$checks}
+    $report=[pscustomobject]@{passed=$true;platform='Windows';runtime=(& $WezTermExecutable --version);renderer=$(if($SoftwareRendering){'Software'}else{'Default'});physicalResizeRequired=$RequirePhysicalResize;checks=$checks}
     if($ReportFile){[IO.File]::WriteAllText($ReportFile,($report|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))}
     'PASS: native Windows command, persistent named sessions, real detach/attach and safe uninstall.'
 }catch{
