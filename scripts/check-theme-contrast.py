@@ -121,6 +121,8 @@ for profile in settings['profiles']:
 for slug, fg, bg in re.findall(r"^\s+(\w+)\) TMX_PROMPT_FG='([\d;]+)'; TMX_PROMPT_BG='([\d;]+)'",(ROOT/'unix/shell/palettes.sh').read_text(),re.M):
     to_hex=lambda value: '#' + ''.join(f'{int(n):02x}' for n in value.split(';'))
     add('unix-prompt/'+slug,'cwd',to_hex(fg),to_hex(bg))
+for slug, bg, red in re.findall(r"^\s+(\w+)\) TMX_PROMPT_FG='[\d;]+'; TMX_PROMPT_BG='([\d;]+)'.*TMX_PROMPT_PATH_RED='([\d;]+)'",(ROOT/'unix/shell/palettes.sh').read_text(),re.M):
+    add('macos-prompt/'+slug,'red-cwd',to_hex(red),to_hex(bg))
 for name in ['brightRed','brightGreen','brightYellow','brightBlue','brightPurple','brightCyan','white']:
     scheme=next(s for s in settings['schemes'] if s['name']=='Tmux Style / Prism')
     add('windows/prism','output/'+name,scheme[name],scheme['background'])

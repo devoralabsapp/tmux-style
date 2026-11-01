@@ -234,7 +234,8 @@ try:
         wait_for(lambda: 'TMX ' in tm('capture-pane', '-p', '-t', zsh_pane))
         in_shell(zsh_pane, 'test "$TMX_PROMPT_THEME" = prism && test "$ZSH_HIGHLIGHT_VERSION" = 0.8.0')
         cwd_line = [line for line in tm('capture-pane', '-p', '-e', '-t', zsh_pane).splitlines() if 'TMX ' in line][-1]
-        assert '38;2;229;233;255' in cwd_line and '48;2;17;19;31' in cwd_line, cwd_line
+        cwd_rgb = '255;122;138' if os.uname().sysname == 'Darwin' else '229;233;255'
+        assert '38;2;'+cwd_rgb in cwd_line and '48;2;17;19;31' in cwd_line, cwd_line
         # Inspect the actual cells while editing, before executing the command.
         tm('send-keys', '-t', zsh_pane, '-l', 'printf "success 42 /tmp/prism-result\\n"')
         time.sleep(.3)
@@ -299,6 +300,19 @@ try:
     assert run(launcher, 'uninstall', ok=False).returncode
     assert data.exists()
     checks.append('restore refuses to remove assets while sessions are running')
+    # Close every tab/pane of only the calling session; an outer call is invalid.
+    stable = tm('list-panes', '-a', '-F', '#{session_name}:#{pane_id}:#{pane_pid}')
+    assert run(launcher, 'exit', ok=False).returncode
+    run(launcher, 'new', 'close-me', '-d')
+    exit_pane = tm('list-panes', '-t', 'close-me', '-F', '#{pane_id}').splitlines()[0]
+    tm('new-window', '-d', '-t', 'close-me', '-n', 'extra')
+    wait_for(lambda: 'TMX ' in tm('capture-pane', '-p', '-t', exit_pane))
+    in_shell(exit_pane, 'tmx exit extra; test "$?" != 0')
+    tm('send-keys', '-t', exit_pane, '-l', 'tmx exit')
+    tm('send-keys', '-t', exit_pane, 'Enter')
+    wait_for(lambda: run('tmux', '-L', 'tmux-style', 'has-session', '-t', '=close-me', ok=False).returncode != 0)
+    assert tm('list-panes', '-a', '-F', '#{session_name}:#{pane_id}:#{pane_pid}') == stable
+    checks.append('tmx exit closes all tabs/panes of its current session; other session processes survive; outer/argument calls rejected')
     tm('kill-server')
     reap_child()
     os.close(master)

@@ -1,4 +1,13 @@
-# TMX v1.8.1
+# TMX v1.8.2
+
+- Added `tmx exit` on Windows, Linux and macOS. It closes every tab/window and pane of the current managed session and terminates its processes. Other sessions survive. Run it inside the target session; outer calls and extra arguments are rejected.
+- Windows validates the calling pane/session and delegates closing to an independent helper, so it can finish after its invoking pane exits. It targets the owned session socket and never kills the global server or unrelated sessions.
+- macOS cwd paths use bright red (`#ff7a8a`) on dark themes and dark red (`#b42336`) on Paper, with explicit backgrounds in Bash/Zsh. Existing panes load the change with `. "$TMUX_STYLE_HOME/shell/commands.sh"` after updating.
+- Added real terminal/session tests for multi-tab exit, process/job termination and isolation, plus contrast checks for the red cwd across all nine palettes.
+
+Downloads: `TMX-Setup-1.8.2.exe`, `tmx-linux-1.8.2.tar.gz`, `tmx-macos-1.8.2.tar.gz`, source, checksums and validation reports.
+
+## v1.8.1 historical notes
 
 - Switched the Windows WezTerm default from OpenGL to WebGPU to avoid solid-block glyph rendering on affected drivers. Added `tmx renderer webgpu|software|opengl`, including a software recovery mode usable from outer PowerShell/CMD. Reattach applies it while retaining mux processes.
 - Added offline Prism command-entry highlighting for Zsh, with explicit readable command, option, string, path and bracket colors. Existing user highlighters remain in control.

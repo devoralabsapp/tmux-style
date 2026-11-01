@@ -4,13 +4,13 @@
 
 English · [Tiếng Việt](README.vi.md)
 
-**New in v1.8.1:** Windows uses WebGPU to avoid OpenGL glyphs appearing as solid color blocks, with `tmx renderer software` as a recovery option. **Prism on macOS/Zsh** now highlights commands while typing and common command output automatically. Upgrade existing Unix panes with `. "$TMUX_STYLE_HOME/shell/commands.sh"` to load the readable cwd prompt and new helpers. [Details](unix/README.md#readable-shell-prompt-and-prism).
+**New in v1.8.2:** run **`tmx exit` inside a managed pane** to close the current session, including every tab/pane and its processes. Other sessions stay running. macOS working-directory paths now use bright red on dark themes and dark red on Paper. After upgrading an existing Unix pane, run `. "$TMUX_STYLE_HOME/shell/commands.sh"` once to load the updated prompt. [Windows commands](windows-terminal/README.md#windows-command-line) · [Unix commands](unix/README.md#open-and-use).
 
 **Since v1.7.0 — Windows command parity:** install the EXE once with **WezTerm** selected, then use `tmx` from PowerShell or CMD: `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` and `tmx uninstall`. Ctrl-a d detaches and leaves processes running; Ctrl-a t opens the theme picker. The installer no longer displays a success popup. [Windows commands, upgrade and persistence](windows-terminal/README.md#windows-command-line).
 
 Nine themes for the standalone **Linux/macOS tmux** and **Windows WezTerm / Windows Terminal + PowerShell** workspaces, with familiar `Ctrl-a` shortcuts derived from the original configuration and [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config). The legacy tmux overlay retains its six themes.
 
-## Linux and macOS: standalone packages (v1.8.1)
+## Linux and macOS: standalone packages (v1.8.2)
 
 **Since v1.6.0:** the command is now **`tmx`**, with `tmux-style` retained as a compatibility alias. `tmx uninstall` removes the Unix tool across upgrades while retaining recovery backups. Create with `tmx new work --theme code`, list with `tmx list`, then enter with `tmx attach work`. In owned Bash/Zsh panes, `theme hacker` and `theme` switch colors in place. [Setup, upgrade and uninstall](unix/README.md).
 
@@ -18,7 +18,7 @@ All nine palettes have been checked for readable app-controlled text, including 
 
 ![Shipped theme color samples with explicit selections](preview/theme-readability.svg)
 
-Download the [Linux archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.1/tmx-linux-1.8.1.tar.gz) or [macOS archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.1/tmx-macos-1.8.1.tar.gz), plus its `.sha256` file from the [release](https://github.com/devoralabsapp/tmux-style/releases/tag/v1.8.1). Install tmux >= 3.2, extract the archive, enter its folder, then run:
+Download the [Linux archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.2/tmx-linux-1.8.2.tar.gz) or [macOS archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.2/tmx-macos-1.8.2.tar.gz), plus its `.sha256` file from the [release](https://github.com/devoralabsapp/tmux-style/releases/tag/v1.8.2). Install tmux >= 3.2, extract the archive, enter its folder, then run:
 
 ```bash
 # Linux / WSL (install tmux with your distribution's package manager)
@@ -60,7 +60,7 @@ A pure black canvas, white text and quiet gray dividers. Every color in the Blac
 
 ## Windows: download the EXE
 
-**[Download TMX-Setup-1.8.1.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.1/TMX-Setup-1.8.1.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
+**[Download TMX-Setup-1.8.2.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.2/TMX-Setup-1.8.2.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
 
 1. Run the installer, choose **WezTerm** for the real bottom status bar, then a theme and starting folder.
 2. Keep the Desktop shortcut and launch options enabled if you want a ready-to-use, three-pane workspace.

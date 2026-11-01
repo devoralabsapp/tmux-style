@@ -13,7 +13,7 @@ if [[ $# -gt 0 ]]; then shift; fi
 case "$command_name" in
   --version|version) cat "$root/VERSION" ;;
   --help|-h|help)
-    echo 'tmx new NAME [--theme NAME] [-d] | attach [NAME] | list | detach'
+    echo 'tmx new NAME [--theme NAME] [-d] | attach [NAME] | list | detach | exit'
     echo 'tmx workspace [NAME] | theme [NAME] [--session NAME | --default]'
     echo 'tmx themes | metrics | restore | uninstall | version'
     echo 'Ctrl-a t selects a theme; Ctrl-a d detaches; F12 toggles SSH pass-through.' ;;
@@ -30,6 +30,10 @@ case "$command_name" in
   attach|attach-session|a) attach_command "$@" ;;
   list|ls|sessions) list_sessions ;;
   detach) current_session >/dev/null || { echo 'Run detach inside a Tmux Style session.' >&2; exit 1; }; tm detach-client ;;
+  exit)
+    [[ $# == 0 ]] || { echo 'Usage: tmx exit (inside the session to close)' >&2; exit 1; }
+    sid=$(current_session) || { echo 'Run tmx exit inside the TMX session to close.' >&2; exit 1; }
+    tm kill-session -t "$sid" ;;
   metrics) exec bash "$root/metrics.sh" ;;
   paint) exec bash "$root/paint.sh" "$@" ;;
   restore) restore_installation ;;

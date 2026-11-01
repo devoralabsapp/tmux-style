@@ -122,7 +122,7 @@ $verb=if($Arguments.Count){$Arguments[0]}else{'workspace'}
 $rest=@(if($Arguments.Count -gt 1){$Arguments[1..($Arguments.Count-1)]})
 switch($verb){
     {$_ -in 'help','--help','-h'}{
-        'tmx new NAME [--theme NAME] [-d] | attach [NAME] | list | detach'
+        'tmx new NAME [--theme NAME] [-d] | attach [NAME] | list | detach | exit'
         'tmx theme NAME | version. Ctrl-a d detaches without stopping processes.'
         'tmx themes | renderer [webgpu|software|opengl] | metrics | restore | uninstall.'
     }
@@ -138,6 +138,35 @@ switch($verb){
         New-Item -ItemType Directory -Path $state -Force|Out-Null
         [IO.File]::WriteAllText($path,(@{name=$rest[0]}|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
         'Renderer: '+$rest[0]+'. Detach, then attach again to apply; session processes keep running.'
+    }
+    'exit'{
+        if($rest.Count){throw 'Usage: tmx exit (inside the session to close)'}
+        $name=$env:TMX_SESSION;$pane=$env:WEZTERM_PANE
+        if(-not $name -or $pane -notmatch '^\d+$'){throw 'Run tmx exit inside the TMX session to close.'}
+        if(-not $env:TMUX_STYLE_ASSETS -or [IO.Path]::GetFullPath($env:TMUX_STYLE_ASSETS).TrimEnd('\','/') -ine $root.TrimEnd('\','/')){throw 'The current pane belongs to another TMX installation.'}
+        $key=Session-Key $name
+        if($env:TMX_SESSION_KEY -cne $key -or -not(@(Session-Panes $name)|Where-Object {[string]$_.pane_id -ceq $pane})){throw 'The current pane does not belong to this TMX session.'}
+        # An independent helper must survive closing the invoking pane. Target
+        # only the checked session's separate mux socket, across every tab.
+        $quoted=$root.Replace("'","''")
+        $command="& ([scriptblock]::Create([IO.File]::ReadAllText('"+$quoted+"/tmx.ps1'))) -AssetDirectory '"+$quoted+"' -Arguments @('__exit-session','"+$name+"','"+$pane+"')"
+        $encoded=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
+        Start-Process -FilePath (Join-Path $env:WINDIR 'System32/WindowsPowerShell/v1.0/powershell.exe') -ArgumentList ('-NoLogo -NoProfile -NonInteractive -EncodedCommand '+$encoded) -WindowStyle Hidden|Out-Null
+    }
+    '__exit-session'{
+        if($rest.Count -ne 2 -or $rest[1] -notmatch '^\d+$'){throw 'Invalid session exit request.'}
+        $name=$rest[0];Session-Key $name|Out-Null
+        $panes=@(Session-Panes $name)
+        if(-not($panes|Where-Object {[string]$_.pane_id -ceq $rest[1]})){throw 'Session exit pane is no longer present.'}
+        $until=[DateTime]::UtcNow.AddSeconds(15)
+        do{
+            foreach($pane in $panes){
+                try{Invoke-Mux $name @('kill-pane','--pane-id',[string]$pane.pane_id)|Out-Null}
+                catch{if(@(Session-Panes $name).Count){throw}}
+            }
+            $panes=@(Session-Panes $name)
+        }while($panes.Count -and [DateTime]::UtcNow -lt $until)
+        if($panes.Count){throw 'The TMX session still has running panes.'}
     }
     '__detach-client'{
         if($rest.Count -ne 2 -or $rest[0] -notmatch '^\d+$'){throw 'Invalid client detach request.'}

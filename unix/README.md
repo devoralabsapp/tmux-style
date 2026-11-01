@@ -20,6 +20,8 @@ The installer uses your user account and does not need sudo. It installs assets 
 
 ## Open and use
 
+Run `tmx exit` **inside the session to close**. It terminates that entire session, including every tab/window, pane and running process. Other sessions keep running. `tmx detach` keeps the session alive for a later attach. Exit accepts no session name or other arguments and refuses an outer-terminal call; attach to the desired session first.
+
 ```bash
 ~/.local/bin/tmx                     # open/reattach the default workspace
 ~/.local/bin/tmx new work --theme code
@@ -82,7 +84,7 @@ On tmux versions with `prefix-timeout`, Ctrl-a accepts a command within **2 seco
 
 ## Readable shell prompt and Prism
 
-TMX-owned Bash/Zsh panes use explicit foreground AND background around the working directory, including Paper on a black macOS Terminal background. The wrappers still load existing startup files and do not edit them. Existing panes can load the update with `. "$TMUX_STYLE_HOME/shell/commands.sh"`; the next prompt redraw uses the current session theme.
+TMX-owned Bash/Zsh panes use explicit foreground AND background around the working directory. On macOS, the cwd is bright red (`#ff7a8a`) on dark palettes and dark red (`#b42336`) on Paper, including when the outer Terminal background is black. The wrappers still load existing startup files and do not edit them. Existing panes can load the update with `. "$TMUX_STYLE_HOME/shell/commands.sh"`; the next prompt redraw uses the current session theme.
 
 Prism includes offline Zsh command-entry highlighting through the bundled [zsh-syntax-highlighting 0.8.0](shell/vendor/zsh-syntax-highlighting/TMX-NOTICE.md). Commands, options, quoted strings, paths and brackets have separate readable colors. An already-loaded user highlighter stays in control. Bash keeps its existing line editor.
 
@@ -95,7 +97,7 @@ After installing an update, each already-running shell still has its previous pr
 theme prism
 ```
 
-This replaces a stale dark-blue cwd prompt with TMX's explicit light foreground and dark background, including when a user `precmd` sets a blue prompt. Newly created panes load it automatically. Once these helpers are loaded, `tmx refresh` reloads them without restarting the shell. Shell profiles are never edited.
+This replaces a stale dark-blue cwd prompt with TMX's explicit foreground/background, including the red macOS cwd, including when a user `precmd` sets a blue prompt. Newly created panes load it automatically. Once these helpers are loaded, `tmx refresh` reloads them without restarting the shell. Shell profiles are never edited.
 
 ## Status and clipboard
 

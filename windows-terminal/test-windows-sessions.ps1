@@ -56,7 +56,7 @@ function Mux([string]$Name,[string[]]$Arguments){
     $env:WEZTERM_UNIX_SOCKET=Join-Path $state ('mux-'+$key+'.sock')
     try{
         $out=@(& $WezTermExecutable cli --no-auto-start @Arguments 2>&1)
-        if($LASTEXITCODE -ne 0){throw ('Native mux operation failed: '+($Arguments -join ' '))}
+        if($LASTEXITCODE -ne 0){throw ('Native mux operation failed: '+($Arguments -join ' ')+': '+($out -join ' '))}
         return ($out -join "`n")
     }finally{Remove-Item Env:WEZTERM_UNIX_SOCKET -ErrorAction SilentlyContinue}
 }
@@ -158,8 +158,30 @@ try{
     Invoke-TestTmx @('restore') -Fail|Out-Null
     if(-not(Test-Path -LiteralPath (Join-Path $assets 'install-state.json'))){throw 'Active-session guard removed files'}
     $checks+='per-session and default theme commands; restore/uninstall refuse live sessions including detached ones'
-    Send work $first 'Stop-Job $global:tmxJob; Remove-Job $global:tmxJob'
-    foreach($name in 'work','lab','defaults'){
+    Invoke-TestTmx @('exit') -Fail|Out-Null
+    Invoke-TestTmx @('exit','lab') -Fail|Out-Null
+    $labIds=((Panes lab).pane_id -join ',')
+    Mux work @('spawn','--pane-id',$first)|Out-Null
+    if((Panes work).Count -lt 4){throw 'Exit regression needs multiple tabs'}
+    Send work $first 'tmx exit'
+    Wait-Until {(Invoke-TestTmx @('list')) -notmatch '(?m)^work\s'}
+    Wait-Until {-not(Get-Process -Id ([int]$shellPid) -ErrorAction SilentlyContinue)}
+    if(((Panes lab).pane_id -join ',') -ne $labIds){throw 'Exit touched another session'}
+    Start-Sleep -Milliseconds 800
+    $lastTick=[IO.File]::ReadAllText($tickFile)
+    Start-Sleep -Milliseconds 500
+    if([IO.File]::ReadAllText($tickFile) -ne $lastTick){throw 'Exit left the session background job running'}
+    $labFirst=[string](Panes lab)[0].pane_id
+    Wait-Until {(Mux lab @('get-text','--pane-id',$labFirst)).Contains('  > ')}
+    Send lab $labFirst ("& '"+(Join-Path $commands 'tmx.exe').Replace("'","''")+"' exit")
+    Wait-Until {(Invoke-TestTmx @('list')) -notmatch '(?m)^lab\s'}
+    Invoke-TestTmx @('new','work','-d')|Out-Null
+    $reusedFirst=[string](Panes work)[0].pane_id
+    Wait-Until {(Mux work @('get-text','--pane-id',$reusedFirst)).Contains('  > ')}
+    Send work $reusedFirst 'tmx exit'
+    Wait-Until {(Invoke-TestTmx @('list')) -notmatch '(?m)^work\s'}
+    $checks+='tmx exit closes every tab/pane and stops the shell/job; other sessions survive; native EXE exit also works; outer/argument calls rejected'
+    foreach($name in 'defaults'){
         foreach($pane in @(Panes $name)){Mux $name @('kill-pane','--pane-id',[string]$pane.pane_id)|Out-Null}
     }
     Wait-Until {(Invoke-TestTmx @('list')) -match 'No TMX sessions'}
