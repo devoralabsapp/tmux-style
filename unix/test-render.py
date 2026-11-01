@@ -6,6 +6,9 @@ import unittest
 import subprocess
 import tempfile
 import shlex
+import sys
+
+sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('tmx_render', ROOT/'shell/render.py')

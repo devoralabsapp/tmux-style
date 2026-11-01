@@ -58,6 +58,9 @@ if [[ -e $launcher || -L $launcher ]]; then cp -pP "$launcher" "$backup/launcher
 cp "$source_dir/"*.sh "$source_dir/tmux.conf" "$stage/"
 cp -R "$source_dir/themes" "$stage/themes"
 cp -R "$source_dir/shell" "$stage/shell"
+# Development/test bytecode is machine-specific and never an installed asset.
+find "$stage/shell" -type f -name '*.pyc' -delete
+find "$stage/shell" -type d -name '__pycache__' -empty -delete
 cp "$source_dir/themes/$theme.conf" "$stage/theme.conf"
 cp "$source_dir/../VERSION" "$stage/VERSION"
 printf 'tmux-style-unix-v1\n' > "$stage/install.id"
