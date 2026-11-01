@@ -70,6 +70,9 @@ jobs:
           if ((Get-FileHash $archive).Hash -ne $pin.sha256) { throw 'WezTerm checksum mismatch' }
           $runtime=Join-Path $env:RUNNER_TEMP 'wezterm-runtime'
           Expand-Archive $archive $runtime
+          # Use the software OpenGL DLL already shipped in the hash-checked
+          # official archive; hosted runners otherwise expose OpenGL 1.1.
+          Copy-Item (Join-Path $runtime ($pin.folder+'/mesa/opengl32.dll')) (Join-Path $runtime ($pin.folder+'/opengl32.dll'))
           ./windows-terminal/test-wezterm-lua.ps1 -SourceDirectory ./windows-terminal -WezTermExecutable (Join-Path $runtime ($pin.folder+'/wezterm.exe')) -ReportFile ./dist/wezterm-lua-test.json
           $source=Join-Path $env:RUNNER_TEMP 'tmx-session-payload'
           Expand-Archive ./dist/build/payload.zip $source

@@ -219,7 +219,15 @@ try:
         tm('set-environment', '-g', 'ZDOTDIR', str(zdot))
         tm('set-option', '-g', 'default-shell', zsh)
         zsh_pane = tm('new-window', '-d', '-P', '-F', '#{pane_id}', '-t', 'lab', '-n', 'zsh')
-        wait_for(lambda: ' TMX ' in tm('capture-pane', '-p', '-t', zsh_pane))
+        try:
+        try:
+            wait_for(lambda: ' TMX ' in tm('capture-pane', '-p', '-t', zsh_pane))
+        except AssertionError:
+            print('Zsh startup output:', tm('capture-pane', '-p', '-t', zsh_pane), flush=True)
+            raise
+        except AssertionError:
+            print('Zsh startup output:', tm('capture-pane', '-p', '-t', zsh_pane), flush=True)
+            raise
         in_shell(zsh_pane, 'test "$TMUX_STYLE_TEST_ZSHENV" = loaded && test "$TMUX_STYLE_TEST_ZSHRC" = loaded && theme hacker')
         assert session_theme('lab') == 'hacker' and session_theme('TMUX') == 'code'
         assert (zdot / '.zshenv').read_text() == zenv and (zdot / '.zshrc').read_text() == zrc
