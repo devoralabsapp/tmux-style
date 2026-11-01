@@ -15,7 +15,7 @@ if($true){
     # Test-only window controls and geometry telemetry in an isolated copy.
     $controls=@'
   if name == 'TmxTestWindow' then
-    if value:match('^small:') then window:restore();window:set_inner_size(900,600)
+    if value:match('^small:') then window:restore();wezterm.time.call_after(0.25,function() window:set_inner_size(720,460) end)
     elseif value:match('^large:') then window:maximize() end
     return
   end
@@ -122,7 +122,7 @@ try{
         Wait-Until {
             if(-not(Check-Geometry)){return $false}
             $grid=[IO.File]::ReadAllText((Join-Path $state 'geometry-test.json'))|ConvertFrom-Json
-            if($mode -eq 'small'){return $grid.cols -le 120}
+            if($mode -eq 'small'){return $grid.cols -le 90}
             return $grid.cols -gt $smallColumns
         }
         if($mode -eq 'small'){$smallColumns=([IO.File]::ReadAllText((Join-Path $state 'geometry-test.json'))|ConvertFrom-Json).cols}
