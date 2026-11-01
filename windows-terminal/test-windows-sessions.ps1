@@ -117,7 +117,7 @@ try{
     Wait-Until {(Clients work).Count -gt 0}
     foreach($mode in 'small','large'){
         $signal=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($mode+':'+[Guid]::NewGuid().ToString('N')))
-        Send work $first ("[Console]::Write([string][char]27+']1337;SetUserVar=TmxTestWindow=$signal'+[char]7)")
+        Send work $first ("Write-Host -NoNewline ([string][char]27+']1337;SetUserVar=TmxTestWindow=$signal'+[char]7)")
         Start-Sleep -Milliseconds 800
         Wait-Until {
             if(-not(Check-Geometry)){return $false}
