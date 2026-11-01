@@ -16,8 +16,12 @@ elif [[ -n ${BASH_VERSION:-} && ${TMX_RENDER_ACTIVE:-0} == 1 && ${TMX_RENDER_DEB
   # replacing its behavior. Bash does not recurse into a DEBUG trap by default.
   _tmx_debug=$(trap -p DEBUG)
   if [[ -n $_tmx_debug ]]; then
-    _tmx_debug=${_tmx_debug#trap -- \'}; _tmx_debug=${_tmx_debug%\' DEBUG}
-    trap "$_tmx_debug; tmx_render_signal command" DEBUG
+    # trap -p shell-quotes its action. Decode that quoted argument, rather
+    # than stripping quotes and breaking a hook containing apostrophes.
+    _tmx_capture_debug() { TMX_PRIOR_DEBUG=$1; }
+    eval "${_tmx_debug/trap -- /_tmx_capture_debug }"
+    unset -f _tmx_capture_debug
+    trap "$TMX_PRIOR_DEBUG; tmx_render_signal command" DEBUG
   else
     trap 'tmx_render_signal command' DEBUG
   fi

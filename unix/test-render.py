@@ -3,6 +3,9 @@ import importlib.util
 import json
 from pathlib import Path
 import unittest
+import subprocess
+import tempfile
+import shlex
 
 ROOT = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('tmx_render', ROOT/'shell/render.py')
@@ -47,6 +50,21 @@ class RenderTests(unittest.TestCase):
         rendered = b''.join(display.feed(bytes([byte])) for byte in data)
         import re
         self.assertEqual(re.sub(rb'\x1b\[[0-9;]*m', b'', rendered), data)
+
+    def test_existing_bash_debug_hook_with_quotes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result = Path(directory)/'debug'
+            action = '''printf "%s" "user-hook's" > "$TMX_HOOK_FILE"'''
+            script = 'trap '+shlex.quote(action)+''' DEBUG
+export TMX_RENDER_ACTIVE=1 TMX_RENDER_TOKEN=test
+source ''' + shlex.quote(str(ROOT/'shell/render.sh')) + '''
+:
+'''
+            import os
+            proc = subprocess.run(['bash','--noprofile','--norc','-c',script], env=dict(os.environ, TMX_HOOK_FILE=str(result)), capture_output=True)
+            self.assertEqual(proc.returncode,0,proc.stderr)
+            self.assertEqual(result.read_text(),"user-hook's")
+            self.assertIn(b'777;tmx;test;command;',proc.stdout)
 
     def test_fragmented_unicode(self):
         display = module.Display(COLORS, 'test')
