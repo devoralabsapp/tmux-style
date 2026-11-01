@@ -1,6 +1,6 @@
 param(
     [string]$SourceDirectory=$PSScriptRoot,
-    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')][string]$Theme='aurora',
+    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker','prism')][string]$Theme='aurora',
     [string]$StartingDirectory=$HOME,
     [string]$AssetDirectory=(Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows\wezterm'),
     [string]$DesktopDirectory=[Environment]::GetFolderPath('DesktopDirectory'),
@@ -83,7 +83,7 @@ if(Test-Path -LiteralPath $metrics){
 }
 $addedCommandPath=$false;$oldUserPath=$null
 try{
-    foreach($name in 'shell.ps1','tmx.ps1','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md'){
+    foreach($name in 'shell.ps1','output.ps1','tmx.ps1','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md'){
         $target=Join-Path $AssetDirectory $name;Save-OwnedFile $target
         Copy-Item -LiteralPath (Join-Path $SourceDirectory $name) -Destination $target -Force
     }
@@ -97,7 +97,7 @@ try{
     $target=Join-Path $CommandDirectory 'tmx-location.txt';Save-OwnedFile $target
     [IO.File]::WriteAllText($target,$AssetDirectory,[Text.UTF8Encoding]::new($false))
     $template=[IO.File]::ReadAllText((Join-Path $SourceDirectory 'wezterm.lua'))
-    foreach($slug in 'aurora','midnight','ember','paper','neon','black','code','hacker'){
+    foreach($slug in 'aurora','midnight','ember','paper','neon','black','code','hacker','prism'){
         $target=Join-Path $AssetDirectory ('wezterm-'+$slug+'.lua');Save-OwnedFile $target
         [IO.File]::WriteAllText($target,$template.Replace('__THEME__',$slug),[Text.UTF8Encoding]::new($false))
     }

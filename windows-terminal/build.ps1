@@ -25,7 +25,7 @@ if(Test-Path $payload){Remove-Item -LiteralPath $payload}
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $archive=[IO.Compression.ZipFile]::Open($payload,[IO.Compression.ZipArchiveMode]::Create)
 try{
-    foreach($name in @('shell.ps1','setup.ps1','restore.ps1','common.ps1','settings.additions.json','profiles.schema.json','install-runner.ps1','test-release.ps1','tmux-style.ico')){
+    foreach($name in @('shell.ps1','output.ps1','setup.ps1','restore.ps1','common.ps1','settings.additions.json','profiles.schema.json','install-runner.ps1','test-release.ps1','tmux-style.ico')){
         [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path $root $name),$name,[IO.Compression.CompressionLevel]::Optimal)|Out-Null
     }
     foreach($name in @('setup-wezterm.ps1','tmx.ps1','restore-wezterm.ps1','wezterm.lua','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md','test-wezterm.ps1','test-wezterm-lua.ps1','test-windows-sessions.ps1')){

@@ -101,7 +101,7 @@ for profile in settings['profiles']:
     scheme = next(s for s in settings['schemes'] if s['name'] == profile['colorScheme'])
     palette = palette_roles.get(slug, default_palette)
     roles = {'prompt/' + k: v for k, v in palette.items()}
-    block = syntax_blocks[1 if slug == 'code' else 2 if slug == 'hacker' else 0]
+    block = syntax_blocks[1 if slug == 'code' else 2 if slug == 'hacker' else 3 if slug == 'prism' else 0]
     for token in block.split(';'):
         role, value = token.split('=', 1)
         roles['syntax/' + role] = palette[value.split('.')[-1]] if value.startswith('$global:') else value.strip("'")
@@ -117,10 +117,18 @@ for profile in settings['profiles']:
     for prefix in ['copy_mode_active_highlight', 'copy_mode_inactive_highlight', 'quick_select_label', 'quick_select_match']:
         add('wezterm/' + slug, prefix, p['colors'][prefix + '_fg']['Color'], p['colors'][prefix + '_bg']['Color'])
 
+# Audit the actual generated RGB prompt foreground/background pairs.
+for slug, fg, bg in re.findall(r"^\s+(\w+)\) TMX_PROMPT_FG='([\d;]+)'; TMX_PROMPT_BG='([\d;]+)'",(ROOT/'unix/shell/palettes.sh').read_text(),re.M):
+    to_hex=lambda value: '#' + ''.join(f'{int(n):02x}' for n in value.split(';'))
+    add('unix-prompt/'+slug,'cwd',to_hex(fg),to_hex(bg))
+for name in ['brightRed','brightGreen','brightYellow','brightBlue','brightPurple','brightCyan','white']:
+    scheme=next(s for s in settings['schemes'] if s['name']=='Tmux Style / Prism')
+    add('windows/prism','output/'+name,scheme[name],scheme['background'])
+
 failed = [c for c in checks if not c['passed']]
 if not failed:
-    svg = ['<svg xmlns="http://www.w3.org/2000/svg" width="1344" height="930" viewBox="0 0 1344 930">',
-           '<rect width="1344" height="930" fill="#0c0f18"/>', '<g font-family="Consolas,DejaVu Sans Mono,monospace">',
+    svg = ['<svg xmlns="http://www.w3.org/2000/svg" width="1344" height="1132" viewBox="0 0 1344 1132">',
+           '<rect width="1344" height="1132" fill="#0c0f18"/>', '<g font-family="Consolas,DejaVu Sans Mono,monospace">',
            '<text x="28" y="40" font-size="25" fill="#e0e6f5">TMX / READABLE THEMES</text>',
            '<text x="28" y="69" font-size="14" fill="#b8bfd0">Shipped color samples / text 4.5:1 minimum / dividers 3:1 minimum</text>']
     for i, profile in enumerate(settings['profiles']):
@@ -138,7 +146,7 @@ if not failed:
         svg.append(f'<rect x="{x+18}" y="{y+154}" width="66" height="23" fill="{selected["bg"]}"/>')
         svg.append(f'<text x="{x+25}" y="{y+171}" font-size="14" fill="{selected["fg"]}">COPY</text>')
         svg.append(f'<text x="{x+101}" y="{y+171}" font-size="13" fill="{p["muted"]}">Selection and menu colors are explicit.</text>')
-    svg.append(f'<text x="28" y="918" font-size="13" fill="#b8bfd0">{len(checks)} app-controlled color pairs checked. Samples, not terminal screenshots.</text></g></svg>')
+    svg.append(f'<text x="28" y="1120" font-size="13" fill="#b8bfd0">{len(checks)} app-controlled color pairs checked. Samples, not terminal screenshots.</text></g></svg>')
     (ROOT/'preview/theme-readability.svg').write_text('\n'.join(svg)+'\n',encoding='utf-8',newline='\n')
 out = ROOT / 'dist/theme-contrast.json'
 out.parent.mkdir(exist_ok=True)

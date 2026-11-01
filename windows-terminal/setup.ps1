@@ -1,7 +1,7 @@
 param(
     [switch]$Apply,
     [string]$SourceDirectory=$PSScriptRoot,
-    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')][string]$DefaultTheme='aurora',
+    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker','prism')][string]$DefaultTheme='aurora',
     [string]$TerminalExecutable,
     [string]$SettingsPath = (Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json'),
     [string]$AssetDirectory = (Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows'),
@@ -112,7 +112,7 @@ if ($state.previousHash -ne 'MISSING') {
     $settingsBackup=Join-Path $backupDirectory 'settings.before.json'
     Copy-Item -LiteralPath $state.settingsPath -Destination $settingsBackup
 }
-$ownedAssets=@('shell.ps1','restore.ps1','common.ps1','settings.additions.json','TmuxStyle.Keys.exe','tmux-style.ico')
+$ownedAssets=@('shell.ps1','output.ps1','restore.ps1','common.ps1','settings.additions.json','TmuxStyle.Keys.exe','tmux-style.ico')
 $assetBackups=@()
 foreach($name in $ownedAssets){
     $path=Join-Path $state.assetDirectory $name
@@ -125,6 +125,7 @@ if(Test-Path -LiteralPath $oldBridge){
     Stop-TmuxStyleOwnedBridge $oldBridge
 }
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'shell.ps1') -Destination (Join-Path $state.assetDirectory 'shell.ps1') -Force
+Copy-Item -LiteralPath (Join-Path $sourceDirectory 'output.ps1') -Destination (Join-Path $state.assetDirectory 'output.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'restore.ps1') -Destination (Join-Path $state.assetDirectory 'restore.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'common.ps1') -Destination (Join-Path $state.assetDirectory 'common.ps1') -Force
 if(Test-Path (Join-Path $sourceDirectory 'TmuxStyle.Keys.exe')){Copy-Item -LiteralPath (Join-Path $sourceDirectory 'TmuxStyle.Keys.exe') -Destination (Join-Path $state.assetDirectory 'TmuxStyle.Keys.exe') -Force}

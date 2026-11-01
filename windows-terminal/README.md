@@ -1,12 +1,18 @@
 # Windows workspaces + tmux-style keys
 
-Download **TMX-Setup-1.7.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
+Download **TMX-Setup-1.8.0.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
 
 The executable is not code signed. Source, build scripts and SHA-256 checksums are provided with the release. It does not bundle or impersonate Microsoft Windows Terminal.
 
+## Prism and resize fixes
+
+Select **Prism** in the installer, use `tmx new work --theme prism`, or run `theme prism` in an existing window. It colors PSReadLine command tokens and the final PowerShell output renderer: status/error words, numbers, quoted values, paths and flags. Existing ANSI output passes through; objects used in pipelines retain their types and values. Applications with their own terminal rendering keep their own colors. Other themes use the normal output renderer. No parser can reliably infer semantics for every arbitrary application output.
+
+Attached windows start maximized. TMX disconnects its own GUI client process while the independent mux server keeps every PTY alive. This avoids the pinned runtime's graceful DetachDomain path, which can send incorrect pane sizes while removing its client mirror. The helper checks both the executable path and owned configuration directory before closing that GUI. It does not terminate shells or the mux server. Upgrade existing sessions by reopening their GUI after installing.
+
 ## Windows command line
 
-After installing v1.7.0 with **WezTerm** selected, open PowerShell or CMD and use `tmx` directly. No profile edits or PowerShell execution-policy changes are needed. The per-user `tmx.exe` launcher is installed in `%LOCALAPPDATA%\Microsoft\WindowsApps`, normally already on PATH. If that directory was absent from PATH, the installer adds it to the user PATH; reopen the terminal application to receive the updated environment. The installer shows success inline, without an extra popup.
+After installing v1.8.0 with **WezTerm** selected, open PowerShell or CMD and use `tmx` directly. No profile edits or PowerShell execution-policy changes are needed. The per-user `tmx.exe` launcher is installed in `%LOCALAPPDATA%\Microsoft\WindowsApps`, normally already on PATH. If that directory was absent from PATH, the installer adds it to the user PATH; reopen the terminal application to receive the updated environment. The installer shows success inline, without an extra popup.
 
 ```powershell
 tmx                          # create/reattach the default TMUX workspace
@@ -29,7 +35,7 @@ Inside a managed PowerShell pane, `tmx theme hacker`, `theme hacker`, bare `them
 
 Exit every TMX session before `tmx restore` (undo the last install) or `tmx uninstall` (remove the active tool across upgrades). Detaching alone leaves a live session. Both refuse live sessions and edited installed files. Uninstall retains recovery backups and the portable WezTerm runtime, restores original backed-up files, and leaves Windows Terminal and user shell profiles in place. The Windows Terminal installer option continues to provide themed tabs/panes; installing the **WezTerm** option supplies the persistent `tmx` commands, usable from either terminal application.
 
-The session implementation uses WezTerm's [native multiplexer domains](https://wezterm.org/multiplexing.html#unix-domains) and [DetachDomain](https://wezterm.org/config/lua/keyassignment/DetachDomain.html), rather than simulating detach by hiding a window.
+The session implementation uses WezTerm's [native multiplexer domains](https://wezterm.org/multiplexing.html#unix-domains), with a checked GUI-client disconnect to avoid the pinned runtime's pane-resize bug. The detached session remains in its separate mux server.
 
 ## WezTerm: real bottom bar (default)
 
@@ -41,7 +47,7 @@ The **Tmux Style WezTerm** Desktop shortcut opens three PowerShell panes. The ru
 
 **v1.3.0 leader fix:** live metrics and per-pane prompt state now live in the sibling `%LOCALAPPDATA%\TmuxStyleWindows\wezterm-state` directory. WezTerm watches the configuration directory itself; writing runtime data there caused repeated reloads that canceled Ctrl-a before two seconds. Upgrade migrates the collector and stops the legacy output-path instance. Configuration still reloads normally when its own files change.
 
-All eight themes are selectable: Aurora, Midnight, Ember, Paper, Neon, Command Line, **Code Spectrum** and **Hacker Matrix**. `theme code` adds editor-inspired syntax roles to the PowerShell command line; `theme hacker` uses a near-black/green palette with distinct comments and errors. Application-specific syntax highlighting remains controlled by those applications.
+All nine themes are selectable: Aurora, Midnight, Ember, Paper, Neon, Command Line, **Code Spectrum** and **Hacker Matrix**. `theme code` adds editor-inspired syntax roles to the PowerShell command line; `theme hacker` uses a near-black/green palette with distinct comments and errors. Application-specific syntax highlighting remains controlled by those applications.
 
 ![Illustrative Windows palette previews](../preview/windows-new-themes.png)
 
@@ -145,7 +151,7 @@ On Windows, from the repository root:
 .\windows-terminal\build.ps1 -RunTests
 ```
 
-The build uses the Windows .NET Framework compiler. No downloaded compiler package or PowerShell 7 runtime is included in the EXE. `dist/` contains the installer, checksums and self-test report. The packaged self-test uses temporary settings, exercises all eight themes in both backends, checks backups/restore, upgrade rollback, edit protection, checksum rejection, live Windows counters, separate volatile-state paths, native PSReadLine syntax roles, prompt exit codes and key-map resolution. It does not install a keyboard hook or touch production settings. CI validates Microsoft's settings schema and runs `test-wezterm-lua.ps1` with the pinned real WezTerm runtime to check eight configurations plus status, live switching, F12, layout and Windows URL-path handling.
+The build uses the Windows .NET Framework compiler. No downloaded compiler package or PowerShell 7 runtime is included in the EXE. `dist/` contains the installer, checksums and self-test report. The packaged self-test uses temporary settings, exercises all nine themes in both backends, checks backups/restore, upgrade rollback, edit protection, checksum rejection, live Windows counters, separate volatile-state paths, native PSReadLine syntax roles, prompt exit codes and key-map resolution. It does not install a keyboard hook or touch production settings. CI validates Microsoft's settings schema and runs `test-wezterm-lua.ps1` with the pinned real WezTerm runtime to check eight configurations plus status, live switching, F12, layout and Windows URL-path handling.
 
 GUI capture was unavailable in the local test environment (capture timeout); the release was checked by compiling and running the packaged self-test and by validating the native settings, not by claiming every shortcut was pressed in UI.
 

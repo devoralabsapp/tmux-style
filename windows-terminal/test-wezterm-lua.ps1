@@ -52,7 +52,7 @@ w.overrides.enable_tab_bar=false
 pass_through(w,pane)
 local other = {get_config_overrides=function() return {} end}
 apply_theme(w,pane,'TmuxStyleTheme','paper')
-for _, name in ipairs {'black','paper','neon','ember','midnight','aurora','code','hacker'} do
+for _, name in ipairs {'black','paper','neon','ember','midnight','aurora','code','hacker','prism'} do
   apply_theme(w,pane,'TmuxStyleTheme',name)
   assert(window_theme(w)==name and window_theme(other)==theme, 'Theme leaked into another window')
   assert(w.overrides.colors.background==palettes[name].colors.background, 'Pane background stale')
@@ -73,8 +73,15 @@ local was_persistent=persistent
 persistent=true
 function pane:get_domain_name() return 'TMX' end
 function w:perform_action(action, target) self.performed=action end
+local original_background=wezterm.background_child_process
+local was_session_name=session_name
+session_name='qa'
+local detached_command
+wezterm.background_child_process=function(argv) detached_command=argv end
 detach_session(w,pane)
-assert(w.performed~=nil, 'Detach action missing')
+assert(detached_command and detached_command[#detached_command]:find('__detach%-client'), 'Owned GUI detach helper missing')
+wezterm.background_child_process=original_background
+session_name=was_session_name
 choose_theme(w,pane)
 assert(w.performed~=nil, 'Theme selector action missing')
 persistent=was_persistent
@@ -88,7 +95,7 @@ layout(w,pane);assert(first.activated, 'Layout focus missing')
 local f=assert(io.open(root .. '/lua-passed.json','w'));f:write('true');f:close()
 '@
 $themes=@()
-foreach($theme in 'aurora','midnight','ember','paper','neon','black','code','hacker'){
+foreach($theme in 'aurora','midnight','ember','paper','neon','black','code','hacker','prism'){
     $config=Join-Path $fixture 'test.lua'
     $passed=Join-Path $fixture 'lua-passed.json'
     if(Test-Path -LiteralPath $passed){Remove-Item -LiteralPath $passed}
@@ -100,4 +107,4 @@ foreach($theme in 'aurora','midnight','ember','paper','neon','black','code','hac
 }
 $report=[pscustomobject]@{passed=$true;runtime=(& $WezTermExecutable --version);themes=$themes;checks=@('native Lua configuration and key action parsing; two-second leader','live theme resets all colors without opening windows; other windows independent','theme retains OFF/zoom/chrome state and updates existing/new pane prompt metadata','status: CPU/RAM/hostname/date','prefix/zoom/off states','F12 disables leader and defaults; resume restores them','narrow bar and stale sample handling','3-pane layout preserves cwd and focus');guiStarted=$false}
 if($ReportFile){[IO.File]::WriteAllText($ReportFile,($report|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))}
-Write-Output 'PASS: eight themes parsed by real WezTerm; status, F12, layout callbacks verified.'
+Write-Output 'PASS: nine themes parsed by real WezTerm; status, F12, layout callbacks verified.'

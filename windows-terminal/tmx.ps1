@@ -6,7 +6,7 @@ $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath($AssetDirectory)
 $state=$root.TrimEnd('\','/')+'-state'
 $backend=[IO.File]::ReadAllText((Join-Path $root 'backend.json'))|ConvertFrom-Json
-$names=@('aurora','midnight','ember','paper','neon','black','code','hacker')
+$names=@('aurora','midnight','ember','paper','neon','black','code','hacker','prism')
 $defaultPath=Join-Path $state 'default-theme.json'
 if(Test-Path -LiteralPath $defaultPath){$savedDefault=[IO.File]::ReadAllText($defaultPath)|ConvertFrom-Json;if($names -contains $savedDefault.theme){$backend.theme=$savedDefault.theme}}
 function Session-Key([string]$Name){
@@ -65,8 +65,8 @@ function Assert-NoSessions {
 function Assert-OwnedPath([string]$Path,[string]$Commands){
     $full=[IO.Path]::GetFullPath($Path)
     $parent=Split-Path -Parent $full;$leaf=Split-Path -Leaf $full
-    $assetNames=@('shell.ps1','tmx.ps1','VERSION','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md','backend.json')
-    $allowed=($parent -ieq $root -and ($assetNames -contains $leaf -or $leaf -match '^wezterm-(aurora|midnight|ember|paper|neon|black|code|hacker)\.lua$')) -or
+    $assetNames=@('shell.ps1','output.ps1','tmx.ps1','VERSION','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md','backend.json')
+    $allowed=($parent -ieq $root -and ($assetNames -contains $leaf -or $leaf -match '^wezterm-(aurora|midnight|ember|paper|neon|black|code|hacker|prism)\.lua$')) -or
         ($Commands -and $parent -ieq [IO.Path]::GetFullPath($Commands) -and $leaf -in 'tmx.exe','tmx-location.txt') -or $leaf -eq 'Tmux Style WezTerm.lnk'
     if(-not $allowed -or ((Get-Item -LiteralPath $full -ErrorAction SilentlyContinue).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw ('Invalid owned installation path: '+$full)}
 }
@@ -128,6 +128,19 @@ switch($verb){
     }
     {$_ -in 'version','--version'}{[IO.File]::ReadAllText((Join-Path $root 'VERSION')).Trim()}
     'themes'{$names}
+    '__detach-client'{
+        if($rest.Count -ne 2 -or $rest[0] -notmatch '^\d+$'){throw 'Invalid client detach request.'}
+        Session-Key $rest[1]|Out-Null
+        $client=Get-Process -Id ([int]$rest[0]) -ErrorAction SilentlyContinue
+        if(-not $client){return}
+        $expected=Join-Path (Split-Path -Parent $backend.executable) 'wezterm-gui.exe'
+        $commandLine=(Get-CimInstance Win32_Process -Filter ('ProcessId='+$client.Id)).CommandLine
+        if($client.Path -ine $expected -or -not $commandLine -or -not $commandLine.Replace('/','\').Contains($root.TrimEnd('\')+'\')){throw 'Refusing to disconnect an unrelated GUI process.'}
+        # End this owned GUI client only. Its independent mux server retains
+        # every PTY. Graceful DetachDomain in the pinned runtime corrupts nested
+        # pane sizes by sending resize RPCs while removing the client mirror.
+        Stop-Process -Id $client.Id
+    }
     '__check-no-sessions'{Assert-NoSessions}
     'restore'{Assert-NoSessions;& ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $root 'restore-wezterm.ps1')))) -StatePath (Join-Path $root 'install-state.json')}
     {$_ -in 'uninstall','remove'}{if($rest.Count){throw 'Usage: tmx uninstall'};Remove-Installation}
@@ -155,7 +168,7 @@ switch($verb){
         for($i=1;$i -lt $rest.Count;$i++){
             switch($rest[$i]){
                 {$_ -in '-d','--detach'}{$detached=$true}
-                '--theme'{$i++;if($i -ge $rest.Count -or $names -notcontains $rest[$i]){throw 'Choose a theme from: aurora midnight ember paper neon black code hacker'};$selected=$rest[$i]}
+                '--theme'{$i++;if($i -ge $rest.Count -or $names -notcontains $rest[$i]){throw 'Choose a theme from: aurora midnight ember paper neon black code hacker prism'};$selected=$rest[$i]}
                 default{throw ('Unknown option: '+$rest[$i])}
             }
         }

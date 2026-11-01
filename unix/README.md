@@ -1,6 +1,6 @@
 # TMX for Linux and macOS
 
-Eight native tmux themes, a bottom status bar, and the same core Ctrl-a shortcuts as the Windows workspace. These packages contain shell scripts and tmux configuration, so one Linux archive works on x86_64 and ARM64 Linux; one macOS archive works on Intel and Apple Silicon. The installed tmux binary must match your OS/CPU. No terminal emulator or font is bundled.
+Nine native tmux themes, a bottom status bar, and the same core Ctrl-a shortcuts as the Windows workspace. These packages contain shell scripts and tmux configuration, so one Linux archive works on x86_64 and ARM64 Linux; one macOS archive works on Intel and Apple Silicon. The installed tmux binary must match your OS/CPU. No terminal emulator or font is bundled.
 
 ## Install
 
@@ -60,7 +60,7 @@ Run the new installer, then press **Ctrl-a Ctrl-r** in each open Tmux Style clie
 
 The scoped Bash wrapper loads `.bashrc`; the Zsh wrapper loads the user's `.zshenv` and interactive `.zshrc`. It starts an interactive shell, not a new login shell. Existing sessions and running applications remain available through `tmx attach NAME`.
 
-All eight themes use a bottom bar in this standalone version. Names: `aurora`, `midnight` (default), `ember`, `paper`, `neon`, `black`, `code`, `hacker`. Window names have no configured character truncation; tmux scrolls the window list when it exceeds the available width.
+All nine themes use a bottom bar in this standalone version. Names: `aurora`, `midnight` (default), `ember`, `paper`, `neon`, `black`, `code`, `hacker`, `prism`. Window names have no configured character truncation; tmux scrolls the window list when it exceeds the available width.
 
 | Keys | Action |
 | --- | --- |
@@ -79,6 +79,12 @@ All eight themes use a bottom bar in this standalone version. Names: `aurora`, `
 | `F12` | Toggle pass-through for nested tmux over SSH |
 
 On tmux versions with `prefix-timeout`, Ctrl-a accepts a command within **2 seconds**. Native tmux checks expiration when the next key arrives, so the PREFIX badge can stay visible until that key. Older tmux versions keep the prefix pending until the next key; they do not cancel it prematurely. macOS Terminal/iTerm2 or the OS may intercept some modifier/function keys; configure the terminal to send them if needed. `Ctrl-a` followed by the command works without the Alt shortcuts.
+
+## Readable shell prompt and Prism
+
+TMX-owned Bash/Zsh panes use explicit foreground AND background around the working directory, including Paper on a black macOS Terminal background. The wrappers still load existing startup files and do not edit them. Existing panes can load the update with `. "$TMUX_STYLE_HOME/shell/commands.sh"`; the next prompt redraw uses the current session theme.
+
+Prism adds a colorful tmux palette. Use `tmx paint COMMAND [ARG ...]` for optional plain-text output coloring, for example `tmx paint ls -l` or `tmx paint git status`. Normal commands and pipelines are unchanged. This explicit filter is for text, not full-screen applications; it preserves the command exit status. Native Bash/Zsh command-entry highlighting remains a shell/plugin feature.
 
 ## Status and clipboard
 

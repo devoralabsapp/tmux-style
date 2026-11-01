@@ -2,7 +2,7 @@
 # Installs only owned assets and a launcher; leaves shell profiles/dotfiles alone.
 set -euo pipefail
 theme=midnight
-usage() { echo 'Usage: bash unix/install.sh [--theme aurora|midnight|ember|paper|neon|black|code|hacker]'; }
+usage() { echo 'Usage: bash unix/install.sh [--theme aurora|midnight|ember|paper|neon|black|code|hacker|prism]'; }
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --theme) [[ $# -ge 2 ]] || { usage >&2; exit 1; }; theme=$2; shift 2 ;;
@@ -10,7 +10,7 @@ while [[ $# -gt 0 ]]; do
     *) usage >&2; exit 1 ;;
   esac
 done
-case "$theme" in aurora|midnight|ember|paper|neon|black|code|hacker) ;; *) usage >&2; exit 1 ;; esac
+case "$theme" in aurora|midnight|ember|paper|neon|black|code|hacker|prism) ;; *) usage >&2; exit 1 ;; esac
 case "$(uname -s)" in Linux|Darwin) ;; *) echo 'This installer requires Linux or macOS.' >&2; exit 1 ;; esac
 if ! command -v tmux >/dev/null 2>&1; then
   echo 'Install tmux >= 3.2 first, then run this installer again:' >&2

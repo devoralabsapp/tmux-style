@@ -1,4 +1,14 @@
-# TMX v1.7.0
+# TMX v1.8.0
+
+- Fixed inconsistent pane sizes after Windows detach/attach by disconnecting only the checked, owned GUI client, avoiding resize RPCs from its graceful detach path. The independent mux server retains running processes and split structure. Attached windows open maximized, and small/maximized transitions are tested.
+- Added the opt-in Prism palette to Windows and Unix workspaces. PowerShell commands have distinct syntax roles, and its final output renderer colors paths, status words, quoted text, numbers and flags while retaining object pipelines, exit status and existing ANSI output. Other themes use their normal output renderer.
+- Fixed the Unix cwd prompt on macOS black backgrounds with explicit foreground/background colors, loaded only in TMX Bash/Zsh panes. Existing dotfiles and startup hooks remain in place.
+- Added `tmx paint COMMAND [ARG ...]` for optional plain-text Unix output coloring. Normal command pipelines are unchanged; native Bash/Zsh syntax highlighting remains a separate shell feature.
+- Expanded tests for nine palettes, prompt colors, output rendering, real GUI resize/reattach geometry, process retention and safe upgrades/uninstall.
+
+Downloads: `TMX-Setup-1.8.0.exe`, `tmx-linux-1.8.0.tar.gz`, `tmx-macos-1.8.0.tar.gz`, source, checksums and validation reports.
+
+## v1.7.0 historical notes
 
 - Install the Windows EXE once with WezTerm selected, then run `tmx` directly from PowerShell or CMD. The console launcher preserves arguments and Unicode paths without editing shell profiles or execution policy.
 - Added named Windows sessions: `tmx new NAME [--theme NAME] [-d]`, `list` / `ls`, `attach [NAME]` / `attach -t NAME`, `detach`, `theme`, `themes`, `metrics`, `restore`, `uninstall`, `help` and `version`. Bare `tmx` creates or reattaches the default workspace.

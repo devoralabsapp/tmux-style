@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')]
+    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker','prism')]
     [string]$Theme = 'aurora',
     [switch]$NoBanner,
     [switch]$NoKeyBridge
@@ -18,10 +18,10 @@ if(-not $NoKeyBridge -and $global:TmuxStyleBackend -eq 'wezterm'){
     if(Test-Path -LiteralPath $collector){Start-Process -FilePath $collector -ArgumentList ('--watch "'+(Join-Path $global:TmuxStyleStateDirectory 'metrics.json')+'"') -WindowStyle Hidden}
 }
 $global:TmuxStyleThemeNames = @{
-    aurora='Aurora'; midnight='Midnight'; ember='Ember'; paper='Paper'; neon='Neon'; black='Command Line'; code='Code Spectrum'; hacker='Hacker Matrix'
+    aurora='Aurora'; midnight='Midnight'; ember='Ember'; paper='Paper'; neon='Neon'; black='Command Line'; code='Code Spectrum'; hacker='Hacker Matrix'; prism='Prism'
 }
 function global:Update-TmuxStyleShellTheme {
-    param([ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')][string]$Name)
+    param([ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker','prism')][string]$Name)
     $global:TmuxStyleTheme = $Name
     $global:TmuxStylePalette = switch ($Name) {
     'aurora' { @{Accent='Green';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
@@ -31,6 +31,7 @@ function global:Update-TmuxStyleShellTheme {
     'black' { @{Accent='White';Detail='Gray';Muted='DarkGray';Text='Gray'} }
     'code' { @{Accent='Cyan';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
     'hacker' { @{Accent='Green';Detail='DarkGreen';Muted='DarkGray';Text='Gray'} }
+    'prism' { @{Accent='Cyan';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
     default { @{Accent='Cyan';Detail='Magenta';Muted='DarkGray';Text='Gray'} }
     }
     if(Get-Module PSReadLine){
@@ -39,6 +40,8 @@ function global:Update-TmuxStyleShellTheme {
             $syntax=@{Command='Yellow';Parameter='DarkCyan';String='DarkYellow';Variable='Blue';Type='Cyan';Number='Green';Operator='Gray';Keyword='Magenta';Member='Yellow';Comment='DarkGray';Error='Red'}
         }elseif($Name -eq 'hacker'){
             $syntax=@{Command='Green';Parameter='Cyan';String='DarkYellow';Variable='Cyan';Type='DarkCyan';Number='Yellow';Operator='DarkGreen';Keyword='Green';Member='Green';Comment='DarkGray';Error='Red'}
+        }elseif($Name -eq 'prism'){
+            $syntax=@{Command='Yellow';Parameter='Cyan';String='Green';Variable='Magenta';Type='Blue';Number='Yellow';Operator='Gray';Keyword='Magenta';Member='Cyan';Comment='DarkGray';Error='Red'}
         }
         # Reset to the theme's foreground/background before reversing selection.
         # This avoids inherited light-on-light or dark-on-dark selection colors.
@@ -70,6 +73,9 @@ function global:Sync-TmuxStyleShellTheme {
 }
 Update-TmuxStyleShellTheme $Theme
 Sync-TmuxStyleShellTheme
+if(Test-Path -LiteralPath (Join-Path $global:TmuxStyleAssetDirectory 'output.ps1')){
+    . ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $global:TmuxStyleAssetDirectory 'output.ps1'))))
+}
 
 function global:Get-TmuxStyleTerminal {
     if($global:TmuxStyleBackend -eq 'wezterm'){
@@ -96,7 +102,7 @@ function global:Open-TmuxStyleWorkspace {
 }
 
 function global:Set-TmuxStyleTheme {
-    param([ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')][string]$Name = 'aurora')
+    param([ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker','prism')][string]$Name = 'aurora')
     if($env:TMX_SESSION -and $PSBoundParameters.Count -eq 0){tmx theme;return}
     if($global:TmuxStyleBackend -eq 'wezterm'){
         $statePath=Get-TmuxStyleThemeStatePath

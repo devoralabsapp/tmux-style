@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory=$true)][string]$SourceDirectory,
     [ValidateSet('windows-terminal','wezterm')][string]$Backend='windows-terminal',
-    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker')][string]$Theme='aurora',
+    [ValidateSet('aurora','midnight','ember','paper','neon','black','code','hacker','prism')][string]$Theme='aurora',
     [string]$StartingDirectory=$HOME,
     [string]$SettingsPath=(Join-Path $env:LOCALAPPDATA 'Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json'),
     [string]$AssetDirectory=(Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows'),
@@ -32,7 +32,7 @@ $setup=[scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 
 & $setup -SourceDirectory $SourceDirectory -Apply
 Write-Output 'Installed eight themes and tmux-style key mappings. F12 toggles pass-through.'
 if($Launch){
-    $names=@{aurora='Aurora';midnight='Midnight';ember='Ember';paper='Paper';neon='Neon';black='Command Line'; code='Code Spectrum'; hacker='Hacker Matrix'}
+    $names=@{aurora='Aurora';midnight='Midnight';ember='Ember';paper='Paper';neon='Neon';black='Command Line'; code='Code Spectrum'; hacker='Hacker Matrix'; prism='Prism'}
     $profile='Tmux Style - '+$names[$Theme]
     try{
         & $terminalExe -w new new-tab -p $profile -d $StartingDirectory ';' split-pane -V -s 0.35 -p $profile -d $StartingDirectory ';' split-pane -H -s 0.5 -p $profile -d $StartingDirectory ';' move-focus first

@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1344" height="930" viewBox="0 0 1344 930">
-<rect width="1344" height="930" fill="#0c0f18"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1344" height="1132" viewBox="0 0 1344 1132">
+<rect width="1344" height="1132" fill="#0c0f18"/>
 <g font-family="Consolas,DejaVu Sans Mono,monospace">
 <text x="28" y="40" font-size="25" fill="#e0e6f5">TMX / READABLE THEMES</text>
 <text x="28" y="69" font-size="14" fill="#b8bfd0">Shipped color samples / text 4.5:1 minimum / dividers 3:1 minimum</text>
@@ -123,4 +123,19 @@
 <rect x="704" y="854" width="66" height="23" fill="#49f5b3"/>
 <text x="711" y="871" font-size="14" fill="#04100a">COPY</text>
 <text x="787" y="871" font-size="13" fill="#5d9c77">Selection and menu colors are explicit.</text>
-<text x="28" y="918" font-size="13" fill="#b8bfd0">584 app-controlled color pairs checked. Samples, not terminal screenshots.</text></g></svg>
+<rect x="28" y="902" width="630" height="184" rx="8" fill="#11131f" stroke="#65769b" stroke-width="2"/>
+<text x="46" y="930" font-size="18" fill="#e5e9ff">PRISM</text>
+<text x="46" y="962" font-size="17" fill="#e5e9ff">tmx new work --theme prism -d</text>
+<text x="46" y="989" font-size="15" fill="#a9b4d0">CPU 12% / RAM 37% / demo-host</text>
+<rect x="28" y="1013" width="122" height="35" fill="#292e4a"/>
+<text x="38" y="1036" font-size="16" fill="#7ddcfe">work / TMX</text>
+<rect x="150" y="1013" width="144" height="35" fill="#0b0e18"/>
+<text x="160" y="1036" font-size="16" fill="#a9b4d0">1 shell</text>
+<rect x="294" y="1013" width="126" height="35" fill="#7ddcfe"/>
+<text x="304" y="1036" font-size="16" fill="#0b0e18">2 logs</text>
+<rect x="420" y="1013" width="238" height="35" fill="#0b0e18"/>
+<text x="430" y="1036" font-size="16" fill="#e5e9ff">29 Oct / 12:00</text>
+<rect x="46" y="1056" width="66" height="23" fill="#e4a4ff"/>
+<text x="53" y="1073" font-size="14" fill="#0b0e18">COPY</text>
+<text x="129" y="1073" font-size="13" fill="#a9b4d0">Selection and menu colors are explicit.</text>
+<text x="28" y="1120" font-size="13" fill="#b8bfd0">649 app-controlled color pairs checked. Samples, not terminal screenshots.</text></g></svg>

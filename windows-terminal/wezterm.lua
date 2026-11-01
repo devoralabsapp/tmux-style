@@ -78,14 +78,16 @@ local function apply_theme(window, pane, name, value)
 end
 local function detach_session(window, pane)
   if persistent and pane:get_domain_name() == 'TMX' then
-    window:perform_action(act.DetachDomain {DomainName='TMX'}, pane)
+    local quoted=root:gsub("'","''")
+    local command="& ([scriptblock]::Create([IO.File]::ReadAllText('"..quoted.."/tmx.ps1'))) -AssetDirectory '"..quoted.."' -Arguments @('__detach-client','"..gui_pid.."','"..session_name.."')"
+    wezterm.background_child_process {'powershell.exe','-NoLogo','-NoProfile','-NonInteractive','-Command',command}
   else
     window:toast_notification('TMX', 'Open a new TMX session after upgrading to use detach.', nil, 5000)
   end
 end
 local function choose_theme(window, pane)
   local choices = {}
-  for _, name in ipairs {'aurora','midnight','ember','paper','neon','black','code','hacker'} do
+  for _, name in ipairs {'aurora','midnight','ember','paper','neon','black','code','hacker','prism'} do
     table.insert(choices, {id=name,label=name})
   end
   window:perform_action(act.InputSelector {
@@ -222,10 +224,19 @@ wezterm.on('format-tab-title', function(tab)
   return ' ' .. (tab.tab_index + 1) .. ' ' .. title .. ' '
 end)
 local last_sample
+local opened_windows = {}
 wezterm.on('update-status', function(window, pane)
   -- A queued status event can run just after its domain was detached.
-  local valid, active_tab = pcall(function() return window:active_tab() end)
+  local valid, active_tab = pcall(function()
+    local tab=window:active_tab()
+    if tab then tab:panes_with_info() end
+    return tab
+  end)
   if not valid or not active_tab then return end
+  if persistent and not opened_windows[window:window_id()] then
+    opened_windows[window:window_id()]=true
+    window:maximize()
+  end
   if session_path then
     local saved = read_json(session_path)
     if saved and palettes[saved.theme] and window_theme(window) ~= saved.theme then

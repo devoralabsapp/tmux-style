@@ -4,19 +4,21 @@
 
 English · [Tiếng Việt](README.vi.md)
 
-**New in v1.7.0 — Windows command parity:** install the EXE once with **WezTerm** selected, then use `tmx` from PowerShell or CMD: `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` and `tmx uninstall`. Ctrl-a d detaches and leaves processes running; Ctrl-a t opens the theme picker. The installer no longer displays a success popup. [Windows commands, upgrade and persistence](windows-terminal/README.md#windows-command-line).
+**New in v1.8.0:** attach opens maximized and detach avoids corruption of retained pane sizes. Select **`theme prism`** for colorful PowerShell commands and output (paths, numbers, status words and flags). Unix panes now use an explicit readable cwd prompt, including macOS on black backgrounds. [Details](windows-terminal/README.md).
 
-Eight themes for the standalone **Linux/macOS tmux** and **Windows WezTerm / Windows Terminal + PowerShell** workspaces, with familiar `Ctrl-a` shortcuts derived from the original configuration and [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config). The legacy tmux overlay retains its six themes.
+**Since v1.7.0 — Windows command parity:** install the EXE once with **WezTerm** selected, then use `tmx` from PowerShell or CMD: `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` and `tmx uninstall`. Ctrl-a d detaches and leaves processes running; Ctrl-a t opens the theme picker. The installer no longer displays a success popup. [Windows commands, upgrade and persistence](windows-terminal/README.md#windows-command-line).
 
-## Linux and macOS: standalone packages (v1.7.0)
+Nine themes for the standalone **Linux/macOS tmux** and **Windows WezTerm / Windows Terminal + PowerShell** workspaces, with familiar `Ctrl-a` shortcuts derived from the original configuration and [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config). The legacy tmux overlay retains its six themes.
+
+## Linux and macOS: standalone packages (v1.8.0)
 
 **Since v1.6.0:** the command is now **`tmx`**, with `tmux-style` retained as a compatibility alias. `tmx uninstall` removes the Unix tool across upgrades while retaining recovery backups. Create with `tmx new work --theme code`, list with `tmx list`, then enter with `tmx attach work`. In owned Bash/Zsh panes, `theme hacker` and `theme` switch colors in place. [Setup, upgrade and uninstall](unix/README.md).
 
-All eight palettes have been checked for readable app-controlled text, including Paper warnings/prompts, OFF, menus, selections and Windows syntax colors. Text pairs meet a 4.5:1 target, pane dividers 3:1; the reproducible [checker](scripts/check-theme-contrast.py) and `theme-contrast.json` release report cover the shipped RGB values. Applications and custom terminal palettes can supply their own colors.
+All nine palettes have been checked for readable app-controlled text, including Paper warnings/prompts, OFF, menus, selections and Windows syntax colors. Text pairs meet a 4.5:1 target, pane dividers 3:1; the reproducible [checker](scripts/check-theme-contrast.py) and `theme-contrast.json` release report cover the shipped RGB values. Applications and custom terminal palettes can supply their own colors.
 
 ![Shipped theme color samples with explicit selections](preview/theme-readability.svg)
 
-Download the [Linux archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.7.0/tmx-linux-1.7.0.tar.gz) or [macOS archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.7.0/tmx-macos-1.7.0.tar.gz), plus its `.sha256` file from the [release](https://github.com/devoralabsapp/tmux-style/releases/tag/v1.7.0). Install tmux >= 3.2, extract the archive, enter its folder, then run:
+Download the [Linux archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.0/tmx-linux-1.8.0.tar.gz) or [macOS archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.0/tmx-macos-1.8.0.tar.gz), plus its `.sha256` file from the [release](https://github.com/devoralabsapp/tmux-style/releases/tag/v1.8.0). Install tmux >= 3.2, extract the archive, enter its folder, then run:
 
 ```bash
 # Linux / WSL (install tmux with your distribution's package manager)
@@ -58,7 +60,7 @@ A pure black canvas, white text and quiet gray dividers. Every color in the Blac
 
 ## Windows: download the EXE
 
-**[Download TMX-Setup-1.7.0.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.7.0/TMX-Setup-1.7.0.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
+**[Download TMX-Setup-1.8.0.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.0/TMX-Setup-1.8.0.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
 
 1. Run the installer, choose **WezTerm** for the real bottom status bar, then a theme and starting folder.
 2. Keep the Desktop shortcut and launch options enabled if you want a ready-to-use, three-pane workspace.
@@ -133,6 +135,6 @@ tmux source-file ~/.tmux.conf
 .\windows-terminal\build.ps1 -RunTests
 ```
 
-The Windows build reads `VERSION`, embeds the multi-size application icon, and produces an EXE plus SHA-256 checksums under `dist/`. Its packaged self-test runs on Windows PowerShell 5.1 with temporary settings: eight themes in both backends, JSONC preservation, exact backup/restore, upgrade rollback and edit protection, prompt exit codes, grayscale checks, native PSReadLine syntax roles, separate runtime-state paths, native key-map resolution, shortcut/post-install launch regression, checksum rejection and Windows counter sampling. CI validates Microsoft's schema and uses the real WezTerm Lua interpreter to check all eight configs, status, live switching, F12 and layout callbacks.
+The Windows build reads `VERSION`, embeds the multi-size application icon, and produces an EXE plus SHA-256 checksums under `dist/`. Its packaged self-test runs on Windows PowerShell 5.1 with temporary settings: nine themes in both backends, JSONC preservation, exact backup/restore, upgrade rollback and edit protection, prompt exit codes, grayscale checks, native PSReadLine syntax roles, separate runtime-state paths, native key-map resolution, shortcut/post-install launch regression, checksum rejection and Windows counter sampling. CI validates Microsoft's schema and uses the real WezTerm Lua interpreter to check all nine configs, status, live switching, F12 and layout callbacks.
 
 The EXE is **not code signed**. Source and checksums are provided. This project is an independent installer/configuration, not Microsoft Windows Terminal itself. See [NOTICE.md](NOTICE.md) for provenance and licensing. Original Windows code and logo assets use the [Windows MIT license](windows-terminal/LICENSE); existing tmux and third-party files retain their own terms.

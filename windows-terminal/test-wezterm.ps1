@@ -6,7 +6,7 @@ $setup=[scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 
 $restore=[scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'restore-wezterm.ps1')))
 $manifest=Join-Path $assets 'install-state.json'
 $commands=Join-Path $Fixture 'Commands'
-foreach($theme in 'aurora','midnight','ember','paper','neon','black','code','hacker'){
+foreach($theme in 'aurora','midnight','ember','paper','neon','black','code','hacker','prism'){
     & $setup -SourceDirectory $SourceDirectory -Theme $theme -StartingDirectory $Fixture -AssetDirectory $assets -DesktopDirectory $desktop -CommandDirectory $commands -NoCommandPath -WezTermExecutable $FakeTerminal
     $backend=[IO.File]::ReadAllText((Join-Path $assets 'backend.json'))|ConvertFrom-Json
     if($backend.theme -ne $theme -or $backend.executable -ne $FakeTerminal){throw 'WezTerm backend differs'}
@@ -36,7 +36,7 @@ if((Get-FileHash -LiteralPath (Join-Path $assets 'backend.json')).Hash -ne $oldH
 & $restore -StatePath $manifest
 $invalid=Join-Path $Fixture 'invalid-runtime.zip';[IO.File]::WriteAllText($invalid,'invalid')
 $rejected=$false
-try{& $setup -SourceDirectory $SourceDirectory -StartingDirectory $Fixture -AssetDirectory (Join-Path $Fixture 'Invalid runtime') -RuntimeArchive $invalid -NoShortcut}catch{if($_.Exception.Message -like '*checksum mismatch*'){$rejected=$true}else{throw}}
+try{& $setup -SourceDirectory $SourceDirectory -StartingDirectory $Fixture -AssetDirectory (Join-Path $Fixture 'Invalid runtime') -CommandDirectory (Join-Path $Fixture 'Invalid commands') -NoCommandPath -RuntimeArchive $invalid -NoShortcut}catch{if($_.Exception.Message -like '*checksum mismatch*'){$rejected=$true}else{throw}}
 if(-not $rejected){throw 'Unverified WezTerm runtime accepted'}
 $metrics=Join-Path $Fixture 'sample.json'
 $proc=Start-Process -FilePath (Join-Path $SourceDirectory 'TmuxStyle.Metrics.exe') -ArgumentList ('--once "'+$metrics+'"') -Wait -PassThru -WindowStyle Hidden
@@ -58,7 +58,7 @@ try{
     $global:LASTEXITCODE=37;$promptText=prompt
     if($global:TmuxStyleTheme -ne 'paper' -or $global:LASTEXITCODE -ne 37 -or $promptText -ne '  > '){throw 'Peer-pane prompt theme sync damaged shell state'}
     Import-Module PSReadLine
-    foreach($paletteName in 'aurora','midnight','ember','paper','neon','black','code','hacker'){
+    foreach($paletteName in 'aurora','midnight','ember','paper','neon','black','code','hacker','prism'){
         Update-TmuxStyleShellTheme $paletteName
         if((Get-PSReadLineOption).SelectionColor -ne ([string][char]27+'[0;7m')){throw 'Selection must reset and reverse the active terminal palette'}
     }
@@ -71,6 +71,16 @@ try{
     Update-TmuxStyleShellTheme black
     $options=Get-PSReadLineOption
     if($options.KeywordColor -ne $options.CommandColor -or $options.VariableColor -ne $options.TypeColor){throw 'Returning to Black retained a previous theme syntax role'}
+    . ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'output.ps1'))))
+    Update-TmuxStyleShellTheme prism
+    $global:LASTEXITCODE=37
+    $rendered=@([pscustomobject]@{Status='success';Count=42;Path='C:/demo'}|Out-Default 6>&1)
+    $text=($rendered|ForEach-Object {$_.ToString()}) -join ' '
+    if($text -notmatch 'success' -or $text -notmatch '42' -or $global:LASTEXITCODE -ne 37){throw 'Prism renderer changed content or exit status'}
+    if(-not($rendered|Where-Object {$_.MessageData.ForegroundColor -eq 'Green'})){throw 'Prism did not color successful output'}
+    $value=[pscustomobject]@{Count=42}|Where-Object Count -eq 42
+    if($value.Count -ne 42){throw 'Prism changed pipeline objects'}
+    Update-TmuxStyleShellTheme black
 }finally{
     foreach($key in $savedEnv.Keys){[Environment]::SetEnvironmentVariable($key,$savedEnv[$key])}
 }

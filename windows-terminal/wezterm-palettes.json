@@ -486,5 +486,66 @@
         "Color": "#10291c"
       }
     }
+  },
+  "prism": {
+    "bar": "#0b0e18",
+    "fg": "#e5e9ff",
+    "accent": "#7ddcfe",
+    "muted": "#a9b4d0",
+    "surface": "#292e4a",
+    "colors": {
+      "foreground": "#e5e9ff",
+      "background": "#11131f",
+      "cursor_bg": "#7ddcfe",
+      "cursor_fg": "#11131f",
+      "cursor_border": "#7ddcfe",
+      "selection_bg": "#292e4a",
+      "selection_fg": "#e5e9ff",
+      "split": "#65769b",
+      "ansi": [
+        "#0b0e18",
+        "#ff92ab",
+        "#a6edb0",
+        "#ffe08a",
+        "#96baff",
+        "#e4a4ff",
+        "#7ddcfe",
+        "#e5e9ff"
+      ],
+      "brights": [
+        "#a9b4d0",
+        "#ffb1c2",
+        "#c2ffd1",
+        "#fff0bb",
+        "#bed3ff",
+        "#f1c7ff",
+        "#b2eeff",
+        "#ffffff"
+      ],
+      "copy_mode_active_highlight_fg": {
+        "Color": "#0b0e18"
+      },
+      "copy_mode_active_highlight_bg": {
+        "Color": "#7ddcfe"
+      },
+      "copy_mode_inactive_highlight_fg": {
+        "Color": "#e5e9ff"
+      },
+      "copy_mode_inactive_highlight_bg": {
+        "Color": "#292e4a"
+      },
+      "quick_select_label_fg": {
+        "Color": "#0b0e18"
+      },
+      "quick_select_label_bg": {
+        "Color": "#7ddcfe"
+      },
+      "quick_select_match_fg": {
+        "Color": "#e5e9ff"
+      },
+      "quick_select_match_bg": {
+        "Color": "#292e4a"
+      }
+    }
   }
 }

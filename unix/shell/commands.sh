@@ -4,3 +4,4 @@ tmx() { bash "$TMUX_STYLE_HOME/cli.sh" "$@"; }
 tmux-style() { tmx "$@"; }
 theme() { tmx theme "$@"; }
 workspace() { tmx workspace "$@"; }
+source "$TMUX_STYLE_HOME/shell/prompt.sh"

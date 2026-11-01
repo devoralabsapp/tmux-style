@@ -159,6 +159,26 @@
       "opacity": 100,
       "bellStyle": "taskbar",
       "startingDirectory": "%USERPROFILE%"
+    },
+    {
+      "guid": "{8a9f1b72-ab45-5f2f-94ff-871ab5fc04d0}",
+      "name": "Tmux Style - Prism",
+      "hidden": false,
+      "slug": "prism",
+      "colorScheme": "Tmux Style / Prism",
+      "tabColor": "#7ddcfe",
+      "font": {
+        "face": "Cascadia Mono",
+        "size": 12
+      },
+      "padding": "14, 10, 14, 10",
+      "cursorShape": "bar",
+      "historySize": 20000,
+      "scrollbarState": "hidden",
+      "useAcrylic": false,
+      "opacity": 100,
+      "bellStyle": "taskbar",
+      "startingDirectory": "%USERPROFILE%"
     }
   ],
   "schemes": [
@@ -345,6 +365,29 @@
       "brightPurple": "#9affc8",
       "brightCyan": "#49f5b3",
       "brightWhite": "#deffea"
+    },
+    {
+      "name": "Tmux Style / Prism",
+      "background": "#11131f",
+      "foreground": "#e5e9ff",
+      "cursorColor": "#7ddcfe",
+      "selectionBackground": "#292e4a",
+      "black": "#0b0e18",
+      "red": "#ff92ab",
+      "green": "#a6edb0",
+      "yellow": "#ffe08a",
+      "blue": "#96baff",
+      "purple": "#e4a4ff",
+      "cyan": "#7ddcfe",
+      "white": "#e5e9ff",
+      "brightBlack": "#a9b4d0",
+      "brightRed": "#ffb1c2",
+      "brightGreen": "#c2ffd1",
+      "brightYellow": "#fff0bb",
+      "brightBlue": "#bed3ff",
+      "brightPurple": "#f1c7ff",
+      "brightCyan": "#b2eeff",
+      "brightWhite": "#ffffff"
     }
   ],
   "actions": [

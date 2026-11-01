@@ -8,7 +8,7 @@ catalog['midnight']={'name':'Midnight','pane':'#10131e','colors':[
     '#161925','#e0e6f5','#b8a1f7','#a5aec6','#75d7e8','#a6d6a0',
     '#f0c674','#f28b98','#202435','#292e42','#5e6885']}
 catalog.update(json.loads((ROOT/'themes.extra.json').read_text()))
-names={'aurora':'Aurora','midnight':'Midnight','ember':'Ember','paper':'Paper','neon':'Neon','black':'Command Line','code':'Code Spectrum','hacker':'Hacker Matrix'}
+names={'aurora':'Aurora','midnight':'Midnight','ember':'Ember','paper':'Paper','neon':'Neon','black':'Command Line','code':'Code Spectrum','hacker':'Hacker Matrix','prism':'Prism'}
 schemes=[]; profiles=[]
 for slug in names:
     spec=catalog[slug]; c=spec['colors']; label='Tmux Style / '+names[slug]

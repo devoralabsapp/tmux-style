@@ -2,9 +2,11 @@
 
 [English](README.md) · Tiếng Việt
 
-**Mới ở v1.7.0 — lệnh Windows tương tự Linux/macOS:** cài EXE một lần, chọn **WezTerm**, rồi gọi `tmx` từ PowerShell hoặc CMD. Có `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` và `tmx uninstall`. `Ctrl-a d` detach để tiến trình tiếp tục chạy; `Ctrl-a t` chọn theme. Đã bỏ hộp thoại “Workspace installed”. [Hướng dẫn Windows](windows-terminal/README.md#windows-command-line).
+**Mới ở v1.8.0:** sửa kích thước pane sau detach/attach và phóng to cửa sổ; thêm **`theme prism`** để tô màu lệnh và kết quả PowerShell. Đường dẫn trong pane Linux/macOS dùng màu chữ và nền rõ ràng, không phụ thuộc prompt tối từ shell cá nhân.
 
-## Linux và macOS: bộ cài độc lập v1.7.0
+**Từ v1.7.0 — lệnh Windows tương tự Linux/macOS:** cài EXE một lần, chọn **WezTerm**, rồi gọi `tmx` từ PowerShell hoặc CMD. Có `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` và `tmx uninstall`. `Ctrl-a d` detach để tiến trình tiếp tục chạy; `Ctrl-a t` chọn theme. Đã bỏ hộp thoại “Workspace installed”. [Hướng dẫn Windows](windows-terminal/README.md#windows-command-line).
+
+## Linux và macOS: bộ cài độc lập v1.8.0
 
 **Từ v1.6.0:** lệnh chính đổi thành **`tmx`**; `tmux-style` vẫn dùng được để tương thích. Thêm `tmx uninstall` để gỡ bộ cài Linux/macOS qua mọi lần nâng cấp, giữ bản sao lưu phục hồi. Đã tăng độ tương phản của Paper, chữ ở trạng thái OFF, viền pane, menu, phần chọn chữ và màu prompt Windows.
 
@@ -14,7 +16,7 @@ Các cặp màu chữ do tool quản lý được kiểm tra với mục tiêu t
 
 ![Mẫu màu chữ và nền của tám theme](preview/theme-readability.svg)
 
-Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.7.0/tmx-linux-1.7.0.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.7.0/tmx-macos-1.7.0.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
+Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.0/tmx-linux-1.8.0.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.0/tmx-macos-1.8.0.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
 
 ```bash
 # Linux / WSL
@@ -27,7 +29,7 @@ bash macos/install.command --theme code
 ~/.local/bin/tmx theme black
 ```
 
-Cả hai gói hỗ trợ máy Intel/x86_64 và ARM64 qua tmux native. Có đủ **8 theme**, workspace ba pane, thanh CPU/RAM, hostname, ngày giờ và tên cửa sổ không giới hạn ký tự cấu hình. `Ctrl-a t` chọn theme ngay trong phiên đang mở; `Ctrl-a d` detach để tiến trình tiếp tục chạy.
+Cả hai gói hỗ trợ máy Intel/x86_64 và ARM64 qua tmux native. Có đủ **9 theme**, workspace ba pane, thanh CPU/RAM, hostname, ngày giờ và tên cửa sổ không giới hạn ký tự cấu hình. `Ctrl-a t` chọn theme ngay trong phiên đang mở; `Ctrl-a d` detach để tiến trình tiếp tục chạy.
 
 Bộ cài dùng server tmux riêng, không sửa `~/.tmux.conf`, `.bashrc` hay `.zshrc`. Có sao lưu và lệnh `~/.local/bin/tmx restore` để hoàn tác sau khi thoát các phiên Tmux Style. Trên tmux có `prefix-timeout`, Ctrl-a chờ 2 giây; bản tmux cũ giữ prefix tới phím tiếp theo. Theme Code đổi màu giao diện tmux; màu cú pháp Bash/Zsh do shell/ứng dụng quản lý. [Hướng dẫn đầy đủ](unix/README.md).
 
@@ -47,7 +49,7 @@ Sáu giao diện tmux nền: **Aurora**, **Midnight / Cyan**, **Ember**, **Paper
 
 ## Windows: tải EXE và cài
 
-Tải **[TMX-Setup-1.7.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở PowerShell/CMD và gõ **`tmx`**, hoặc dùng shortcut **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
+Tải **[TMX-Setup-1.8.0.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở PowerShell/CMD và gõ **`tmx`**, hoặc dùng shortcut **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
 
 Bản **1.3.1** bỏ giới hạn ký tự tên tab WezTerm: tên dài hiển thị đầy đủ khi thanh tab còn đủ chỗ. Nếu tổng các tab vượt chiều rộng cửa sổ, WezTerm xử lý phần tràn theo không gian thực tế.
 

@@ -117,7 +117,7 @@ try:
     run('bash', ROOT / 'unix/install.sh', '--theme', 'black')
     assert run(launcher, 'version').stdout.strip() == (ROOT / 'VERSION').read_text().strip()
     assert run(legacy_launcher, 'version').stdout == run(launcher, 'version').stdout
-    assert len(run(launcher, 'themes').stdout.splitlines()) == 8
+    assert len(run(launcher, 'themes').stdout.splitlines()) == 9
     first_backup = Path((data / 'previous-backup').read_text().strip())
     first_launcher = launcher.read_bytes()
     checks.append('install without base config; paths with spaces, dollar and apostrophe')
@@ -132,11 +132,16 @@ try:
         assert tm('show-option', '-qv', '-t', 'TMUX', '@tmux_style_theme') == theme
         assert before == tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}')
         assert tm('show-option', '-gv', 'status-position') == 'bottom'
-    checks.append('eight themes switch in place; same panes/processes; bottom status')
+    checks.append('nine themes switch in place; same panes/processes; bottom status')
     print('PASS:', checks[-1], flush=True)
 
     primary = tm('list-panes', '-t', 'TMUX:1', '-F', '#{pane_id}').splitlines()[0]
     in_shell(primary, 'type theme >/dev/null && type tmx >/dev/null && type tmux-style >/dev/null')
+    in_shell(primary, 'tmx_prompt_colors; test -n "$TMX_PROMPT_FG" && test -n "$TMX_PROMPT_BG" && test "${PS1#*48;2;}" != "$PS1"')
+    painted = run(launcher, 'paint', 'printf', 'success 42 /tmp/result\n').stdout
+    assert '\x1b[38;2;' in painted and 'success' in painted
+    assert run(launcher, 'paint', 'bash', '-c', 'exit 7', ok=False).returncode == 7
+    checks.append('scoped cwd prompt has explicit RGB foreground/background; opt-in paint retains exit code')
     run(launcher, 'new', 'lab', '--theme', 'paper', '-d')
     lab_pane = tm('list-panes', '-t', 'lab:1', '-F', '#{pane_id}').splitlines()[0]
     assert len(tm('list-panes', '-t', 'lab:1', '-F', '#{pane_id}').splitlines()) == 3
@@ -214,7 +219,7 @@ try:
         tm('set-environment', '-g', 'ZDOTDIR', str(zdot))
         tm('set-option', '-g', 'default-shell', zsh)
         zsh_pane = tm('new-window', '-d', '-P', '-F', '#{pane_id}', '-t', 'lab', '-n', 'zsh')
-        wait_for(lambda: 'TMUX_STYLE_TEST_READY>' in tm('capture-pane', '-p', '-t', zsh_pane))
+        wait_for(lambda: ' TMX ' in tm('capture-pane', '-p', '-t', zsh_pane))
         in_shell(zsh_pane, 'test "$TMUX_STYLE_TEST_ZSHENV" = loaded && test "$TMUX_STYLE_TEST_ZSHRC" = loaded && theme hacker')
         assert session_theme('lab') == 'hacker' and session_theme('TMUX') == 'code'
         assert (zdot / '.zshenv').read_text() == zenv and (zdot / '.zshrc').read_text() == zrc

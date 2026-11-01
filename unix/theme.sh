@@ -45,7 +45,7 @@ theme_session() {
 theme_command() {
   local selected='' target='' pane='' default=false sid staged
   if [[ $# == 0 ]]; then
-    if current_session >/dev/null; then choose_theme; else printf '%s\n' aurora midnight ember paper neon black code hacker; fi
+    if current_session >/dev/null; then choose_theme; else printf '%s\n' aurora midnight ember paper neon black code hacker prism; fi
     return
   fi
   while [[ $# -gt 0 ]]; do
@@ -79,7 +79,7 @@ choose_theme() {
   if [[ $# -gt 0 ]]; then [[ $# == 2 && $1 == --pane ]] || return 1; pane=$2; fi
   sid=$(pane_session "$pane") || { echo 'Attach to a TMX session to open the theme menu.' >&2; return 1; }
   local menu=()
-  for selected in aurora midnight ember paper neon black code hacker; do
+  for selected in aurora midnight ember paper neon black code hacker prism; do
     menu+=("$selected" "$key" "run-shell 'bash \"\$TMUX_STYLE_HOME/cli.sh\" theme $selected --pane $pane >/dev/null'")
     key=$((key+1))
   done
