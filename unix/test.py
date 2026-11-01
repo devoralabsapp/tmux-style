@@ -95,8 +95,8 @@ def in_shell(pane, command):
     result = work / f'shell-probe-{probe_index}'
     tm('send-keys', '-t', pane, '-l', command + '; printf "%s\\n" "$?" > ' + shlex.quote(str(result)))
     tm('send-keys', '-t', pane, 'Enter')
-    wait_for(result.exists)
-    assert result.read_text().strip() == '0', (command, tm('capture-pane', '-p', '-t', pane))
+    wait_for(lambda: result.exists() and bool(result.read_text().strip()))
+    assert result.read_text().strip() == '0', (command, result.read_text(), tm('capture-pane', '-p', '-t', pane))
 
 
 def session_theme(name):
