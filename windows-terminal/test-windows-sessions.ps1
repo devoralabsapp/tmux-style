@@ -83,6 +83,12 @@ try{
     $cmdVersion=& $env:ComSpec /d /c 'tmx version'
     if($LASTEXITCODE -ne 0 -or $cmdVersion.Trim() -ne $version.Trim()){throw 'CMD and PowerShell entry points differ'}
     $checks+='installed tmx.exe works on PATH from PowerShell and CMD without profile or execution-policy changes'
+    if((Invoke-TestTmx @('renderer')).Trim() -ne 'webgpu'){throw 'Default renderer must use WebGPU'}
+    Invoke-TestTmx @('renderer','invalid') -Fail|Out-Null
+    Invoke-TestTmx @('renderer','software')|Out-Null
+    if((Invoke-TestTmx @('renderer')).Trim() -ne 'software'){throw 'Software renderer recovery was not saved'}
+    Invoke-TestTmx @('renderer','webgpu')|Out-Null
+    $checks+='WebGPU renderer default and software recovery command validated without changing live sessions'
     Invoke-TestTmx @('new','work','--theme','prism','-d')|Out-Null
     Invoke-TestTmx @('new','lab','--theme','hacker','-d')|Out-Null
     if((Panes work).Count -ne 3 -or (Panes lab).Count -ne 3){throw 'Named sessions must each have exactly three panes'}
@@ -170,7 +176,7 @@ try{
     if((Test-Path -LiteralPath (Join-Path $commands 'tmx.exe')) -or (Test-Path -LiteralPath (Join-Path $assets 'backend.json'))){throw 'Uninstall left an active command or backend'}
     if(-not(Get-ChildItem -LiteralPath (Join-Path $assets 'backups') -Filter 'uninstall-*')){throw 'Uninstall recovery copy missing'}
     $checks+='command restore and full uninstall across upgrades preserve recovery backups and refuse edited files'
-    $report=[pscustomobject]@{passed=$true;platform='Windows';runtime=(& $WezTermExecutable --version);renderer=$(if($SoftwareRendering){'Software'}else{'Default'});physicalResizeRequired=$RequirePhysicalResize;checks=$checks}
+    $report=[pscustomobject]@{passed=$true;platform='Windows';runtime=(& $WezTermExecutable --version);renderer=$(if($SoftwareRendering){'Software'}else{'WebGpu'});physicalResizeRequired=$RequirePhysicalResize;checks=$checks}
     if($ReportFile){[IO.File]::WriteAllText($ReportFile,($report|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))}
     'PASS: native Windows command, persistent named sessions, real detach/attach and safe uninstall.'
 }catch{

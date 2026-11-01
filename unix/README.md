@@ -50,7 +50,7 @@ Each session keeps its own palette. All its existing windows/panes change in pla
 
 Applications such as Vim retain their own color schemes. Code Spectrum colors tmux's UI; it does not add PowerShell-style command syntax highlighting to Bash/Zsh.
 
-## Upgrade an open v1.4 workspace
+## Upgrade an open workspace
 
 Run the new installer, then press **Ctrl-a Ctrl-r** in each open Tmux Style client to reload. New panes load the shell helpers automatically. To add the short commands to an existing Bash/Zsh pane without restarting its shell, run:
 
@@ -84,7 +84,18 @@ On tmux versions with `prefix-timeout`, Ctrl-a accepts a command within **2 seco
 
 TMX-owned Bash/Zsh panes use explicit foreground AND background around the working directory, including Paper on a black macOS Terminal background. The wrappers still load existing startup files and do not edit them. Existing panes can load the update with `. "$TMUX_STYLE_HOME/shell/commands.sh"`; the next prompt redraw uses the current session theme.
 
-Prism adds a colorful tmux palette. Use `tmx paint COMMAND [ARG ...]` for optional plain-text output coloring, for example `tmx paint ls -l` or `tmx paint git status`. Normal commands and pipelines are unchanged. This explicit filter is for text, not full-screen applications; it preserves the command exit status. Native Bash/Zsh command-entry highlighting remains a shell/plugin feature.
+Prism includes offline Zsh command-entry highlighting through the bundled [zsh-syntax-highlighting 0.8.0](shell/vendor/zsh-syntax-highlighting/TMX-NOTICE.md). Commands, options, quoted strings, paths and brackets have separate readable colors. An already-loaded user highlighter stays in control. Bash keeps its existing line editor.
+
+In both Bash and Zsh, Prism automatically colors common terminal output: `ls` uses native file colors, read-only Git views use native Git colors, and `pwd`, `echo`, `printf`, `head`, `tail`, `grep`, `rg`, `find`, `du`, `df`, `ps`, `stat` and `wc` color plain-text paths, numbers and status words. Existing user functions/aliases take precedence. Pipelines, redirected output and other themes bypass this renderer; existing ANSI lines pass through. Interactive programs keep their own rendering. Set `TMX_PRISM_OUTPUT=0` to disable automatic output colors, or use `command PROGRAM` for one invocation. Other commands can opt in with `tmx paint COMMAND [ARG ...]`.
+
+After installing an update, each already-running shell still has its previous prompt/functions in memory. Reattaching does not restart that shell. Run this once **inside each old TMX Bash/Zsh pane**:
+
+```bash
+. "$TMUX_STYLE_HOME/shell/commands.sh"
+theme prism
+```
+
+This replaces a stale dark-blue cwd prompt with TMX's explicit light foreground and dark background, including when a user `precmd` sets a blue prompt. Newly created panes load it automatically. Once these helpers are loaded, `tmx refresh` reloads them without restarting the shell. Shell profiles are never edited.
 
 ## Status and clipboard
 

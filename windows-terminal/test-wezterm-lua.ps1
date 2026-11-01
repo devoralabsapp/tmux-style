@@ -10,6 +10,7 @@ $template=[IO.File]::ReadAllText((Join-Path $SourceDirectory 'wezterm.lua')).Rep
 # inside WezTerm's real Lua interpreter. No GUI or production files are touched.
 $assertions=@'
 local w = { overrides={}, zoomed=false, prefix=false, width=1400 }
+assert(config.front_end=='WebGpu', 'Windows renderer must avoid default OpenGL glyph corruption')
 local pane = {}
 local tab = {}
 function pane:pane_id() return 41 end

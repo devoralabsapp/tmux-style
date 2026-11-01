@@ -13,3 +13,5 @@ The WezTerm integration, Lua configuration and local Windows metric collector al
 `windows-terminal/profiles.schema.json` is from Microsoft Windows Terminal tag `v1.25.2733.0`. See `windows-terminal/THIRD_PARTY_NOTICES.md` for its MIT license.
 
 Preview pane text is demonstration content. The tmux status bars and pane borders were captured from a separate test environment. Windows Terminal is a Microsoft product; this project is an independent configuration/installer and is not affiliated with Microsoft.
+
+The Unix shell runtime includes an unmodified subset of zsh-users/zsh-syntax-highlighting 0.8.0 under its BSD terms. See `unix/shell/vendor/zsh-syntax-highlighting/COPYING.md` and `TMX-NOTICE.md` for retained copyright, source revision and scope.

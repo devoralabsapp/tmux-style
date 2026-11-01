@@ -101,6 +101,11 @@ wezterm.on('user-var-changed', function(window,pane,name,value)
   if name == 'TmuxStyleCommand' and value:match('^choose%-theme:') then choose_theme(window,pane) end
 end)
 local config = wezterm.config_builder()
+-- Some Windows OpenGL drivers draw glyph textures as solid rectangles.
+-- Use Direct3D through WebGPU; keep an outer-command software recovery mode.
+local renderer = read_json(state_dir .. '/renderer.json') or {}
+local renderers = {webgpu='WebGpu',software='Software',opengl='OpenGL'}
+config.front_end = renderers[renderer.name] or 'WebGpu'
 config.default_prog = shell_command(theme)
 config.default_cwd = persistent and os.getenv 'TMX_CWD' or backend.startingDirectory
 config.default_workspace = persistent and session_name or 'TMUX'

@@ -86,3 +86,4 @@ printf '\nInstalled TMX %s for %s (%s).\n' "$(cat "$data/VERSION")" "$(uname -s)
 printf 'Start: %s\nNew: %s new work\nAttach: %s attach work\nUninstall: %s uninstall\nBackup: %s\n' "$launcher" "$launcher" "$launcher" "$launcher" "$backup"
 case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) echo 'Use the full command above, or add ~/.local/bin to PATH yourself.' ;; esac
 echo 'Existing tmux sessions and ~/.tmux.conf were left in place.'
+printf 'In each already-open Bash/Zsh pane, load updated prompt/highlighting without restarting: . "$TMUX_STYLE_HOME/shell/commands.sh"\n'

@@ -124,10 +124,21 @@ switch($verb){
     {$_ -in 'help','--help','-h'}{
         'tmx new NAME [--theme NAME] [-d] | attach [NAME] | list | detach'
         'tmx theme NAME | version. Ctrl-a d detaches without stopping processes.'
-        'tmx themes | metrics | restore | uninstall. Persistence requires the WezTerm backend.'
+        'tmx themes | renderer [webgpu|software|opengl] | metrics | restore | uninstall.'
     }
     {$_ -in 'version','--version'}{[IO.File]::ReadAllText((Join-Path $root 'VERSION')).Trim()}
     'themes'{$names}
+    'renderer'{
+        $path=Join-Path $state 'renderer.json'
+        if(-not $rest.Count){
+            if(Test-Path -LiteralPath $path){([IO.File]::ReadAllText($path)|ConvertFrom-Json).name}else{'webgpu'}
+            return
+        }
+        if($rest.Count -ne 1 -or $rest[0] -notin 'webgpu','software','opengl'){throw 'Usage: tmx renderer webgpu|software|opengl'}
+        New-Item -ItemType Directory -Path $state -Force|Out-Null
+        [IO.File]::WriteAllText($path,(@{name=$rest[0]}|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
+        'Renderer: '+$rest[0]+'. Detach, then attach again to apply; session processes keep running.'
+    }
     '__detach-client'{
         if($rest.Count -ne 2 -or $rest[0] -notmatch '^\d+$'){throw 'Invalid client detach request.'}
         Session-Key $rest[1]|Out-Null

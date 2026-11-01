@@ -1,4 +1,14 @@
-# TMX v1.8.0
+# TMX v1.8.1
+
+- Switched the Windows WezTerm default from OpenGL to WebGPU to avoid solid-block glyph rendering on affected drivers. Added `tmx renderer webgpu|software|opengl`, including a software recovery mode usable from outer PowerShell/CMD. Reattach applies it while retaining mux processes.
+- Added offline Prism command-entry highlighting for Zsh, with explicit readable command, option, string, path and bracket colors. Existing user highlighters remain in control.
+- Added automatic Prism output coloring for common text commands in Bash/Zsh, including native file/Git colors. Pipelines, redirection, original command status and existing user helpers are preserved. Full-screen applications retain their own rendering.
+- Added `tmx refresh` in owned Bash/Zsh helpers and explicit upgrade guidance: already-running shells must source `. "$TMUX_STYLE_HOME/shell/commands.sh"` once. This loads the bright cwd prompt even when an older custom prompt uses dark blue.
+- Added real-terminal checks for Zsh input colors, output colors, cwd foreground/background against a custom blue-prompt hook, repeated refresh and error/pipeline behavior.
+
+Downloads: `TMX-Setup-1.8.1.exe`, `tmx-linux-1.8.1.tar.gz`, `tmx-macos-1.8.1.tar.gz`, source, checksums and validation reports.
+
+## v1.8.0 historical notes
 
 - Fixed inconsistent pane sizes after Windows detach/attach by disconnecting only the checked, owned GUI client, avoiding resize RPCs from its graceful detach path. The independent mux server retains running processes and split structure. Attached windows open maximized, and small/maximized transitions are tested.
 - Added the opt-in Prism palette to Windows and Unix workspaces. PowerShell commands have distinct syntax roles, and its final output renderer colors paths, status words, quoted text, numbers and flags while retaining object pipelines, exit status and existing ANSI output. Other themes use their normal output renderer.

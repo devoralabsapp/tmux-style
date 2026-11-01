@@ -125,6 +125,11 @@ for name in ['brightRed','brightGreen','brightYellow','brightBlue','brightPurple
     scheme=next(s for s in settings['schemes'] if s['name']=='Tmux Style / Prism')
     add('windows/prism','output/'+name,scheme[name],scheme['background'])
 
+zsh_colors = set(re.findall(r"fg=(#[0-9a-fA-F]{6})", (ROOT/'unix/shell/prism.sh').read_text()))
+assert len(zsh_colors) >= 7, 'Prism Zsh styles are missing'
+for color in sorted(zsh_colors):
+    add('unix/prism', 'zsh-syntax/' + color, color, '#11131f')
+
 failed = [c for c in checks if not c['passed']]
 if not failed:
     svg = ['<svg xmlns="http://www.w3.org/2000/svg" width="1344" height="1132" viewBox="0 0 1344 1132">',

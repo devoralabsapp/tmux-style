@@ -213,7 +213,11 @@ try:
         zdot = home / 'zsh settings'
         zdot.mkdir()
         zenv = 'export TMUX_STYLE_TEST_ZSHENV=loaded\n'
-        zrc = "export TMUX_STYLE_TEST_ZSHRC=loaded\nPS1='TMUX_STYLE_TEST_READY> '\n"
+        if os.environ.get('TMX_TEST_ZSH_MODULE_PATH'):
+            zenv += 'module_path=(' + shlex.quote(os.environ['TMX_TEST_ZSH_MODULE_PATH']) + ' $module_path)\n'
+            functions = os.environ['TMX_TEST_ZSH_MODULE_PATH'].replace('/lib/zsh/', '/share/zsh/') + '/functions'
+            zenv += 'fpath=(' + shlex.quote(functions) + '/*(/) $fpath)\n'
+        zrc = "export TMUX_STYLE_TEST_ZSHRC=loaded\nprecmd() { PROMPT='%F{blue}%~%f > '; }\nPS1='TMUX_STYLE_TEST_READY> '\n"
         (zdot / '.zshenv').write_text(zenv)
         (zdot / '.zshrc').write_text(zrc)
         tm('set-environment', '-g', 'ZDOTDIR', str(zdot))
@@ -226,6 +230,29 @@ try:
             raise
         in_shell(zsh_pane, 'test "$TMUX_STYLE_TEST_ZSHENV" = loaded && test "$TMUX_STYLE_TEST_ZSHRC" = loaded && theme hacker')
         assert session_theme('lab') == 'hacker' and session_theme('TMUX') == 'code'
+        in_shell(zsh_pane, 'theme prism')
+        wait_for(lambda: 'TMX ' in tm('capture-pane', '-p', '-t', zsh_pane))
+        in_shell(zsh_pane, 'test "$TMX_PROMPT_THEME" = prism && test "$ZSH_HIGHLIGHT_VERSION" = 0.8.0')
+        cwd_line = [line for line in tm('capture-pane', '-p', '-e', '-t', zsh_pane).splitlines() if 'TMX ' in line][-1]
+        assert '38;2;229;233;255' in cwd_line and '48;2;17;19;31' in cwd_line, cwd_line
+        # Inspect the actual cells while editing, before executing the command.
+        tm('send-keys', '-t', zsh_pane, '-l', 'printf "success 42 /tmp/prism-result\\n"')
+        time.sleep(.3)
+        editing = tm('capture-pane', '-p', '-e', '-t', zsh_pane)
+        typed = [line for line in editing.splitlines() if '/tmp/prism-result' in line][-1]
+        assert len(set(re.findall(r'\x1b\[[0-9;]*m', typed))) >= 2, typed
+        tm('send-keys', '-t', zsh_pane, 'Enter')
+        wait_for(lambda: any('success' in line and '/tmp/prism-result' in line and 'printf' not in line
+                             for line in tm('capture-pane', '-p', '-t', zsh_pane).splitlines()))
+        output = [line for line in tm('capture-pane', '-p', '-e', '-t', zsh_pane).splitlines()
+                  if '/tmp/prism-result' in line and 'printf' not in line][-1]
+        assert len(set(re.findall(r'\x1b\[[0-9;]*m', output))) >= 3, output
+        # The output renderer must bypass pipelines/redirection and retain errors.
+        in_shell(zsh_pane, 'test "$(printf "success 42")" = "success 42"; grep missing /dev/null; test "$?" = 1')
+        in_shell(zsh_pane, 'tmx refresh; tmx refresh; test "$TMX_PROMPT_THEME" = prism')
+        in_shell(zsh_pane, 'theme paper')
+        in_shell(zsh_pane, 'test ${#ZSH_HIGHLIGHT_HIGHLIGHTERS} = 0')
+        checks.append('Prism Zsh edits and ordinary output have distinct real terminal colors; pipelines and exit codes preserved')
         assert (zdot / '.zshenv').read_text() == zenv and (zdot / '.zshrc').read_text() == zrc
         tm('set-option', '-g', 'default-shell', env['SHELL'])
         tm('set-environment', '-gu', 'ZDOTDIR')
