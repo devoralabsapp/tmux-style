@@ -1,4 +1,14 @@
-# TMX v1.8.3
+# TMX v1.8.4
+
+- Fixed macOS cwd reverting to a custom prompt after the first command. A canonical prompt is restored before Zsh line initialization/redraw, including late hooks and theme switches. Powerlevel9k/10k prompt rendering is torn down only in the owned shell.
+- Replaced the Unix command-name output allowlist with a full Bash/Zsh PTY display renderer. Plain-text results from arbitrary programs, aliases, functions, builtins, compound commands and stderr are highlighted across themes. Black retains grayscale output.
+- Commands keep real terminal descriptors. Pipeline/file bytes remain unchanged, while existing ANSI styling, alternate-screen interfaces, OSC 52, UTF-8, resize, SIGINT and exit status are preserved. Colors are lexical; full-screen or already-styled applications retain their own rendering.
+- Unix now requires Python >= 3.8 (standard library only). New panes activate the renderer; existing panes can source commands.sh for the prompt fix but need a new pane for global output highlighting. Use TMX_OUTPUT_HIGHLIGHT=0 to disable display coloring.
+- Added streaming/control/Unicode tests, repeated late prompt-hook/theme tests, arbitrary function/executable/stderr tests and PTY resize/data/exit regressions. Color audit covers 728 shipped pairs.
+
+Downloads: `TMX-Setup-1.8.4.exe`, `tmx-linux-1.8.4.tar.gz`, `tmx-macos-1.8.4.tar.gz`, source, checksums and validation reports.
+
+## v1.8.3 historical notes
 
 - Fixed Windows WezTerm F12 pass-through disabling clipboard shortcuts. Ctrl-V, Ctrl-Shift-C/V, Ctrl/Shift-Insert and Cmd-C/V bindings stay available in OFF mode. Ctrl-C copies an existing GUI selection, otherwise forwards Ctrl-C to the active program/SSH session.
 - Added Ctrl-C copy-and-cancel in native tmux copy mode and Ctrl-V paste-buffer in normal/copy mode. Ctrl-C outside copy mode retains interrupt behavior; F12 OFF forwards Ctrl-V to the nested session.

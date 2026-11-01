@@ -10,5 +10,6 @@ tmx() {
 tmux-style() { tmx "$@"; }
 theme() { tmx theme "$@"; }
 workspace() { tmx workspace "$@"; }
+source "$TMUX_STYLE_HOME/shell/render.sh"
 source "$TMUX_STYLE_HOME/shell/prompt.sh"
 source "$TMUX_STYLE_HOME/shell/prism.sh"

@@ -15,6 +15,7 @@ import tempfile
 import termios
 import threading
 import time
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 work = Path(tempfile.mkdtemp(prefix='ts-'))
@@ -24,6 +25,7 @@ env = dict(os.environ, HOME=str(home), TMUX_TMPDIR=str(work), TERM='xterm-256col
 env.pop('TMUX', None)
 env.pop('XDG_DATA_HOME', None)
 env['SHELL'] = shutil.which('bash')
+env['TMX_PYTHON'] = sys.executable
 env['skip_global_compinit'] = '1'  # avoid distribution-wide completion prompts in the fake home
 launcher = home / '.local/bin/tmx'
 legacy_launcher = home / '.local/bin/tmux-style'
@@ -173,7 +175,6 @@ try:
         assert tm('show-buffer') == marker
     finally:
         run('tmux','-L','clipboard-inner','kill-server',ok=False)
-    wait_for(lambda: tm('display-message','-p','-t',primary,'#{pane_current_command}') == 'bash')
     in_shell(primary, ':')
     paste_file = work/'pasted-command'
     tm('set-buffer','printf pasted > '+shlex.quote(str(paste_file)))
@@ -271,7 +272,14 @@ try:
             zenv += 'module_path=(' + shlex.quote(os.environ['TMX_TEST_ZSH_MODULE_PATH']) + ' $module_path)\n'
             functions = os.environ['TMX_TEST_ZSH_MODULE_PATH'].replace('/lib/zsh/', '/share/zsh/') + '/functions'
             zenv += 'fpath=(' + shlex.quote(functions) + '/*(/) $fpath)\n'
-        zrc = "export TMUX_STYLE_TEST_ZSHRC=loaded\nprecmd() { PROMPT='%F{blue}%~%f > '; }\nPS1='TMUX_STYLE_TEST_READY> '\n"
+        zrc = """export TMUX_STYLE_TEST_ZSHRC=loaded
+precmd() { PROMPT='%F{blue}%~%f > '; }
+autoload -Uz add-zle-hook-widget
+tmx_test_blue_prompt() { PROMPT='%F{blue}%~%f > '; RPROMPT='%*'; }
+add-zle-hook-widget line-init tmx_test_blue_prompt
+add-zle-hook-widget line-pre-redraw tmx_test_blue_prompt
+PS1='TMUX_STYLE_TEST_READY> '
+"""
         (zdot / '.zshenv').write_text(zenv)
         (zdot / '.zshrc').write_text(zrc)
         tm('set-environment', '-g', 'ZDOTDIR', str(zdot))
@@ -307,6 +315,36 @@ try:
         in_shell(zsh_pane, 'tmx refresh; tmx refresh; test "$TMX_PROMPT_THEME" = prism')
         in_shell(zsh_pane, 'theme paper')
         in_shell(zsh_pane, 'test ${#ZSH_HIGHLIGHT_HIGHLIGHTERS} = 0')
+        in_shell(zsh_pane, 'precmd_functions+=(tmx_test_blue_prompt)')
+        for selected in ['hacker','prism','paper','hacker','prism']:
+            in_shell(zsh_pane, 'theme '+selected)
+            wait_for(lambda: tm('capture-pane','-p','-t',zsh_pane).strip().endswith('>'))
+            lines = tm('capture-pane','-p','-e','-t',zsh_pane).splitlines()
+            plain = re.sub(r'\x1b\[[0-9;]*m', '', '\n'.join(lines)).strip().splitlines()
+            assert plain[-2].lstrip().startswith('TMX '), plain[-2:]
+            cwd = [line for line in lines if 'TMX ' in line][-1]
+            if os.uname().sysname == 'Darwin':
+                red = '180;35;54' if selected=='paper' else '255;122;138'
+                assert '38;2;'+red in cwd, cwd
+        # No command allowlist: functions, aliases, arbitrary binaries, stderr.
+        in_shell(zsh_pane, 'tmx_test_custom() { builtin printf "success 731 /tmp/custom-result\\n"; }')
+        in_shell(zsh_pane, 'tmx_test_custom')
+        in_shell(zsh_pane, '/bin/sh -c \'printf "failure 932 /tmp/external-result\\n" >&2\'')
+        for marker in ['custom-result','external-result']:
+            line = [line for line in tm('capture-pane','-p','-e','-t',zsh_pane).splitlines()
+                    if marker in line and not any(word in line for word in ['printf','in_shell','tmx_test_custom()'])][-1]
+            assert len(set(re.findall(r'\x1b\[[0-9;]*m',line)))>=3, line
+        raw_file = work/'raw-pipeline'
+        in_shell(zsh_pane, 'builtin printf "success 441 /tmp/raw" | cat > '+shlex.quote(str(raw_file)))
+        assert raw_file.read_bytes()==b'success 441 /tmp/raw'
+        in_shell(zsh_pane, 'test -t 0 && test -t 1 && test -t 2; false; test "$?" = 1')
+        size_file = work/'relay-size'
+        tm('resize-window','-t','lab','-x','140','-y','35')
+        time.sleep(.2)
+        in_shell(zsh_pane,'stty size > '+shlex.quote(str(size_file)))
+        expected_size = tm('display-message','-p','-t',zsh_pane,'#{pane_height} #{pane_width}')
+        assert size_file.read_text().strip() == expected_size, (size_file.read_text(),expected_size)
+        checks.append('global PTY output colors arbitrary functions/executables and stderr; file/pipeline bytes and terminal semantics retained; prompt stays red through late redraw hooks and theme switches')
         checks.append('Prism Zsh edits and ordinary output have distinct real terminal colors; pipelines and exit codes preserved')
         assert (zdot / '.zshenv').read_text() == zenv and (zdot / '.zshrc').read_text() == zrc
         tm('set-option', '-g', 'default-shell', env['SHELL'])

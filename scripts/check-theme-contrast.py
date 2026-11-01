@@ -132,6 +132,11 @@ assert len(zsh_colors) >= 7, 'Prism Zsh styles are missing'
 for color in sorted(zsh_colors):
     add('unix/prism', 'zsh-syntax/' + color, color, '#11131f')
 
+for slug, roles in json.loads((ROOT/'unix/shell/output-colors.json').read_text()).items():
+    bg=next(p['colors']['background'] for name,p in wez.items() if name==slug)
+    for role, rgb in roles.items():
+        add('unix-output/'+slug,role,to_hex(rgb),bg)
+
 failed = [c for c in checks if not c['passed']]
 if not failed:
     svg = ['<svg xmlns="http://www.w3.org/2000/svg" width="1344" height="1132" viewBox="0 0 1344 1132">',

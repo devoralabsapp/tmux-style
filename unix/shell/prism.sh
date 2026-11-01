@@ -1,50 +1,5 @@
-# Scoped interactive helpers. Pipelines, redirection and other themes bypass
-# coloring; no DEBUG trap, global stdout redirection or command evaluation.
-tmx_prism_run() {
-  if [[ ${TMX_PROMPT_THEME:-} != prism || ! -t 1 || ${TMX_PRISM_OUTPUT:-1} == 0 ]]; then
-    command "$@"; return $?
-  fi
-  # Only read-only, plain-text Git commands. Interactive commands keep their TTY.
-  if [[ $1 == git ]]; then
-    case ${2:-} in status|log|show|diff|branch) ;; *) command "$@"; return $? ;; esac
-  fi
-  if [[ $1 == ls ]]; then
-    shift
-    case $(uname -s) in
-      Darwin) LSCOLORS=GxFxCxDxBxDxDxFxFxCxCx CLICOLOR=1 CLICOLOR_FORCE=1 command ls -G "$@" ;;
-      *) LS_COLORS="di=01;96:ln=01;95:so=01;92:pi=01;93:ex=01;92:bd=01;93:cd=01;93:or=01;91:mi=01;91:su=01;95:sg=01;95:tw=01;96:ow=01;96:st=01;96" command ls --color=always "$@" ;;
-    esac
-    return $?
-  fi
-  if [[ $1 == git ]]; then
-    shift
-    command git -c color.ui=always "$@"
-    return $?
-  fi
-  local -a results
-  if [[ -n ${ZSH_VERSION:-} ]]; then
-    command "$@" | bash "$TMUX_STYLE_HOME/paint-filter.sh"
-    results=("${pipestatus[@]}")
-    if [[ ${results[1]} != 0 ]]; then return "${results[1]}"; fi
-    return "${results[2]}"
-  else
-    command "$@" | bash "$TMUX_STYLE_HOME/paint-filter.sh"
-    results=("${PIPESTATUS[@]}")
-    if [[ ${results[0]} != 0 ]]; then return "${results[0]}"; fi
-    return "${results[1]}"
-  fi
-}
-if [[ ${TMX_PRISM_WRAPPERS_LOADED:-0} == 0 ]]; then
-  for _tmx_command in ls pwd echo printf head tail grep rg find du df ps stat wc git; do
-    # A user's function takes precedence. Existing aliases are left in place.
-    if ! typeset -f "$_tmx_command" >/dev/null 2>&1; then
-      eval "function $_tmx_command() { tmx_prism_run $_tmx_command \"\$@\"; }"
-    fi
-  done
-  unset _tmx_command
-  TMX_PRISM_WRAPPERS_LOADED=1
-fi
-
+# Command-entry highlighting only. All command output is handled by the PTY
+# display renderer, including aliases, functions, external commands and stderr.
 if [[ -n ${ZSH_VERSION:-} ]]; then
   # Vendor a fixed upstream release, so Prism works offline without Homebrew.
   if (( ! $+functions[_zsh_highlight] )); then

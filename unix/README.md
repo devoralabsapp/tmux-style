@@ -4,7 +4,7 @@ Nine native tmux themes, a bottom status bar, and the same core Ctrl-a shortcuts
 
 ## Install
 
-Install **tmux >= 3.2** and Bash first. On macOS, install [Homebrew](https://brew.sh/) if needed, then `brew install tmux`. On Ubuntu/Debian use `sudo apt install tmux`; Fedora: `sudo dnf install tmux`; Arch: `sudo pacman -S tmux`; Alpine: `apk add tmux bash`.
+Install **tmux >= 3.2**, **Python >= 3.8** and Bash first. Python uses only its standard library; no pip packages are needed. On macOS, install [Homebrew](https://brew.sh/) if needed, then `brew install tmux python`. On Ubuntu/Debian use `sudo apt install tmux python3`; Fedora: `sudo dnf install tmux python3`; Arch: `sudo pacman -S tmux python`; Alpine: `apk add tmux bash python3`.
 
 Extract the release archive, enter the extracted folder, and run:
 
@@ -88,7 +88,11 @@ TMX-owned Bash/Zsh panes use explicit foreground AND background around the worki
 
 Prism includes offline Zsh command-entry highlighting through the bundled [zsh-syntax-highlighting 0.8.0](shell/vendor/zsh-syntax-highlighting/TMX-NOTICE.md). Commands, options, quoted strings, paths and brackets have separate readable colors. An already-loaded user highlighter stays in control. Bash keeps its existing line editor.
 
-In both Bash and Zsh, Prism automatically colors common terminal output: `ls` uses native file colors, read-only Git views use native Git colors, and `pwd`, `echo`, `printf`, `head`, `tail`, `grep`, `rg`, `find`, `du`, `df`, `ps`, `stat` and `wc` color plain-text paths, numbers and status words. Existing user functions/aliases take precedence. Pipelines, redirected output and other themes bypass this renderer; existing ANSI lines pass through. Interactive programs keep their own rendering. Set `TMX_PRISM_OUTPUT=0` to disable automatic output colors, or use `command PROGRAM` for one invocation. Other commands can opt in with `tmx paint COMMAND [ARG ...]`.
+In v1.8.4, automatic output highlighting covers the **entire terminal display** of the owned Bash/Zsh shell, across themes. It does not inspect command names: external programs, functions, aliases, shell builtins, compound commands, and stderr all pass through a Python PTY renderer. Plain output gets readable text, path, number, quoted-string, flag and status/error colors. Black keeps its grayscale output palette.
+
+Every command still sees a real terminal on stdin/stdout/stderr. Pipeline/redirected data is never modified: only the final bytes displayed in the terminal receive colors. Existing ANSI-colored output and full-screen/cursor-driven interfaces keep their own rendering. UTF-8, OSC 52, terminal resize, Ctrl-C, live streaming and process exit status are preserved. This is a lexical display highlighter, not a semantic parser for each application's output. Use `TMX_OUTPUT_HIGHLIGHT=0` to disable it; set it back to `1` to enable on the next command. No allowlist or extra `tmx paint` prefix is needed.
+
+The renderer requires Python >= 3.8 and starts when a **new pane** starts its shell. Existing running shells cannot acquire a parent PTY renderer by sourcing a file. After upgrading, open a new tab with **Ctrl-a c** or create `tmx new fresh --theme prism`; existing sessions/jobs remain available. Merely detaching and attaching the old pane keeps its old process and display path.
 
 After installing an update, each already-running shell still has its previous prompt/functions in memory. Reattaching does not restart that shell. Run this once **inside each old TMX Bash/Zsh pane**:
 
@@ -97,7 +101,7 @@ After installing an update, each already-running shell still has its previous pr
 theme prism
 ```
 
-This replaces a stale dark-blue cwd prompt with TMX's explicit foreground/background, including the red macOS cwd, including when a user `precmd` sets a blue prompt. Newly created panes load it automatically. Once these helpers are loaded, `tmx refresh` reloads them without restarting the shell. Shell profiles are never edited.
+This refreshes the red macOS cwd prompt in place. TMX checks its canonical prompt before line-editor redraws, preventing a late user prompt hook from restoring dark blue. An active Powerlevel10k/9k prompt is torn down inside the owned shell so its asynchronous redraw does not fight the TMX prompt; the user's startup files and other shell features are still loaded. Newly created panes load it automatically. Once these helpers are loaded, `tmx refresh` reloads them without restarting the shell. Shell profiles are never edited.
 
 ## Status and clipboard
 

@@ -31,6 +31,17 @@ for slug in ['aurora', 'midnight', 'ember', 'paper', 'neon', 'black', 'code', 'h
     text += f"setw -g window-style 'bg={spec['pane']},fg={spec['colors'][1]}'\n"
     text += f"setw -g window-active-style 'bg={spec['pane']},fg={spec['colors'][1]}'\n"
     (folder / (slug + '.conf')).write_text(text, encoding='utf-8', newline='\n')
+# All semantic output colors use explicit RGB and are independent of the
+# outside terminal's ANSI palette. The display filter preserves existing ANSI.
+output = {}
+for slug, spec in catalog.items():
+    semantic = dict(text=spec['colors'][1], error='#ff92ab', good='#a6edb0', warning='#ffe08a', number='#ffe08a', path='#7ddcfe', quote='#e4a4ff')
+    if slug == 'paper':
+        semantic.update(error='#a61b32', good='#23623c', warning='#755000', number='#755000', path='#07556c', quote='#703482')
+    elif slug == 'black':
+        semantic = {role: spec['colors'][1] for role in semantic}
+    output[slug] = {role: ';'.join(str(int(color[i:i+2],16)) for i in (1,3,5)) for role,color in semantic.items()}
+(ROOT/'unix/shell/output-colors.json').write_text(json.dumps(output,indent=2)+'\n',encoding='utf-8',newline='\n')
 print('Generated 9 standalone Linux/macOS themes')
 # A scoped prompt uses explicit foreground AND background, independent of the
 # terminal's ANSI palette or a user's inherited low-contrast macOS prompt.

@@ -4,13 +4,13 @@
 
 English · [Tiếng Việt](README.vi.md)
 
-**New in v1.8.3:** SSH clipboard fixes: WezTerm keeps copy/paste shortcuts active during F12 pass-through; Ctrl-C copies GUI selections or forwards the interrupt key. Remote TMX adds Ctrl-C in copy mode and Ctrl-V for its paste buffer, and forwards OSC 52 through nested tmux. Includes **`tmx exit`** for the current session and readable red macOS cwd paths. [Clipboard usage](unix/README.md#status-and-clipboard) · [Windows SSH clipboard](windows-terminal/README.md#clipboard-while-using-ssh).
+**New in v1.8.4:** macOS cwd stays red through Zsh prompt redraws and theme changes. Unix output highlighting now processes the entire Bash/Zsh PTY display, including arbitrary commands, functions, aliases and stderr, across the themes. Existing ANSI/full-screen apps retain their own rendering; pipeline and redirected bytes stay raw. **Python >= 3.8 is required on Unix. Create a new pane after upgrading to enable the display renderer.** [Upgrade and output colors](unix/README.md#readable-shell-prompt-and-prism).
 
 **Since v1.7.0 — Windows command parity:** install the EXE once with **WezTerm** selected, then use `tmx` from PowerShell or CMD: `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` and `tmx uninstall`. Ctrl-a d detaches and leaves processes running; Ctrl-a t opens the theme picker. The installer no longer displays a success popup. [Windows commands, upgrade and persistence](windows-terminal/README.md#windows-command-line).
 
 Nine themes for the standalone **Linux/macOS tmux** and **Windows WezTerm / Windows Terminal + PowerShell** workspaces, with familiar `Ctrl-a` shortcuts derived from the original configuration and [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config). The legacy tmux overlay retains its six themes.
 
-## Linux and macOS: standalone packages (v1.8.3)
+## Linux and macOS: standalone packages (v1.8.4)
 
 **Since v1.6.0:** the command is now **`tmx`**, with `tmux-style` retained as a compatibility alias. `tmx uninstall` removes the Unix tool across upgrades while retaining recovery backups. Create with `tmx new work --theme code`, list with `tmx list`, then enter with `tmx attach work`. In owned Bash/Zsh panes, `theme hacker` and `theme` switch colors in place. [Setup, upgrade and uninstall](unix/README.md).
 
@@ -18,20 +18,20 @@ All nine palettes have been checked for readable app-controlled text, including 
 
 ![Shipped theme color samples with explicit selections](preview/theme-readability.svg)
 
-Download the [Linux archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.3/tmx-linux-1.8.3.tar.gz) or [macOS archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.3/tmx-macos-1.8.3.tar.gz), plus its `.sha256` file from the [release](https://github.com/devoralabsapp/tmux-style/releases/tag/v1.8.3). Install tmux >= 3.2, extract the archive, enter its folder, then run:
+Download the [Linux archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.4/tmx-linux-1.8.4.tar.gz) or [macOS archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.4/tmx-macos-1.8.4.tar.gz), plus its `.sha256` file from the [release](https://github.com/devoralabsapp/tmux-style/releases/tag/v1.8.4). Install tmux >= 3.2 and Python >= 3.8, extract the archive, enter its folder, then run:
 
 ```bash
 # Linux / WSL (install tmux with your distribution's package manager)
 bash linux/install.sh --theme hacker
 
-# macOS (brew install tmux first)
+# macOS (brew install tmux python first)
 bash macos/install.command --theme code
 
 ~/.local/bin/tmx
 ~/.local/bin/tmx theme black
 ```
 
-Both packages are architecture-independent scripts for Intel/x86_64 and ARM64 hosts with native tmux. They open a three-pane workspace with a real bottom bar (CPU/RAM, hostname, date/time and window names), preserve processes while switching themes, and support detach/reattach. `Ctrl-a t` opens the theme menu. Installation and backup/restore use owned user files and a separate tmux server; your current `~/.tmux.conf` and shell profiles stay in place. See [Unix setup, shortcuts and restore](unix/README.md).
+Both packages are architecture-independent scripts for Intel/x86_64 and ARM64 hosts with native tmux and Python 3. They open a three-pane workspace with a real bottom bar (CPU/RAM, hostname, date/time and window names), preserve processes while switching themes, and support detach/reattach. `Ctrl-a t` opens the theme menu. Installation and backup/restore use owned user files and a separate tmux server; your current `~/.tmux.conf` and shell profiles stay in place. See [Unix setup, shortcuts and restore](unix/README.md).
 
 On tmux versions supporting `prefix-timeout`, Ctrl-a waits two seconds; older versions keep it pending until the next key. The Code theme colors tmux's interface. Prism includes command-entry highlighting in Zsh; Bash keeps its existing line editor.
 
@@ -60,7 +60,7 @@ A pure black canvas, white text and quiet gray dividers. Every color in the Blac
 
 ## Windows: download the EXE
 
-**[Download TMX-Setup-1.8.3.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.3/TMX-Setup-1.8.3.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
+**[Download TMX-Setup-1.8.4.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.4/TMX-Setup-1.8.4.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
 
 1. Run the installer, choose **WezTerm** for the real bottom status bar, then a theme and starting folder.
 2. Keep the Desktop shortcut and launch options enabled if you want a ready-to-use, three-pane workspace.

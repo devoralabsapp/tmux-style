@@ -3,6 +3,10 @@
 set -euo pipefail
 root=${TMUX_STYLE_HOME:?}
 user_shell=$(tmux show-option -gqv default-shell)
+if [[ ${TMX_RENDER_ACTIVE:-0} != 1 && -t 0 && -t 1 ]]; then
+  python=${TMX_PYTHON:-python3}
+  exec "$python" "$root/shell/render.py" bash "$root/shell.sh"
+fi
 case "${user_shell##*/}" in
   bash) exec "$user_shell" --rcfile "$root/shell/bashrc" -i ;;
   zsh)

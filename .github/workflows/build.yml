@@ -31,7 +31,9 @@ jobs:
           python3 scripts/check-theme-contrast.py
           git diff --exit-code -- unix/themes
       - name: Exercise installed workspace on an isolated tmux server
-        run: python3 unix/test.py
+        run: |
+          python3 unix/test-render.py
+          python3 unix/test.py
       - name: Build Unix packages
         run: python3 unix/package.py
       - uses: actions/upload-artifact@v4

@@ -15,10 +15,14 @@ case "$(uname -s)" in Linux|Darwin) ;; *) echo 'This installer requires Linux or
 if ! command -v tmux >/dev/null 2>&1; then
   echo 'Install tmux >= 3.2 first, then run this installer again:' >&2
   case "$(uname -s)" in
-    Darwin) echo '  brew install tmux' >&2 ;;
-    Linux) echo '  Ubuntu/Debian: sudo apt install tmux' >&2
-           echo '  Fedora: sudo dnf install tmux | Arch: sudo pacman -S tmux | Alpine: apk add tmux bash' >&2 ;;
+    Darwin) echo '  brew install tmux python' >&2 ;;
+    Linux) echo '  Ubuntu/Debian: sudo apt install tmux python3' >&2
+           echo '  Fedora: sudo dnf install tmux python3 | Arch: sudo pacman -S tmux python | Alpine: apk add tmux bash python3' >&2 ;;
   esac
+  exit 1
+fi
+if ! "${TMX_PYTHON:-python3}" -c 'import pty,termios,select; import sys; assert sys.version_info >= (3,8)' 2>/dev/null; then
+  echo 'Python >= 3.8 is required for the terminal display renderer. Install python3 (macOS: brew install python).' >&2
   exit 1
 fi
 version=$(tmux -V | awk '{print $2}')
