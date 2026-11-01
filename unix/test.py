@@ -220,11 +220,7 @@ try:
         tm('set-option', '-g', 'default-shell', zsh)
         zsh_pane = tm('new-window', '-d', '-P', '-F', '#{pane_id}', '-t', 'lab', '-n', 'zsh')
         try:
-        try:
-            wait_for(lambda: ' TMX ' in tm('capture-pane', '-p', '-t', zsh_pane))
-        except AssertionError:
-            print('Zsh startup output:', tm('capture-pane', '-p', '-t', zsh_pane), flush=True)
-            raise
+            wait_for(lambda: 'TMX ' in tm('capture-pane', '-p', '-t', zsh_pane))
         except AssertionError:
             print('Zsh startup output:', tm('capture-pane', '-p', '-t', zsh_pane), flush=True)
             raise
