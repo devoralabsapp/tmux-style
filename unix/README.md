@@ -103,7 +103,13 @@ This replaces a stale dark-blue cwd prompt with TMX's explicit foreground/backgr
 
 The bar shows session/window names, COPY/PREFIX/ZOOM/OFF, hostname and time. CPU/RAM appear at 110+ columns, date at 140+; below 80 columns it prioritizes the clock. Metrics refresh every two seconds and describe the machine running tmux (the remote host when tmux itself runs over SSH). Linux uses `/proc`; macOS uses `top`, `vm_stat` and `sysctl`. RAM is an available-memory estimate; macOS excludes reclaimable inactive/speculative/purgeable pages. Unsupported/missing counters display `--`.
 
-Copy uses macOS `pbcopy`, Linux Wayland `wl-copy`, or X11 `xclip`/`xsel` when available. Otherwise tmux requests the terminal clipboard via OSC 52; support and permissions depend on the terminal. The tmux buffer remains available with Ctrl-a ]. The standalone package needs no TPM or third-party plugins. The older root `install.sh` remains available for existing samoshkin installations and keeps that setup's plugins and SSH tunnel behavior.
+For a selection inside tmux, enter copy mode with **Ctrl-a [**, press **Space** to start selecting, move the cursor, then press **Ctrl-C**, **Enter** or **y** to copy and leave copy mode. **Ctrl-V** pastes the current tmux buffer (also from copy mode); **Ctrl-a ]** remains available. At the normal prompt, Ctrl-C still interrupts the running command.
+
+The tmux buffer is on the VPS. To paste your computer's clipboard over SSH, use **Ctrl-V / Ctrl-Shift-V in the managed Windows WezTerm client**, or **Cmd-V on macOS**. For a GUI text selection, Windows WezTerm Ctrl-C / Ctrl-Shift-C or macOS Cmd-C copies locally. Hold the terminal's mouse-bypass modifier when the remote app captures dragging; in WezTerm it is Shift.
+
+While SSH_CONNECTION/SSH_TTY is set, the copy helper sends OSC 52 to the attached client instead of choosing clipboard tools on the VPS. The owned tmux server accepts clipboard writes from inner tmux and advertises the clipboard capability to nested screen/tmux clients. Synchronizing the VPS selection to the computer clipboard still requires OSC 52 support/permission in the outside terminal; local tmux buffer copy/paste works independently. See [tmux clipboard support](https://github.com/tmux/tmux/wiki/Clipboard). Outside SSH, macOS uses pbcopy and Linux uses wl-copy/xclip/xsel when available, otherwise OSC 52.
+
+After updating both the client installation and VPS package, reload with Ctrl-a Ctrl-r and detach/attach the clients once to refresh capabilities. The standalone package needs no TPM or third-party plugins. The older root `install.sh` remains available for existing samoshkin installations and keeps that setup's plugins and SSH tunnel behavior.
 
 ## Uninstall / restore
 

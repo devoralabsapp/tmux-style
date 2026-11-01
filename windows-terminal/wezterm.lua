@@ -149,16 +149,35 @@ local function layout(window, pane)
   right:split { direction = 'Bottom', size = 0.5 }
   first:activate()
 end
+local function copy_or_interrupt(window, pane)
+  local text = window:get_selection_text_for_pane(pane)
+  if text and text ~= '' then
+    window:perform_action(act.Multiple {act.CopyTo 'Clipboard', act.ClearSelection}, pane)
+  else
+    window:perform_action(act.SendKey {key='c',mods='CTRL'}, pane)
+  end
+end
+local function clipboard_keys()
+  return {
+    {key='c',mods='CTRL',action=wezterm.action_callback(copy_or_interrupt)},
+    {key='v',mods='CTRL',action=act.PasteFrom 'Clipboard'},
+    {key='C',mods='CTRL|SHIFT',action=act.CopyTo 'Clipboard'},
+    {key='V',mods='CTRL|SHIFT',action=act.PasteFrom 'Clipboard'},
+    {key='c',mods='SUPER',action=act.CopyTo 'Clipboard'},
+    {key='v',mods='SUPER',action=act.PasteFrom 'Clipboard'},
+    {key='Insert',mods='CTRL',action=act.CopyTo 'Clipboard'},
+    {key='Insert',mods='SHIFT',action=act.PasteFrom 'Clipboard'},
+  }
+end
 local function pass_through(window, pane)
   -- Overrides survive configuration reloads. Disable leader and defaults too,
-  -- so Ctrl-a and native shortcuts reach remote tmux unchanged.
+  -- so Ctrl-a reaches remote tmux. Clipboard shortcuts remain local to the GUI.
   local overrides = window:get_config_overrides() or {}
   overrides.leader = { key = 'F24', mods = 'CTRL|ALT|SHIFT' }
   overrides.disable_default_key_bindings = true
-  overrides.keys = {
-    { key = 'F12', action = act.EmitEvent 'tmux-style-resume' },
-    { key = 'DownArrow', mods = 'SHIFT', action = act.EmitEvent 'tmux-style-resume' },
-  }
+  overrides.keys = clipboard_keys()
+  table.insert(overrides.keys, {key='F12',action=act.EmitEvent 'tmux-style-resume'})
+  table.insert(overrides.keys, {key='DownArrow',mods='SHIFT',action=act.EmitEvent 'tmux-style-resume'})
   window:set_config_overrides(overrides)
 end
 local function resume(window, pane)
@@ -202,6 +221,7 @@ config.keys = {
   { key = 'LeftArrow', mods = 'CTRL|SHIFT', action = act.MoveTabRelative(-1) },
   { key = 'RightArrow', mods = 'CTRL|SHIFT', action = act.MoveTabRelative(1) },
 }
+for _, binding in ipairs(clipboard_keys()) do table.insert(config.keys, binding) end
 for _, direction in ipairs { 'Left', 'Right', 'Up', 'Down' } do
   table.insert(config.keys, { key = direction .. 'Arrow', mods = 'LEADER', action = act.ActivatePaneDirection(direction) })
   table.insert(config.keys, { key = direction .. 'Arrow', mods = 'ALT', action = act.ActivatePaneDirection(direction) })

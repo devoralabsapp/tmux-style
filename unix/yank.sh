@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
-if command -v pbcopy >/dev/null 2>&1; then
+if [[ -n ${SSH_CONNECTION:-} || -n ${SSH_TTY:-} ]]; then
+  # The clipboard belongs to the SSH client, not a desktop on the VPS.
+  tmux load-buffer -w -
+elif command -v pbcopy >/dev/null 2>&1; then
   pbcopy
 elif [[ -n ${WAYLAND_DISPLAY:-} ]] && command -v wl-copy >/dev/null 2>&1; then
   wl-copy

@@ -1,12 +1,12 @@
 # Windows workspaces + tmux-style keys
 
-Download **TMX-Setup-1.8.2.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
+Download **TMX-Setup-1.8.3.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
 
 The executable is not code signed. Source, build scripts and SHA-256 checksums are provided with the release. It does not bundle or impersonate Microsoft Windows Terminal.
 
 ## Recover text rendered as colored blocks
 
-v1.8.2 defaults to WezTerm's WebGPU renderer instead of OpenGL. Glyph textures can appear as solid rectangles on some OpenGL drivers; changing palette colors does not fix that driver behavior. If your adapter also has trouble with WebGPU, run these commands from an outer PowerShell/CMD:
+v1.8.3 defaults to WezTerm's WebGPU renderer instead of OpenGL. Glyph textures can appear as solid rectangles on some OpenGL drivers; changing palette colors does not fix that driver behavior. If your adapter also has trouble with WebGPU, run these commands from an outer PowerShell/CMD:
 
 ```powershell
 tmx renderer software
@@ -21,11 +21,21 @@ Select **Prism** in the installer, use `tmx new work --theme prism`, or run `the
 
 Attached windows start maximized. TMX disconnects its own GUI client process while the independent mux server keeps every PTY alive. This avoids the pinned runtime's graceful DetachDomain path, which can send incorrect pane sizes while removing its client mirror. The helper checks both the executable path and owned configuration directory before closing that GUI. It does not terminate shells or the mux server. Upgrade existing sessions by reopening their GUI after installing.
 
+## Clipboard while using SSH
+
+The WezTerm backend handles the local clipboard before sending text to SSH, including while F12 shows OFF:
+
+- Ctrl-C copies an existing GUI selection and clears it. With no GUI selection, Ctrl-C reaches the foreground application/SSH session as an interrupt or its own copy-mode key.
+- Ctrl-V or Ctrl-Shift-V pastes the local clipboard. Ctrl-Shift-C copies a GUI selection. Ctrl-Insert/Shift-Insert also copy/paste.
+- Hold Shift while dragging to select in WezTerm when a remote application captures the mouse. In remote TMX copy mode, use Ctrl-C or Enter to copy and leave copy mode.
+
+Update the Linux package on the VPS as well to get its new copy-mode keys and nested OSC 52 forwarding. After upgrading, detach/attach the local GUI and VPS client to load the new key maps and terminal capabilities. Pane processes remain running through detach.
+
 ## Windows command line
 
 Run `tmx exit` **inside the session to close**. It terminates that entire session, including every tab/window, pane and running process. Other sessions keep running. `tmx detach` keeps the session alive for a later attach. Exit accepts no session name or other arguments and refuses an outer-terminal call; attach to the desired session first.
 
-After installing v1.8.2 with **WezTerm** selected, open PowerShell or CMD and use `tmx` directly. No profile edits or PowerShell execution-policy changes are needed. The per-user `tmx.exe` launcher is installed in `%LOCALAPPDATA%\Microsoft\WindowsApps`, normally already on PATH. If that directory was absent from PATH, the installer adds it to the user PATH; reopen the terminal application to receive the updated environment. The installer shows success inline, without an extra popup.
+After installing v1.8.3 with **WezTerm** selected, open PowerShell or CMD and use `tmx` directly. No profile edits or PowerShell execution-policy changes are needed. The per-user `tmx.exe` launcher is installed in `%LOCALAPPDATA%\Microsoft\WindowsApps`, normally already on PATH. If that directory was absent from PATH, the installer adds it to the user PATH; reopen the terminal application to receive the updated environment. The installer shows success inline, without an extra popup.
 
 ```powershell
 tmx                          # create/reattach the default TMUX workspace

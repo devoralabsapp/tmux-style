@@ -1,5 +1,6 @@
 """Exercise the installed Linux/macOS workspace against a real isolated tmux."""
 import fcntl
+import base64
 import json
 import os
 from pathlib import Path
@@ -142,6 +143,59 @@ try:
     assert '\x1b[38;2;' in painted and 'success' in painted
     assert run(launcher, 'paint', 'bash', '-c', 'exit 7', ok=False).returncode == 7
     checks.append('scoped cwd prompt has explicit RGB foreground/background; opt-in paint retains exit code')
+    # Real copy-mode key, paste-buffer key, SIGINT and nested OSC52 byte flow.
+    clip_pane = tm('new-window', '-d', '-P', '-F', '#{pane_id}', '-t', 'TMUX', '-n', 'clipboard',
+                   'printf TMX_COPY_MARKER; sleep 60')
+    wait_for(lambda: 'TMX_COPY_MARKER' in tm('capture-pane', '-p', '-t', clip_pane))
+    tm('copy-mode', '-t', clip_pane)
+    tm('send-keys', '-t', clip_pane, '-X', 'start-of-line')
+    tm('send-keys', '-t', clip_pane, '-X', 'begin-selection')
+    tm('send-keys', '-t', clip_pane, '-X', 'end-of-line')
+    tm('send-keys', '-t', clip_pane, 'C-c')
+    wait_for(lambda: run('tmux','-L','tmux-style','show-buffer',ok=False).stdout.strip() == 'TMX_COPY_MARKER')
+    wait_for(lambda: tm('display-message','-p','-t',clip_pane,'#{pane_in_mode}') == '0')
+    tm('kill-window','-t',clip_pane)
+    start = len(terminal_output)
+    marker = 'TMX_SSH_CLIPBOARD'
+    in_shell(primary, 'printf ' + marker + ' | SSH_CONNECTION=test bash "$TMUX_STYLE_HOME/yank.sh"')
+    wait_for(lambda: base64.b64encode(marker.encode()) in terminal_output[start:])
+    nested_conf = work/'nested-clipboard.conf'
+    nested_conf.write_text("set -s set-clipboard on\nset -as terminal-features ',screen*:clipboard,tmux*:clipboard'\n")
+    run('tmux','-L','clipboard-inner','-f',nested_conf,'new-session','-d','-s','nested','sleep 60')
+    try:
+        tm('send-keys','-t',primary,'-l','TMUX= tmux -L clipboard-inner attach-session -t nested')
+        tm('send-keys','-t',primary,'Enter')
+        wait_for(lambda: bool(run('tmux','-L','clipboard-inner','list-clients','-F','#{client_name}').stdout.strip()))
+        start = len(terminal_output)
+        marker = 'TMX_NESTED_CLIPBOARD'
+        run('tmux','-L','clipboard-inner','load-buffer','-w','-',input=marker)
+        wait_for(lambda: base64.b64encode(marker.encode()) in terminal_output[start:])
+        assert tm('show-buffer') == marker
+    finally:
+        run('tmux','-L','clipboard-inner','kill-server',ok=False)
+    wait_for(lambda: tm('display-message','-p','-t',primary,'#{pane_current_command}') == 'bash')
+    in_shell(primary, ':')
+    paste_file = work/'pasted-command'
+    tm('set-buffer','printf pasted > '+shlex.quote(str(paste_file)))
+    tm('select-window','-t',primary)
+    tm('select-pane','-t',primary)
+    os.write(master, b'\x16')
+    time.sleep(.2)
+    assert not paste_file.exists(), 'Paste executed without Enter'
+    tm('send-keys','-t',primary,'Enter')
+    wait_for(paste_file.exists)
+    assert paste_file.read_text() == 'pasted'
+    interrupted = work/'interrupted-status'
+    tm('send-keys','-t',primary,'-l','sleep 30')
+    tm('send-keys','-t',primary,'Enter')
+    time.sleep(.2)
+    os.write(master, b'\x03')
+    time.sleep(.15)
+    tm('send-keys','-t',primary,'-l','printf "%s" "$?" > '+shlex.quote(str(interrupted)))
+    tm('send-keys','-t',primary,'Enter')
+    wait_for(lambda: interrupted.exists() and bool(interrupted.read_text()))
+    assert interrupted.read_text() == '130', interrupted.read_text()
+    checks.append('Ctrl-C copies in copy mode and still sends SIGINT outside it; Ctrl-V pastes without auto-execution; SSH/nested OSC52 reaches the outer terminal')
     run(launcher, 'new', 'lab', '--theme', 'paper', '-d')
     lab_pane = tm('list-panes', '-t', 'lab:1', '-F', '#{pane_id}').splitlines()[0]
     assert len(tm('list-panes', '-t', 'lab:1', '-F', '#{pane_id}').splitlines()) == 3

@@ -128,6 +128,7 @@ function global:Show-TmuxStyleHelp {
     Write-Host '  Ctrl-a then c / r  new tab / rename tab'
     Write-Host '  Ctrl-a then z / x  zoom pane / close pane'
     Write-Host '  F12                 toggle pass-through for remote tmux'
+    Write-Host '  Ctrl-C / Ctrl-V     copy selection or interrupt / paste clipboard (also in F12 OFF)'
     Write-Host '  Ctrl+Alt+V          split right'
     Write-Host '  Ctrl+Alt+H          split below'
     Write-Host '  Alt+Arrow           focus pane'

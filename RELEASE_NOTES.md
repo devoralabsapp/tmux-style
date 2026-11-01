@@ -1,4 +1,14 @@
-# TMX v1.8.2
+# TMX v1.8.3
+
+- Fixed Windows WezTerm F12 pass-through disabling clipboard shortcuts. Ctrl-V, Ctrl-Shift-C/V, Ctrl/Shift-Insert and Cmd-C/V bindings stay available in OFF mode. Ctrl-C copies an existing GUI selection, otherwise forwards Ctrl-C to the active program/SSH session.
+- Added Ctrl-C copy-and-cancel in native tmux copy mode and Ctrl-V paste-buffer in normal/copy mode. Ctrl-C outside copy mode retains interrupt behavior; F12 OFF forwards Ctrl-V to the nested session.
+- SSH copy uses OSC 52 for the client clipboard instead of VPS desktop tools. The owned tmux server forwards clipboard writes from nested tmux, including screen/tmux clipboard capabilities.
+- Tested real copy-mode selection, raw client paste without auto-execution, foreground SIGINT and nested OSC 52 delivery through PTYs. Native WezTerm Lua tests validate local clipboard bindings in normal/OFF modes and conditional Ctrl-C. Outside-terminal OSC 52 support/permissions still determine OS clipboard synchronization.
+- Retains v1.8.2 current-session `tmx exit` and red macOS working-directory prompt.
+
+Downloads: `TMX-Setup-1.8.3.exe`, `tmx-linux-1.8.3.tar.gz`, `tmx-macos-1.8.3.tar.gz`, source, checksums and validation reports.
+
+## v1.8.2 historical notes
 
 - Added `tmx exit` on Windows, Linux and macOS. It closes every tab/window and pane of the current managed session and terminates its processes. Other sessions survive. Run it inside the target session; outer calls and extra arguments are rejected.
 - Windows validates the calling pane/session and delegates closing to an independent helper, so it can finish after its invoking pane exits. It targets the owned session socket and never kills the global server or unrelated sessions.

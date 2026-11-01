@@ -38,7 +38,21 @@ assert(w.right:find(wezterm.hostname(),1,true), 'Host missing')
 assert(w.left:find('CTRL%-A'), 'Normal mode missing')
 pass_through(w,pane);status_handler(w,pane)
 assert(w.left:find('OFF'), 'Pass-through indicator missing')
-assert(w.overrides.disable_default_key_bindings and w.overrides.leader.key=='F24' and #w.overrides.keys==2, 'Pass-through still captures defaults/leader')
+assert(w.overrides.disable_default_key_bindings and w.overrides.leader.key=='F24' and #w.overrides.keys==10, 'Pass-through still captures defaults/leader or lost clipboard keys')
+local function binding(keys, key, mods)
+  for _, item in ipairs(keys) do if item.key==key and item.mods==mods then return item.action end end
+end
+for _, keys in ipairs {config.keys,w.overrides.keys} do
+  assert(binding(keys,'c','CTRL'), 'Conditional Ctrl-C missing')
+  assert(wezterm.json_encode(binding(keys,'v','CTRL'))==wezterm.json_encode(act.PasteFrom 'Clipboard'), 'Ctrl-V does not paste local clipboard')
+  assert(binding(keys,'C','CTRL|SHIFT') and binding(keys,'V','CTRL|SHIFT') and binding(keys,'v','SUPER'), 'Standard clipboard shortcuts missing')
+end
+function w:get_selection_text_for_pane(_) return self.selection or '' end
+function w:perform_action(action, _) self.performed=action end
+w.selection='selected text';copy_or_interrupt(w,pane)
+assert(wezterm.json_encode(w.performed):find('CopyTo'), 'Ctrl-C did not copy selection')
+w.selection='';copy_or_interrupt(w,pane)
+assert(wezterm.json_encode(w.performed)==wezterm.json_encode(act.SendKey {key='c',mods='CTRL'}), 'Ctrl-C no longer interrupts when no selection')
 resume(w,pane);status_handler(w,pane)
 assert(w.overrides.leader==nil and w.overrides.keys==nil and w.overrides.disable_default_key_bindings==nil, 'Resume did not restore defaults')
 w.zoomed=true;w.prefix=true;status_handler(w,pane)
@@ -106,6 +120,6 @@ foreach($theme in 'aurora','midnight','ember','paper','neon','black','code','hac
     if($LASTEXITCODE -ne 0 -or -not(Test-Path -LiteralPath $passed) -or -not($keys|Where-Object {$_ -eq "Leader: Char('a') CTRL 2s"})){throw ('WezTerm Lua validation failed for '+$theme+': '+($keys -join "`n"))}
     $themes+=$theme
 }
-$report=[pscustomobject]@{passed=$true;runtime=(& $WezTermExecutable --version);themes=$themes;checks=@('native Lua configuration and key action parsing; two-second leader','live theme resets all colors without opening windows; other windows independent','theme retains OFF/zoom/chrome state and updates existing/new pane prompt metadata','status: CPU/RAM/hostname/date','prefix/zoom/off states','F12 disables leader and defaults; resume restores them','narrow bar and stale sample handling','3-pane layout preserves cwd and focus');guiStarted=$false}
+$report=[pscustomobject]@{passed=$true;runtime=(& $WezTermExecutable --version);themes=$themes;checks=@('native Lua configuration and key action parsing; two-second leader','live theme resets all colors without opening windows; other windows independent','theme retains OFF/zoom/chrome state and updates existing/new pane prompt metadata','status: CPU/RAM/hostname/date','prefix/zoom/off states','F12 forwards tmux keys while retaining clipboard shortcuts; Ctrl-C copies selected text or forwards interrupt; Ctrl-V pastes local clipboard','narrow bar and stale sample handling','3-pane layout preserves cwd and focus');guiStarted=$false}
 if($ReportFile){[IO.File]::WriteAllText($ReportFile,($report|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))}
 Write-Output 'PASS: nine themes parsed by real WezTerm; status, F12, layout callbacks verified.'

@@ -2,11 +2,11 @@
 
 [English](README.md) · Tiếng Việt
 
-**Mới ở v1.8.2:** thêm **`tmx exit`** để đóng toàn bộ tab/pane và dừng tiến trình của phiên hiện tại trên Windows, Linux, macOS; các phiên khác tiếp tục chạy. Đường dẫn macOS chuyển sang đỏ sáng trên nền tối, đỏ đậm trên Paper. Sau khi cập nhật, trong pane Unix đang mở chạy `. "$TMUX_STYLE_HOME/shell/commands.sh"` một lần để nạp prompt mới.
+**Mới ở v1.8.3:** sửa copy/paste qua SSH: WezTerm giữ phím clipboard khi F12 ở OFF; Ctrl-C copy chữ đang chọn hoặc gửi phím ngắt lệnh. Trong tmux trên VPS, Ctrl-C copy ở copy mode, Ctrl-V dán buffer; clipboard OSC 52 đi qua tmux lồng nhau. Bản này cũng có `tmx exit` và đường dẫn macOS màu đỏ từ v1.8.2.
 
 **Từ v1.7.0 — lệnh Windows tương tự Linux/macOS:** cài EXE một lần, chọn **WezTerm**, rồi gọi `tmx` từ PowerShell hoặc CMD. Có `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` và `tmx uninstall`. `Ctrl-a d` detach để tiến trình tiếp tục chạy; `Ctrl-a t` chọn theme. Đã bỏ hộp thoại “Workspace installed”. [Hướng dẫn Windows](windows-terminal/README.md#windows-command-line).
 
-## Linux và macOS: bộ cài độc lập v1.8.2
+## Linux và macOS: bộ cài độc lập v1.8.3
 
 **Từ v1.6.0:** lệnh chính đổi thành **`tmx`**; `tmux-style` vẫn dùng được để tương thích. Thêm `tmx uninstall` để gỡ bộ cài Linux/macOS qua mọi lần nâng cấp, giữ bản sao lưu phục hồi. Đã tăng độ tương phản của Paper, chữ ở trạng thái OFF, viền pane, menu, phần chọn chữ và màu prompt Windows.
 
@@ -16,7 +16,7 @@ Các cặp màu chữ do tool quản lý được kiểm tra với mục tiêu t
 
 ![Mẫu màu chữ và nền của tám theme](preview/theme-readability.svg)
 
-Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.2/tmx-linux-1.8.2.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.2/tmx-macos-1.8.2.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
+Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.3/tmx-linux-1.8.3.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.3/tmx-macos-1.8.3.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
 
 ```bash
 # Linux / WSL
@@ -49,7 +49,7 @@ Sáu giao diện tmux nền: **Aurora**, **Midnight / Cyan**, **Ember**, **Paper
 
 ## Windows: tải EXE và cài
 
-Tải **[TMX-Setup-1.8.2.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở PowerShell/CMD và gõ **`tmx`**, hoặc dùng shortcut **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
+Tải **[TMX-Setup-1.8.3.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở PowerShell/CMD và gõ **`tmx`**, hoặc dùng shortcut **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
 
 Bản **1.3.1** bỏ giới hạn ký tự tên tab WezTerm: tên dài hiển thị đầy đủ khi thanh tab còn đủ chỗ. Nếu tổng các tab vượt chiều rộng cửa sổ, WezTerm xử lý phần tràn theo không gian thực tế.
 
