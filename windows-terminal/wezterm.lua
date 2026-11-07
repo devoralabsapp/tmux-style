@@ -121,6 +121,7 @@ config.font_size = 11
 config.initial_cols = 150
 config.initial_rows = 38
 config.window_padding = { left = 14, right = 14, top = 10, bottom = 6 }
+-- Keep the newest rows in the mux pane while its shell keeps running.
 config.scrollback_lines = 20000
 config.audible_bell = 'Disabled'
 config.check_for_updates = false

@@ -1,4 +1,12 @@
-# TMX v1.8.4
+# TMX v1.8.5
+
+- Added `tmx update` on Linux, macOS and Windows with the WezTerm option. It compares stable release versions, verifies SHA-256, and applies the upgrade with the installed default theme and live sessions retained. Install this release once to get the command.
+- Pane scrollback is capped at 20,000 lines. Added real pane tests with 30,000 lines of output that check old history is evicted and the original process remains responsive.
+- Bounded buffering in the Unix display renderer so a long, unfinished terminal control sequence cannot grow its memory indefinitely. Open a new pane to use the updated renderer.
+
+Downloads include `TMX-Setup-1.8.5.exe`, `tmx-linux-1.8.5.tar.gz`, `tmx-macos-1.8.5.tar.gz`, source, checksums and validation reports.
+
+## v1.8.4 historical notes
 
 - Fixed macOS cwd reverting to a custom prompt after the first command. A canonical prompt is restored before Zsh line initialization/redraw, including late hooks and theme switches. Powerlevel9k/10k prompt rendering is torn down only in the owned shell.
 - Replaced the Unix command-name output allowlist with a full Bash/Zsh PTY display renderer. Plain-text results from arbitrary programs, aliases, functions, builtins, compound commands and stderr are highlighted across themes. Black retains grayscale output.

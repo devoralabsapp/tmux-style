@@ -2,11 +2,11 @@
 
 [English](README.md) · Tiếng Việt
 
-**Mới ở v1.8.4:** đường dẫn macOS giữ màu đỏ khi Zsh vẽ lại prompt hoặc đổi theme. Tô màu luồng hiển thị của toàn shell Bash/Zsh, gồm lệnh bất kỳ, alias, hàm và stderr; không còn giới hạn vào danh sách lệnh. Chương trình có màu riêng/full-screen giữ giao diện; pipeline và file đầu ra giữ dữ liệu gốc. Unix cần **Python >= 3.8**. Sau khi nâng cấp, tạo pane mới để bật bộ xử lý hiển thị.
+**Mới ở v1.8.5.** Cài bản này một lần, sau đó chạy `tmx update` để cập nhật từ GitHub trên Linux, macOS và Windows dùng WezTerm. Lệnh kiểm tra SHA-256 trước khi cài và giữ các phiên đang chạy cùng theme mặc định. Mỗi pane giữ tối đa 20.000 dòng lịch sử cuộn và bỏ dòng cũ nhất khi có log mới. Sau khi nâng cấp trên Linux/macOS, mở pane mới để dùng bộ tô màu đã sửa.
 
 **Từ v1.7.0 — lệnh Windows tương tự Linux/macOS:** cài EXE một lần, chọn **WezTerm**, rồi gọi `tmx` từ PowerShell hoặc CMD. Có `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` và `tmx uninstall`. `Ctrl-a d` detach để tiến trình tiếp tục chạy; `Ctrl-a t` chọn theme. Đã bỏ hộp thoại “Workspace installed”. [Hướng dẫn Windows](windows-terminal/README.md#windows-command-line).
 
-## Linux và macOS: bộ cài độc lập v1.8.4
+## Bộ cài độc lập cho Linux và macOS
 
 **Từ v1.6.0:** lệnh chính đổi thành **`tmx`**; `tmux-style` vẫn dùng được để tương thích. Thêm `tmx uninstall` để gỡ bộ cài Linux/macOS qua mọi lần nâng cấp, giữ bản sao lưu phục hồi. Đã tăng độ tương phản của Paper, chữ ở trạng thái OFF, viền pane, menu, phần chọn chữ và màu prompt Windows.
 
@@ -16,7 +16,7 @@ Các cặp màu chữ do tool quản lý được kiểm tra với mục tiêu t
 
 ![Mẫu màu chữ và nền của tám theme](preview/theme-readability.svg)
 
-Tải gói [Linux](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.4/tmx-linux-1.8.4.tar.gz) hoặc [macOS](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.4/tmx-macos-1.8.4.tar.gz), cài tmux >= 3.2, giải nén và vào thư mục vừa giải nén:
+Tải gói Linux hoặc macOS từ [bản phát hành mới nhất](https://github.com/devoralabsapp/tmux-style/releases/latest). Cài tmux >= 3.2 và Python >= 3.8, rồi chạy các lệnh dưới đây trong thư mục vừa giải nén.
 
 ```bash
 # Linux / WSL
@@ -49,7 +49,7 @@ Sáu giao diện tmux nền: **Aurora**, **Midnight / Cyan**, **Ember**, **Paper
 
 ## Windows: tải EXE và cài
 
-Tải **[TMX-Setup-1.8.4.exe](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở PowerShell/CMD và gõ **`tmx`**, hoặc dùng shortcut **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
+Tải **[bộ cài TMX cho Windows](https://github.com/devoralabsapp/tmux-style/releases/latest)**, chọn **WezTerm** để có thanh đáy, chọn màu và thư mục khởi động, rồi bấm **Install workspace**. Lần sau mở PowerShell/CMD và gõ **`tmx`**, hoặc dùng shortcut **Tmux Style WezTerm** trên Desktop. Windows Terminal vẫn có lựa chọn riêng trong bộ cài và không có bottom bar tùy biến.
 
 Bản **1.3.1** bỏ giới hạn ký tự tên tab WezTerm: tên dài hiển thị đầy đủ khi thanh tab còn đủ chỗ. Nếu tổng các tab vượt chiều rộng cửa sổ, WezTerm xử lý phần tràn theo không gian thực tế.
 

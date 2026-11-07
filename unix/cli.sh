@@ -15,7 +15,7 @@ case "$command_name" in
   --help|-h|help)
     echo 'tmx new NAME [--theme NAME] [-d] | attach [NAME] | list | detach | exit'
     echo 'tmx workspace [NAME] | theme [NAME] [--session NAME | --default]'
-    echo 'tmx themes | metrics | restore | uninstall | version'
+    echo 'tmx themes | metrics | update | restore | uninstall | version'
     echo 'Ctrl-a t selects a theme; Ctrl-a d detaches; F12 toggles SSH pass-through.' ;;
   themes) printf '%s\n' aurora midnight ember paper neon black code hacker prism ;;
   theme) theme_command "$@" ;;
@@ -36,6 +36,9 @@ case "$command_name" in
     tm kill-session -t "$sid" ;;
   metrics) exec bash "$root/metrics.sh" ;;
   paint) exec bash "$root/paint.sh" "$@" ;;
+  update)
+    [[ $# == 0 ]] || { echo 'Usage: tmx update' >&2; exit 1; }
+    exec "${TMX_PYTHON:-python3}" "$root/shell/update.py" "$root" ;;
   restore) restore_installation ;;
   uninstall|remove) uninstall_tool "$@" ;;
   *) echo 'Unknown command. Run tmx --help.' >&2; exit 1 ;;

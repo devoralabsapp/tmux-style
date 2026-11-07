@@ -39,11 +39,25 @@ internal static class SetupProgram
         }
     }
     [STAThread] static int Main(string[] args){
+        if(args.Length>0&&args[0]=="--update"){
+            if(args.Length!=4)return 2;
+            string directory=Path.Combine(Path.GetTempPath(),"TmuxStyleUpdate-"+Guid.NewGuid().ToString("N"));
+            StringBuilder log=new StringBuilder();
+            try{
+                Extract(directory);
+                string command="& ([scriptblock]::Create([IO.File]::ReadAllText("+Quote(Path.Combine(directory,"setup-wezterm.ps1"))+"))) -SourceDirectory "+Quote(directory)+" -AssetDirectory "+Quote(args[1])+" -UpdateFromVersion "+Quote(args[2]);
+                return RunPowerShell(command,delegate(string line){lock(log){log.AppendLine(line);}});
+            }catch(Exception ex){log.AppendLine(ex.Message);return 1;}
+            finally{
+                File.WriteAllText(args[3],log.ToString(),Encoding.UTF8);
+                if(Directory.Exists(directory))Directory.Delete(directory,true);
+            }
+        }
         if(args.Length==3&&args[0]=="--self-test"&&args[1]=="--report"){
             try{
                 string directory=Extract(Path.Combine(Path.GetTempPath(),"TmuxStyleSelfTest-"+Guid.NewGuid().ToString("N")));
                 string report=Path.GetFullPath(args[2]);Directory.CreateDirectory(Path.GetDirectoryName(report));
-                string command=". ([scriptblock]::Create([IO.File]::ReadAllText("+Quote(Path.Combine(directory,"test-release.ps1"))+"))) -SourceDirectory "+Quote(directory)+" -ReportFile "+Quote(report);
+                string command=". ([scriptblock]::Create([IO.File]::ReadAllText("+Quote(Path.Combine(directory,"test-release.ps1"))+"))) -SourceDirectory "+Quote(directory)+" -ReportFile "+Quote(report)+" -InstallerPath "+Quote(Application.ExecutablePath);
                 StringBuilder log=new StringBuilder();int result=RunPowerShell(command,delegate(string line){lock(log){log.AppendLine(line);}});
                 File.WriteAllText(report+".log",log.ToString());return result;
             }catch(Exception ex){File.WriteAllText(args[2]+".error",ex.ToString());return 1;}

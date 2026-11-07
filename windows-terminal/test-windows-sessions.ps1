@@ -114,6 +114,17 @@ try{
     Invoke-TestTmx @('attach','-t','work')|Out-Null
     Wait-Until {(Clients work).Count -gt 0}
     Wait-Until {Check-Geometry}
+    Send work $first 'for ($i=1; $i -le 30000; $i+=1000) { [Console]::WriteLine((($i..($i+999) | ForEach-Object { "TMX_LOG_{0:00000}" -f $_ }) -join "`r`n")) }'
+    Wait-Until {(Mux work @('get-text','--pane-id',$first)).Contains('TMX_LOG_30000')}
+    $history=Mux work @('get-text','--pane-id',$first,'--start-line=-30000')
+    $logLines=@([regex]::Matches($history,'(?m)^TMX_LOG_[0-9]{5}\r?$'))
+    $visible=(Panes work|Where-Object pane_id -eq $first).size.rows
+    if($logLines.Count -lt 19000 -or $logLines.Count -gt (20000+$visible) -or $history -match '(?m)^TMX_LOG_00001\r?$'){throw 'WezTerm scrollback did not evict old lines at the 20,000-line cap'}
+    $probe=Join-Path $fixture 'scrollback-pid.txt'
+    Send work $first ("[IO.File]::WriteAllText('"+$probe.Replace("'","''")+"',[string]`$PID)")
+    Wait-Until {Test-Path -LiteralPath $probe}
+    if((Panes work).pane_id -join ',' -ne $ids -or [IO.File]::ReadAllText($probe) -ne $shellPid){throw 'Heavy output replaced a running pane'}
+    $checks+='30,000 log lines rotate at the 20,000-line cap without replacing a live pane'
     Send work $first 'tmx detach'
     Wait-Until {(Clients work).Count -eq 0}
     Wait-Until {[IO.File]::ReadAllText($tickFile) -ne $tick}

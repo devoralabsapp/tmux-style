@@ -17,6 +17,9 @@ import tty
 
 class Display:
     token = re.compile(rb'''https?://[^\s]+|(?:~?/|\.{1,2}/)[^\s]+|"[^"\r\n]*"|'[^'\r\n]*'|--?[A-Za-z][\w-]*|\b\d+(?:[.:/%-]\d+)*%?|\b(?:error|failed|failure|fatal|denied|exception|success|passed|running|true|enabled|warning|warn|pending|false|disabled)\b''', re.I)
+    control_end = re.compile(rb'\x1b\\|[\x07\x18\x1a]')
+    csi_end = re.compile(rb'[\x18\x1a\x40-\x7e]')
+    control_limit = 4096  # TMX's own markers are much smaller than this.
 
     def __init__(self, colors, nonce):
         self.colors = colors
@@ -27,13 +30,11 @@ class Display:
         self.styled = False
         self.native = False
         self.pending = b''
+        self.streaming_control = None
         self.enabled = True
-        self.utf8 = codecs.getincrementaldecoder('utf-8')('surrogateescape')
         self.utf8 = codecs.getincrementaldecoder('utf-8')('surrogateescape')
 
     def plain(self, data):
-        # Never insert color escapes inside a multibyte glyph split by read().
-        data = self.utf8.decode(data).encode('utf-8', errors='surrogateescape')
         # Never insert color escapes inside a multibyte glyph split by read().
         data = self.utf8.decode(data).encode('utf-8', errors='surrogateescape')
         if not (self.enabled and self.command) or self.alt or self.styled or self.native:
@@ -70,6 +71,17 @@ class Display:
         self.pending = b''
         out = []
         at = 0
+        if self.streaming_control:
+            stop = self.streaming_control.search(data)
+            if not stop:
+                # Preserve an ESC that might be the first byte of a split ST.
+                if self.streaming_control is self.control_end and data.endswith(b'\x1b'):
+                    self.pending = b'\x1b'
+                    return data[:-1]
+                return data
+            at = stop.end()
+            out.append(data[:at])
+            self.streaming_control = None
         while at < len(data):
             esc = data.find(b'\x1b', at)
             if esc < 0:
@@ -82,22 +94,29 @@ class Display:
                 break
             kind = data[end:end+1]
             if kind == b'[':
-                end += 1
-                while end < len(data) and not 0x40 <= data[end] <= 0x7e:
-                    end += 1
-                end += 1
+                terminator = self.csi_end
             elif kind in (b']', b'P', b'_', b'^'):
-                stops = [n for n in (data.find(b'\x1b\\', end+1), data.find(b'\x07', end+1)) if n >= 0]
-                if not stops:
-                    self.pending = data[esc:]
-                    break
-                stop = min(stops)
-                end = stop + (1 if data[stop] == 7 else 2)
+                terminator = self.control_end
             else:
-                end += 1
-            if end > len(data):
-                self.pending = data[esc:]
-                break
+                terminator = None
+            end += 1
+            if terminator:
+                stop = terminator.search(data, end)
+                if not stop:
+                    if len(data) - esc <= self.control_limit:
+                        self.pending = data[esc:]
+                    else:
+                        # Stream long control strings verbatim. The pane must
+                        # not buffer gigabytes waiting for an application to
+                        # terminate a sequence, or color bytes inside it.
+                        self.streaming_control = terminator
+                        limit = len(data)
+                        if terminator is self.control_end and data.endswith(b'\x1b'):
+                            limit -= 1
+                            self.pending = b'\x1b'
+                        out.append(data[esc:limit])
+                    break
+                end = stop.end()
             sequence = data[esc:end]
             if kind == b']' and sequence.startswith(b'\x1b]777;tmx;' + self.nonce + b';'):
                 body = sequence[len(b'\x1b]777;tmx;' + self.nonce + b';'):].rstrip(b'\x07')

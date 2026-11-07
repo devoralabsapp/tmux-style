@@ -1,6 +1,6 @@
 # Windows workspaces + tmux-style keys
 
-Download **TMX-Setup-1.8.4.exe** from the [GitHub Release](https://github.com/devoralabsapp/tmux-style/releases/latest), choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget.
+Download the latest **TMX-Setup** EXE, choose a terminal, theme and starting folder, then click **Install workspace**. The installer is per-user and uses Windows PowerShell 5.1 and .NET Framework already included with Windows 10/11. The optional terminal download requires internet. Windows Terminal installation also needs App Installer/winget. [GitHub releases](https://github.com/devoralabsapp/tmux-style/releases/latest)
 
 The executable is not code signed. Source, build scripts and SHA-256 checksums are provided with the release. It does not bundle or impersonate Microsoft Windows Terminal.
 
@@ -35,7 +35,7 @@ Update the Linux package on the VPS as well to get its new copy-mode keys and ne
 
 Run `tmx exit` **inside the session to close**. It terminates that entire session, including every tab/window, pane and running process. Other sessions keep running. `tmx detach` keeps the session alive for a later attach. Exit accepts no session name or other arguments and refuses an outer-terminal call; attach to the desired session first.
 
-After installing v1.8.4 with **WezTerm** selected, open PowerShell or CMD and use `tmx` directly. No profile edits or PowerShell execution-policy changes are needed. The per-user `tmx.exe` launcher is installed in `%LOCALAPPDATA%\Microsoft\WindowsApps`, normally already on PATH. If that directory was absent from PATH, the installer adds it to the user PATH; reopen the terminal application to receive the updated environment. The installer shows success inline, without an extra popup.
+After installing with **WezTerm** selected, open PowerShell or CMD and use `tmx` directly. No profile edits or PowerShell execution-policy changes are needed. The per-user `tmx.exe` launcher is installed in `%LOCALAPPDATA%\Microsoft\WindowsApps`, normally already on PATH. If that directory was absent from PATH, the installer adds it to the user PATH; reopen the terminal application to receive the updated environment. The installer shows success inline, without an extra popup.
 
 ```powershell
 tmx                          # create/reattach the default TMUX workspace
@@ -50,7 +50,10 @@ tmx theme black --default    # new sessions only
 tmx themes
 tmx help
 tmx version
+tmx update
 ```
+
+After the first install of v1.8.5 or later, `tmx update` downloads the newest stable GitHub release, verifies its SHA-256 and installs it without opening a setup window. It preserves your default theme, starting directory, shortcuts and running sessions. WezTerm and TMX's Windows Terminal profiles cap scrollback at 20,000 lines per pane. When the buffer fills, old output is evicted as new lines arrive.
 
 Each named session uses its own local WezTerm mux server, with three PowerShell panes. Detaching or closing its GUI leaves the server and pane processes running. `attach` reconnects to those same panes in a WezTerm window; it does not reset the session or create a missing one. Different sessions retain their own themes. Sessions last until their shells exit or Windows shuts down; this is not a reboot-resume feature. Existing windows from v1.6 and earlier use the old local backend and cannot be converted into persistent sessions while running: leave them available and create new ones with `tmx` after upgrading.
 

@@ -4,13 +4,13 @@
 
 English · [Tiếng Việt](README.vi.md)
 
-**New in v1.8.4:** macOS cwd stays red through Zsh prompt redraws and theme changes. Unix output highlighting now processes the entire Bash/Zsh PTY display, including arbitrary commands, functions, aliases and stderr, across the themes. Existing ANSI/full-screen apps retain their own rendering; pipeline and redirected bytes stay raw. **Python >= 3.8 is required on Unix. Create a new pane after upgrading to enable the display renderer.** [Upgrade and output colors](unix/README.md#readable-shell-prompt-and-prism).
+**New in v1.8.5.** After installing this release once, run `tmx update` to install the latest stable release from GitHub on Linux, macOS or Windows with the WezTerm option. The updater verifies the download's SHA-256 checksum and preserves active sessions and the default theme. Each pane uses a 20,000-line scrollback cap, dropping its oldest lines as new output arrives. Open a new Linux/macOS pane after upgrading to use the hardened output renderer.
 
 **Since v1.7.0 — Windows command parity:** install the EXE once with **WezTerm** selected, then use `tmx` from PowerShell or CMD: `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` and `tmx uninstall`. Ctrl-a d detaches and leaves processes running; Ctrl-a t opens the theme picker. The installer no longer displays a success popup. [Windows commands, upgrade and persistence](windows-terminal/README.md#windows-command-line).
 
 Nine themes for the standalone **Linux/macOS tmux** and **Windows WezTerm / Windows Terminal + PowerShell** workspaces, with familiar `Ctrl-a` shortcuts derived from the original configuration and [samoshkin/tmux-config](https://github.com/samoshkin/tmux-config). The legacy tmux overlay retains its six themes.
 
-## Linux and macOS: standalone packages (v1.8.4)
+## Linux and macOS standalone packages
 
 **Since v1.6.0:** the command is now **`tmx`**, with `tmux-style` retained as a compatibility alias. `tmx uninstall` removes the Unix tool across upgrades while retaining recovery backups. Create with `tmx new work --theme code`, list with `tmx list`, then enter with `tmx attach work`. In owned Bash/Zsh panes, `theme hacker` and `theme` switch colors in place. [Setup, upgrade and uninstall](unix/README.md).
 
@@ -18,7 +18,7 @@ All nine palettes have been checked for readable app-controlled text, including 
 
 ![Shipped theme color samples with explicit selections](preview/theme-readability.svg)
 
-Download the [Linux archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.4/tmx-linux-1.8.4.tar.gz) or [macOS archive](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.4/tmx-macos-1.8.4.tar.gz), plus its `.sha256` file from the [release](https://github.com/devoralabsapp/tmux-style/releases/tag/v1.8.4). Install tmux >= 3.2 and Python >= 3.8, extract the archive, enter its folder, then run:
+Download the Linux or macOS archive and its `.sha256` file from the [latest release](https://github.com/devoralabsapp/tmux-style/releases/latest). Install tmux >= 3.2 and Python >= 3.8. Extract the archive and run these commands from the extracted folder.
 
 ```bash
 # Linux / WSL (install tmux with your distribution's package manager)
@@ -60,7 +60,7 @@ A pure black canvas, white text and quiet gray dividers. Every color in the Blac
 
 ## Windows: download the EXE
 
-**[Download TMX-Setup-1.8.4.exe](https://github.com/devoralabsapp/tmux-style/releases/download/v1.8.4/TMX-Setup-1.8.4.exe)** · [Release notes and checksums](https://github.com/devoralabsapp/tmux-style/releases/latest)
+**[Download the Windows EXE](https://github.com/devoralabsapp/tmux-style/releases/latest)** with its release notes and checksums.
 
 1. Run the installer, choose **WezTerm** for the real bottom status bar, then a theme and starting folder.
 2. Keep the Desktop shortcut and launch options enabled if you want a ready-to-use, three-pane workspace.

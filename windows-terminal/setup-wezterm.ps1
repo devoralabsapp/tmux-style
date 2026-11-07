@@ -6,20 +6,42 @@ param(
     [string]$DesktopDirectory=[Environment]::GetFolderPath('DesktopDirectory'),
     [string]$CommandDirectory=(Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps'),
     [string]$WezTermExecutable,[string]$RuntimeArchive,
-    [switch]$InstallTerminal,[switch]$NoShortcut,[switch]$Launch,[switch]$NoCommandPath
+    [switch]$InstallTerminal,[switch]$NoShortcut,[switch]$Launch,[switch]$NoCommandPath,
+    [string]$UpdateFromVersion
 )
 $ErrorActionPreference='Stop'
 $ProgressPreference='SilentlyContinue'
 if(-not $SourceDirectory){throw 'Provide SourceDirectory when running as a script block.'}
-if(-not(Test-Path -LiteralPath $StartingDirectory -PathType Container)){throw 'Starting directory does not exist.'}
 $AssetDirectory=[IO.Path]::GetFullPath($AssetDirectory)
 $statePath=Join-Path $AssetDirectory 'install-state.json'
+$versionSource=Join-Path $SourceDirectory 'VERSION'
+if(-not(Test-Path -LiteralPath $versionSource)){$versionSource=Join-Path (Split-Path -Parent $SourceDirectory) 'VERSION'}
+if($UpdateFromVersion -and -not(Test-Path -LiteralPath $statePath)){throw 'No installed WezTerm workspace to update.'}
+$stateDirectory=$AssetDirectory.TrimEnd('\','/')+'-state'
+New-Item -ItemType Directory -Path $stateDirectory -Force|Out-Null
+try{$installLock=[IO.File]::Open((Join-Path $stateDirectory 'install.lock'),'OpenOrCreate','Write','None')}
+catch [IO.IOException]{throw 'Another TMX installation or update is running.'}
+try{
+$previous=$null
+if(Test-Path -LiteralPath $statePath){$previous=[IO.File]::ReadAllText($statePath)|ConvertFrom-Json}
+if($UpdateFromVersion){
+    $installed=[IO.File]::ReadAllText((Join-Path $AssetDirectory 'VERSION')).Trim()
+    $incoming=[IO.File]::ReadAllText($versionSource).Trim()
+    if($installed -cne $UpdateFromVersion -or [version]$incoming -le [version]$installed){throw 'The installed version changed. Run tmx update again.'}
+    if($previous.backend -ne 'wezterm' -or -not $previous.commandDirectory){throw 'Invalid WezTerm installation state.'}
+    $currentBackend=[IO.File]::ReadAllText((Join-Path $AssetDirectory 'backend.json'))|ConvertFrom-Json
+    $Theme=$currentBackend.theme
+    $StartingDirectory=$currentBackend.startingDirectory
+    $WezTermExecutable=$currentBackend.executable
+    $CommandDirectory=$previous.commandDirectory
+    $NoCommandPath=$true
+    $NoShortcut=$true
+    $Launch=$false
+}elseif(-not(Test-Path -LiteralPath $StartingDirectory -PathType Container)){throw 'Starting directory does not exist.'}
 $CommandDirectory=[IO.Path]::GetFullPath($CommandDirectory)
 $commandPath=Join-Path $CommandDirectory 'tmx.exe'
-$previous=$null
 function File-Hash([string]$Path){if(Test-Path -LiteralPath $Path -PathType Leaf){return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash};return 'MISSING'}
-if(Test-Path -LiteralPath $statePath){
-    $previous=[IO.File]::ReadAllText($statePath)|ConvertFrom-Json
+if($previous){
     foreach($entry in $previous.files){
         if((File-Hash $entry.path) -ne $entry.installedHash){throw ('WezTerm workspace file changed since installation. Back up your changes before upgrading: '+$entry.path)}
     }
@@ -30,8 +52,6 @@ foreach($path in @($commandPath,(Join-Path $CommandDirectory 'tmx-location.txt')
     }
 }
 New-Item -ItemType Directory -Path $AssetDirectory -Force|Out-Null
-$stateDirectory=$AssetDirectory.TrimEnd('\','/')+'-state'
-New-Item -ItemType Directory -Path $stateDirectory -Force|Out-Null
 $pin=[IO.File]::ReadAllText((Join-Path $SourceDirectory 'wezterm-runtime.json'))|ConvertFrom-Json
 if(-not $WezTermExecutable){
     # Reuse an explicitly installed copy if available; otherwise install portable
@@ -64,6 +84,7 @@ $WezTermExecutable=[IO.Path]::GetFullPath($WezTermExecutable)
 $backup=Join-Path $AssetDirectory ('backups\'+(Get-Date -Format 'yyyyMMdd-HHmmss')+'-'+[Guid]::NewGuid().ToString('N').Substring(0,6))
 New-Item -ItemType Directory -Path $backup -Force|Out-Null
 $files=New-Object Collections.Generic.List[object]
+$preserved=@{}
 function Save-OwnedFile([string]$Path){
     $saved=$null
     if(Test-Path -LiteralPath $Path){$saved=Join-Path $backup ($files.Count.ToString()+'-'+[IO.Path]::GetFileName($Path));Copy-Item -LiteralPath $Path -Destination $saved}
@@ -83,27 +104,37 @@ if(Test-Path -LiteralPath $metrics){
 }
 $addedCommandPath=$false;$oldUserPath=$null
 try{
-    foreach($name in 'shell.ps1','output.ps1','tmx.ps1','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md'){
+    foreach($name in 'shell.ps1','output.ps1','tmx.ps1','update.ps1','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md'){
         $target=Join-Path $AssetDirectory $name;Save-OwnedFile $target
         Copy-Item -LiteralPath (Join-Path $SourceDirectory $name) -Destination $target -Force
     }
-    $versionSource=Join-Path $SourceDirectory 'VERSION'
-    if(-not(Test-Path -LiteralPath $versionSource)){$versionSource=Join-Path (Split-Path -Parent $SourceDirectory) 'VERSION'}
     $target=Join-Path $AssetDirectory 'VERSION';Save-OwnedFile $target
     Copy-Item -LiteralPath $versionSource -Destination $target -Force
-    New-Item -ItemType Directory -Path $CommandDirectory -Force|Out-Null
-    Save-OwnedFile $commandPath
-    Copy-Item -LiteralPath (Join-Path $SourceDirectory 'TmuxStyle.Command.exe') -Destination $commandPath -Force
-    $target=Join-Path $CommandDirectory 'tmx-location.txt';Save-OwnedFile $target
-    [IO.File]::WriteAllText($target,$AssetDirectory,[Text.UTF8Encoding]::new($false))
+    if($UpdateFromVersion){
+        # Keep the console shim that's executing this command, and retain the
+        # exact settings/shortcut in the new restore and uninstall manifest.
+        foreach($entry in $previous.files){
+            if($entry.path -in $commandPath,(Join-Path $CommandDirectory 'tmx-location.txt'),(Join-Path $AssetDirectory 'backend.json') -or
+                [IO.Path]::GetFileName($entry.path) -eq 'Tmux Style WezTerm.lnk'){
+                Save-OwnedFile $entry.path
+                $preserved[$entry.path]=$true
+            }
+        }
+    }else{
+        New-Item -ItemType Directory -Path $CommandDirectory -Force|Out-Null
+        Save-OwnedFile $commandPath
+        Copy-Item -LiteralPath (Join-Path $SourceDirectory 'TmuxStyle.Command.exe') -Destination $commandPath -Force
+        $target=Join-Path $CommandDirectory 'tmx-location.txt';Save-OwnedFile $target
+        [IO.File]::WriteAllText($target,$AssetDirectory,[Text.UTF8Encoding]::new($false))
+        $target=Join-Path $AssetDirectory 'backend.json';Save-OwnedFile $target
+        $backend=[pscustomobject]@{executable=$WezTermExecutable;startingDirectory=[IO.Path]::GetFullPath($StartingDirectory);theme=$Theme}
+        [IO.File]::WriteAllText($target,($backend|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
+    }
     $template=[IO.File]::ReadAllText((Join-Path $SourceDirectory 'wezterm.lua'))
     foreach($slug in 'aurora','midnight','ember','paper','neon','black','code','hacker','prism'){
         $target=Join-Path $AssetDirectory ('wezterm-'+$slug+'.lua');Save-OwnedFile $target
         [IO.File]::WriteAllText($target,$template.Replace('__THEME__',$slug),[Text.UTF8Encoding]::new($false))
     }
-    $target=Join-Path $AssetDirectory 'backend.json';Save-OwnedFile $target
-    $backend=[pscustomobject]@{executable=$WezTermExecutable;startingDirectory=[IO.Path]::GetFullPath($StartingDirectory);theme=$Theme}
-    [IO.File]::WriteAllText($target,($backend|ConvertTo-Json),[Text.UTF8Encoding]::new($false))
     $config=Join-Path $AssetDirectory ('wezterm-'+$Theme+'.lua')
     if(-not $NoShortcut){
         New-Item -ItemType Directory -Path $DesktopDirectory -Force|Out-Null
@@ -129,10 +160,14 @@ try{
     $state=[pscustomobject]@{backend='wezterm';files=@($files.ToArray());previousState=$priorState;backup=$backup;addedCommandPath=$addedCommandPath;commandDirectory=$CommandDirectory}
     [IO.File]::WriteAllText($statePath,($state|ConvertTo-Json -Depth 10),[Text.UTF8Encoding]::new($false))
 }catch{
-    foreach($entry in $files){if($entry.backup){Copy-Item -LiteralPath $entry.backup -Destination $entry.path -Force}elseif(Test-Path -LiteralPath $entry.path){Remove-Item -LiteralPath $entry.path}}
+    foreach($entry in $files){
+        if($preserved[$entry.path]){continue}
+        if($entry.backup){Copy-Item -LiteralPath $entry.backup -Destination $entry.path -Force}elseif(Test-Path -LiteralPath $entry.path){Remove-Item -LiteralPath $entry.path}
+    }
     if($addedCommandPath){[Environment]::SetEnvironmentVariable('PATH',$oldUserPath,'User')}
     throw
 }
+}finally{$installLock.Dispose()}
 Write-Output ('Installed WezTerm workspace: '+$config)
 Write-Output ('Backups: '+$backup)
 Write-Output 'Native bottom bar: tabs, local Windows CPU/RAM, hostname, date/time. F12 toggles pass-through.'

@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$SourceDirectory,[Parameter(Mandatory=$true)][string]$ReportFile)
+param([Parameter(Mandatory=$true)][string]$SourceDirectory,[Parameter(Mandatory=$true)][string]$ReportFile,[string]$InstallerPath)
 $ErrorActionPreference='Stop'
 . ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'common.ps1'))))
 function Write-JsonFile([string]$Path,$Value){
@@ -110,6 +110,10 @@ $checks+='native key mapping resolver'
 $checks+='black palette contains only grayscale values'
 $checks+='Terminal first-launch normalization accepted; newer user edits protected'
 & ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'test-wezterm.ps1')))) -SourceDirectory $SourceDirectory -Fixture $fixture -FakeTerminal $fakeTerminal
+if($InstallerPath){
+    & ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $SourceDirectory 'test-update.ps1')))) -SourceDirectory $SourceDirectory -Fixture $fixture -FakeTerminal $fakeTerminal -InstallerPath $InstallerPath
+    $checks+='tmx update checks SHA-256, skips older/same releases, and installs the actual verified EXE without changing the console launcher, shortcut or theme'
+}
 $checks+='WezTerm nine themes, separate shortcuts, exact install/upgrade/restore, newer user edits protected'
 $checks+='WezTerm runtime checksum mismatch rejected'
 $checks+='live Windows CPU/RAM sampling without a resident collector'

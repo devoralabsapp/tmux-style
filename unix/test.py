@@ -1,21 +1,26 @@
 """Exercise the installed Linux/macOS workspace against a real isolated tmux."""
 import fcntl
 import base64
+import hashlib
+import io
 import json
 import os
 from pathlib import Path
 import pty
 import re
+import runpy
 import signal
 import shlex
 import shutil
 import struct
 import subprocess
+import tarfile
 import tempfile
 import termios
 import threading
 import time
 import sys
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 work = Path(tempfile.mkdtemp(prefix='ts-'))
@@ -106,6 +111,52 @@ def session_theme(name):
     return tm('show-option', '-qv', '-t', name, '@tmux_style_theme')
 
 
+def test_update():
+    current = (data / 'VERSION').read_text().strip()
+    latest = '999999.0.0'
+    platform_name = 'macos' if os.uname().sysname == 'Darwin' else 'linux'
+    prefix = f'tmx-{platform_name}-{latest}'
+    archive = io.BytesIO()
+    with tarfile.open(fileobj=archive, mode='w:gz') as package:
+        files = list((ROOT / 'unix').glob('*.sh')) + [ROOT / 'unix/tmux.conf']
+        files += list((ROOT / 'unix/themes').glob('*.conf'))
+        files += [p for p in (ROOT / 'unix/shell').rglob('*')
+                  if p.is_file() and p.suffix != '.pyc']
+        for path in files:
+            package.add(path, arcname=f'{prefix}/{path.relative_to(ROOT)}')
+        version = latest.encode()
+        info = tarfile.TarInfo(f'{prefix}/VERSION')
+        info.size = len(version)
+        package.addfile(info, io.BytesIO(version))
+    payload = archive.getvalue()
+    checksums = f'{hashlib.sha256(payload).hexdigest()}  {prefix}.tar.gz\n'.encode()
+    update = runpy.run_path(str(data / 'shell/update.py'))['update']
+    latest_url = update.__globals__['LATEST']
+    asset_url = f'https://github.com/devoralabsapp/tmux-style/releases/download/v{latest}/{prefix}.tar.gz'
+    routes = {latest_url: json.dumps({'tag_name': 'v' + current}).encode()}
+    run(launcher, 'theme', 'prism', '--default')
+    panes = tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}')
+    with patch.dict(os.environ, env, clear=True), patch.dict(
+        update.__globals__, download=lambda url: io.BytesIO(routes[url])
+    ):
+        update(data, os.uname().sysname)  # no download for the same version
+        routes.update({latest_url: json.dumps({'tag_name': 'v' + latest}).encode(),
+                       asset_url: b'corrupt', asset_url + '.sha256': checksums})
+        try:
+            update(data, os.uname().sysname)
+        except ValueError as error:
+            assert 'checksum mismatch' in str(error)
+        else:
+            raise AssertionError('Unverified package was accepted')
+        assert (data / 'VERSION').read_text().strip() == current
+        routes[asset_url] = payload
+        update(data, os.uname().sysname)
+        update(data, os.uname().sysname)
+    assert run(launcher, 'version').stdout.strip() == latest
+    assert "'prism'" in (data / 'theme.conf').read_text()
+    assert tm('list-panes', '-a', '-F', '#{pane_id}:#{pane_pid}') == panes
+
+
 try:
     tested_version = run('tmux', '-V').stdout.strip()
     print('Testing:', tested_version, os.uname().sysname, flush=True)
@@ -145,6 +196,18 @@ try:
     assert '\x1b[38;2;' in painted and 'success' in painted
     assert run(launcher, 'paint', 'bash', '-c', 'exit 7', ok=False).returncode == 7
     checks.append('scoped cwd prompt has explicit RGB foreground/background; opt-in paint retains exit code')
+    pane_pid = tm('display-message', '-p', '-t', primary, '#{pane_pid}')
+    flood = 'for n in range(1, 30001): print(f"TMX_LOG_{n:05d}")'
+    in_shell(primary, f'{shlex.quote(sys.executable)} -c {shlex.quote(flood)}')
+    wait_for(lambda: 'TMX_LOG_30000' in tm('capture-pane', '-p', '-t', primary))
+    history_size, history_limit = map(int, tm('display-message', '-p', '-t', primary,
+                                             '#{history_size} #{history_limit}').split())
+    assert 18000 <= history_size <= history_limit == 20000
+    history = tm('capture-pane', '-p', '-S', '-', '-t', primary).splitlines()
+    assert 'TMX_LOG_00001' not in history and 'TMX_LOG_30000' in history
+    in_shell(primary, 'true')
+    assert pane_pid == tm('display-message', '-p', '-t', primary, '#{pane_pid}')
+    checks.append('30,000 lines recycle old scrollback at the 20,000-line cap with the same live pane')
     # Real copy-mode key, paste-buffer key, SIGINT and nested OSC52 byte flow.
     clip_pane = tm('new-window', '-d', '-P', '-F', '#{pane_id}', '-t', 'TMUX', '-n', 'clipboard',
                    'printf TMX_COPY_MARKER; sleep 60')
@@ -405,12 +468,14 @@ PS1='TMUX_STYLE_TEST_READY> '
     wait_for(lambda: run('tmux', '-L', 'tmux-style', 'has-session', '-t', '=close-me', ok=False).returncode != 0)
     assert tm('list-panes', '-a', '-F', '#{session_name}:#{pane_id}:#{pane_pid}') == stable
     checks.append('tmx exit closes all tabs/panes of its current session; other session processes survive; outer/argument calls rejected')
+    assert run(launcher, 'update', 'unexpected', ok=False).returncode
+    test_update()
+    checks.append('tmx update verifies checksums, skips the same version, and retains default theme and live pane IDs')
     tm('kill-server')
     reap_child()
     os.close(master)
     master = None
 
-    run('bash', ROOT / 'unix/install.sh', '--theme', 'code')
     assert first_backup != Path((data / 'previous-backup').read_text().strip())
     run(launcher, 'restore')
     assert launcher.read_bytes() == first_launcher

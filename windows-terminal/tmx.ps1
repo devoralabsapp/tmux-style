@@ -65,7 +65,7 @@ function Assert-NoSessions {
 function Assert-OwnedPath([string]$Path,[string]$Commands){
     $full=[IO.Path]::GetFullPath($Path)
     $parent=Split-Path -Parent $full;$leaf=Split-Path -Leaf $full
-    $assetNames=@('shell.ps1','output.ps1','tmx.ps1','VERSION','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md','backend.json')
+    $assetNames=@('shell.ps1','output.ps1','tmx.ps1','update.ps1','VERSION','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md','backend.json')
     $allowed=($parent -ieq $root -and ($assetNames -contains $leaf -or $leaf -match '^wezterm-(aurora|midnight|ember|paper|neon|black|code|hacker|prism)\.lua$')) -or
         ($Commands -and $parent -ieq [IO.Path]::GetFullPath($Commands) -and $leaf -in 'tmx.exe','tmx-location.txt') -or $leaf -eq 'Tmux Style WezTerm.lnk'
     if(-not $allowed -or ((Get-Item -LiteralPath $full -ErrorAction SilentlyContinue).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw ('Invalid owned installation path: '+$full)}
@@ -124,9 +124,13 @@ switch($verb){
     {$_ -in 'help','--help','-h'}{
         'tmx new NAME [--theme NAME] [-d] | attach [NAME] | list | detach | exit'
         'tmx theme NAME | version. Ctrl-a d detaches without stopping processes.'
-        'tmx themes | renderer [webgpu|software|opengl] | metrics | restore | uninstall.'
+        'tmx themes | renderer [webgpu|software|opengl] | metrics | update | restore | uninstall.'
     }
     {$_ -in 'version','--version'}{[IO.File]::ReadAllText((Join-Path $root 'VERSION')).Trim()}
+    'update'{
+        if($rest.Count){throw 'Usage: tmx update'}
+        & ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $root 'update.ps1')))) -AssetDirectory $root
+    }
     'themes'{$names}
     'renderer'{
         $path=Join-Path $state 'renderer.json'

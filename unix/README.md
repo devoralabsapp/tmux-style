@@ -54,7 +54,9 @@ Applications such as Vim retain their own color schemes. Code Spectrum colors tm
 
 ## Upgrade an open workspace
 
-Run the new installer, then press **Ctrl-a Ctrl-r** in each open Tmux Style client to reload. New panes load the shell helpers automatically. To add the short commands to an existing Bash/Zsh pane without restarting its shell, run:
+With v1.8.5 or later installed, run `tmx update`. It checks the latest stable GitHub release, verifies the correct archive for your OS and preserves your default theme and live sessions. To get the command on an older installation, run the new installer once.
+
+Press **Ctrl-a Ctrl-r** in an open TMX client to reload the tmux configuration. Each pane has a scrollback limit of 20,000 lines. The oldest history is evicted as more output arrives. A new pane loads the updated display renderer. To refresh the shell helpers in an existing Bash/Zsh pane, run the following command.
 
 ```bash
 . "$TMUX_STYLE_HOME/shell/commands.sh"

@@ -69,13 +69,20 @@ source ''' + shlex.quote(str(ROOT/'shell/render.sh')) + '''
             self.assertEqual(result.read_text(),"user-hook's")
             self.assertIn(b'777;tmx;test;command;',proc.stdout)
 
-    def test_fragmented_unicode(self):
+    def test_long_control_sequences_stream_without_growing_pending(self):
         display = module.Display(COLORS, 'test')
         display.feed(b'\x1b]777;tmx;test;command;prism\x07')
-        data = 'kết quả'.encode()
-        rendered = b''.join(display.feed(bytes([byte])) for byte in data)
-        import re
-        self.assertEqual(re.sub(rb'\x1b\[[0-9;]*m', b'', rendered), data)
+        for start, end in ((b'\x1b]52;c;', b'\x1b\\'), (b'\x1b[', b'm')):
+            with self.subTest(start=start):
+                block = b'2' * 8192
+                self.assertEqual(display.feed(start + block), start + block)
+                for _ in range(32):
+                    self.assertEqual(display.feed(block), block)
+                    self.assertEqual(display.pending, b'')
+                for byte in end[:-1]:
+                    self.assertEqual(display.feed(bytes([byte])), b'')
+                tail = display.feed(end[-1:] + b'error 42')
+                self.assertTrue(tail.startswith(end + b'\x1b[38;2;'))
 
 
 if __name__ == '__main__':
