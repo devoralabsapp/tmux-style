@@ -18,7 +18,7 @@ $corrupt=$true
 $savedDefault=Join-Path ($assets+'-state') 'default-theme.json'
 [IO.File]::WriteAllText($savedDefault,'{"theme":"hacker"}')
 $kept=@($command,(Join-Path $commands 'tmx-location.txt'),(Join-Path $assets 'backend.json'),(Join-Path $desktop 'Tmux Style WezTerm.lnk'),$savedDefault)
-$hashes=@($kept|Get-FileHash|ForEach-Object Hash)
+$hashes=@(foreach($path in $kept){(Get-FileHash -LiteralPath $path).Hash})
 function Invoke-RestMethod($Uri,$UserAgent,$TimeoutSec){
     if($Uri -cne 'https://api.github.com/repos/devoralabsapp/tmux-style/releases/latest'){throw "Unexpected API URL: $Uri"}
     [pscustomobject]@{tag_name=$releaseTag;prerelease=$false;draft=$false}
@@ -43,7 +43,8 @@ $corrupt=$false
 $runningCommand=[IO.File]::OpenRead($command)
 try{& $cli -AssetDirectory $assets -Arguments @('update')}finally{$runningCommand.Dispose()}
 if((& $command version) -ne $version -or (& $cli -AssetDirectory $assets -Arguments @('update')) -notmatch 'is up to date'){throw 'The verified EXE did not upgrade the command'}
-if(($kept|Get-FileHash|ForEach-Object Hash) -join ',' -ne $hashes -join ','){throw 'Update changed the launcher or user preferences'}
+$after=@(foreach($path in $kept){(Get-FileHash -LiteralPath $path).Hash})
+if(($after -join ',') -ne ($hashes -join ',')){throw 'Update changed the launcher or user preferences'}
 $restore=[scriptblock]::Create([IO.File]::ReadAllText((Join-Path $assets 'restore-wezterm.ps1')))
 & $restore -StatePath (Join-Path $assets 'install-state.json')
 if((& $command version) -ne '0.0.1'){throw 'Could not restore the installation before tmx update'}
