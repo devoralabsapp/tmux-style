@@ -104,7 +104,7 @@ if(Test-Path -LiteralPath $metrics){
 }
 $addedCommandPath=$false;$oldUserPath=$null
 try{
-    foreach($name in 'shell.ps1','output.ps1','tmx.ps1','update.ps1','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md'){
+    foreach($name in 'shell.ps1','output.ps1','tmx.ps1','update.ps1','doctor.ps1','log.ps1','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md'){
         $target=Join-Path $AssetDirectory $name;Save-OwnedFile $target
         Copy-Item -LiteralPath (Join-Path $SourceDirectory $name) -Destination $target -Force
     }

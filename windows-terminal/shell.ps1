@@ -151,6 +151,20 @@ function global:Show-TmuxStyleHelp {
 }
 
 function global:tmx {
+    if($args.Count -and $args[0] -eq 'log'){
+        $logScript=Join-Path $global:TmuxStyleAssetDirectory 'log.ps1'
+        if(-not(Test-Path -LiteralPath $logScript)){throw 'Update TMX to use pane logging.'}
+        . ([scriptblock]::Create([IO.File]::ReadAllText($logScript)))
+        Invoke-TmxLog -Arguments @($args | Select-Object -Skip 1)
+        return
+    }
+    if($args.Count -and $args[0] -eq 'doctor' -and $global:TmuxStyleBackend -eq 'windows-terminal'){
+        if($args.Count -ne 1){throw 'Usage: tmx doctor'}
+        $doctor=Join-Path $global:TmuxStyleAssetDirectory 'doctor.ps1'
+        if(-not(Test-Path -LiteralPath $doctor)){throw 'Update TMX to run its diagnostic report.'}
+        & ([scriptblock]::Create([IO.File]::ReadAllText($doctor))) -AssetDirectory $global:TmuxStyleAssetDirectory -Backend windows-terminal -OwnedPane
+        return
+    }
     $assets=if($global:TmuxStyleBackend -eq 'wezterm'){$global:TmuxStyleAssetDirectory}else{Join-Path $env:LOCALAPPDATA 'TmuxStyleWindows\wezterm'}
     $cli=Join-Path $assets 'tmx.ps1'
     if(-not(Test-Path -LiteralPath $cli)){throw 'Install the TMX WezTerm backend to use persistent sessions on Windows.'}
@@ -160,6 +174,7 @@ function global:tmx {
 function global:prompt {
     $previousSuccess = $?
     $previousExitCode = $global:LASTEXITCODE
+    if($global:TmxLog.Active){Update-TmxLog}
     Sync-TmuxStyleShellTheme
     $palette = $global:TmuxStylePalette
     $path = $PWD.Path

@@ -112,7 +112,7 @@ if ($state.previousHash -ne 'MISSING') {
     $settingsBackup=Join-Path $backupDirectory 'settings.before.json'
     Copy-Item -LiteralPath $state.settingsPath -Destination $settingsBackup
 }
-$ownedAssets=@('shell.ps1','output.ps1','restore.ps1','common.ps1','settings.additions.json','TmuxStyle.Keys.exe','tmux-style.ico')
+$ownedAssets=@('shell.ps1','output.ps1','doctor.ps1','log.ps1','VERSION','restore.ps1','common.ps1','settings.additions.json','TmuxStyle.Keys.exe','tmux-style.ico')
 $assetBackups=@()
 foreach($name in $ownedAssets){
     $path=Join-Path $state.assetDirectory $name
@@ -126,6 +126,12 @@ if(Test-Path -LiteralPath $oldBridge){
 }
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'shell.ps1') -Destination (Join-Path $state.assetDirectory 'shell.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'output.ps1') -Destination (Join-Path $state.assetDirectory 'output.ps1') -Force
+foreach($name in 'doctor.ps1','log.ps1'){
+    Copy-Item -LiteralPath (Join-Path $sourceDirectory $name) -Destination (Join-Path $state.assetDirectory $name) -Force
+}
+$versionSource=Join-Path $sourceDirectory 'VERSION'
+if(-not(Test-Path -LiteralPath $versionSource)){$versionSource=Join-Path (Split-Path -Parent $sourceDirectory) 'VERSION'}
+Copy-Item -LiteralPath $versionSource -Destination (Join-Path $state.assetDirectory 'VERSION') -Force
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'restore.ps1') -Destination (Join-Path $state.assetDirectory 'restore.ps1') -Force
 Copy-Item -LiteralPath (Join-Path $sourceDirectory 'common.ps1') -Destination (Join-Path $state.assetDirectory 'common.ps1') -Force
 if(Test-Path (Join-Path $sourceDirectory 'TmuxStyle.Keys.exe')){Copy-Item -LiteralPath (Join-Path $sourceDirectory 'TmuxStyle.Keys.exe') -Destination (Join-Path $state.assetDirectory 'TmuxStyle.Keys.exe') -Force}

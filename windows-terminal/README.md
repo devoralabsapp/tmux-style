@@ -63,6 +63,12 @@ Exit every TMX session before `tmx restore` (undo the last install) or `tmx unin
 
 The session implementation uses WezTerm's [native multiplexer domains](https://wezterm.org/multiplexing.html#unix-domains), with a checked GUI-client disconnect to avoid the pinned runtime's pane-resize bug. The detached session remains in its separate mux server.
 
+## Diagnostics and pane logs
+
+Run `tmx doctor` from a managed PowerShell pane or using the installed WezTerm command. The report includes the TMX version, backend and config defaults. The WezTerm report also shows counts of reachable sessions and panes.
+
+From a TMX PowerShell prompt, run `tmx log start`, `tmx log status` or `tmx log stop`. After upgrading, open a new pane to load the shell integration. Logs live under the TMX asset path with the `-logs` suffix. PowerShell transcripts can include commands, account information and sensitive output. The current file is `pane.log` with up to two previous segments. Rotation checks for 10 MiB when the prompt returns, so a single long-running command can exceed that size. PowerShell transcription coverage depends on how each program writes to the console. [PowerShell transcript limitations](https://learn.microsoft.com/powershell/scripting/learn/deep-dives/output-missing-from-transcript)
+
 ## Change font size
 
 | Shortcut | Action |

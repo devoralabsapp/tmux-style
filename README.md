@@ -4,6 +4,8 @@
 
 English · [Tiếng Việt](README.vi.md)
 
+**New in v1.8.7.** Use `tmx doctor` for a shareable diagnostic report. Run `tmx log start` in a pane to save its output, `tmx log status` to find the file and `tmx log stop` to end recording. [Linux and macOS logging](unix/README.md#diagnostics-and-pane-logs) · [Windows logging](windows-terminal/README.md#diagnostics-and-pane-logs)
+
 **New in v1.8.6.** On Windows, press `Ctrl+A` then `-` or `+` to resize text and `Ctrl+A` then `_` to split below. Use `Ctrl+0` to reset or `tmx font 14` in WezTerm to set 14 pt. On Linux/macOS, run `tmx font` for your terminal's shortcuts. Upgrade with `tmx update` from v1.8.5 onward. [Windows font controls](windows-terminal/README.md#change-font-size)
 
 **Since v1.7.0 — Windows command parity:** install the EXE once with **WezTerm** selected, then use `tmx` from PowerShell or CMD: `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` and `tmx uninstall`. Ctrl-a d detaches and leaves processes running; Ctrl-a t opens the theme picker. The installer no longer displays a success popup. [Windows commands, upgrade and persistence](windows-terminal/README.md#windows-command-line).

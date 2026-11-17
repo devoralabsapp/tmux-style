@@ -17,6 +17,7 @@ case "$command_name" in
     echo 'tmx workspace [NAME] | theme [NAME] [--session NAME | --default]'
     echo 'tmx themes | metrics | update | restore | uninstall | version'
     echo 'tmx font shows the font shortcuts for your terminal app.'
+    echo 'tmx doctor | tmx log start|stop|status'
     echo 'Ctrl-a t selects a theme; Ctrl-a d detaches; F12 toggles SSH pass-through.' ;;
   themes) printf '%s\n' aurora midnight ember paper neon black code hacker prism ;;
   theme) theme_command "$@" ;;
@@ -36,6 +37,14 @@ case "$command_name" in
     sid=$(current_session) || { echo 'Run tmx exit inside the TMX session to close.' >&2; exit 1; }
     tm kill-session -t "$sid" ;;
   metrics) exec bash "$root/metrics.sh" ;;
+  doctor)
+    [[ $# == 0 ]] || { echo 'Usage: tmx doctor' >&2; exit 1; }
+    source "$root/doctor.sh"
+    doctor_report ;;
+  log)
+    [[ $# == 1 && $1 =~ ^(start|stop|status)$ ]] || { echo 'Usage: tmx log start|stop|status' >&2; exit 1; }
+    current_session >/dev/null || { echo 'Run tmx log inside the TMX pane to record.' >&2; exit 1; }
+    exec "${TMX_PYTHON:-python3}" "$root/shell/pane_log.py" "$1" "$root" "$TMUX_PANE" ;;
   paint) exec bash "$root/paint.sh" "$@" ;;
   font)
     printf '%s\n' 'Change the font size in the terminal app displaying this session:' \

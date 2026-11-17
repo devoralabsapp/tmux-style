@@ -1,4 +1,11 @@
-# TMX v1.8.6
+# TMX v1.8.7
+
+- Added `tmx doctor` with version, backend and session diagnostics. Reports use selected fields and omit hostnames, session names, user paths and pane contents.
+- Added `tmx log start`, `tmx log status` and `tmx log stop` in TMX panes. On Linux and macOS, tmux streams pane output into three rotating 10 MiB files. Windows PowerShell uses a transcript and checks for rotation when the prompt returns. A running command can exceed the threshold and output written directly to the console can be missing.
+
+Downloads include `TMX-Setup-1.8.7.exe`, `tmx-linux-1.8.7.tar.gz`, `tmx-macos-1.8.7.tar.gz`, source, checksums and validation reports.
+
+## v1.8.6 historical notes
 
 - On Windows, press `Ctrl+A` then `-` or `+` to change the font size and `Ctrl+A` then `_` to split below. In WezTerm, `Ctrl+=`, `Ctrl+-` and `Ctrl+0` also work in F12 pass-through mode. The reset size is 11 pt.
 - Run `tmx font 14` inside a TMX WezTerm pane to set the current window to 14 pt. `tmx font increase`, `decrease` and `reset` share the same setting. Each newly opened window starts at 11 pt.

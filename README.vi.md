@@ -2,6 +2,8 @@
 
 [English](README.md) · Tiếng Việt
 
+**Mới ở v1.8.7.** Dùng `tmx doctor` để lấy báo cáo chẩn đoán có thể chia sẻ. Trong pane, chạy `tmx log start` để bắt đầu ghi, `tmx log status` để xem đường dẫn và `tmx log stop` để kết thúc. Linux/macOS xoay vòng file sau mỗi 10 MiB. Windows dùng transcript của PowerShell, kiểm tra để xoay vòng khi lệnh chạy xong và có thể bỏ sót đầu ra ghi thẳng vào console. [Hướng dẫn Linux/macOS](unix/README.md#diagnostics-and-pane-logs) · [Hướng dẫn Windows](windows-terminal/README.md#diagnostics-and-pane-logs)
+
 **Mới ở v1.8.6.** Trên Windows, nhấn `Ctrl+A` rồi `-` để giảm hoặc `+` để tăng cỡ chữ. Dùng `Ctrl+A` rồi `_` để chia pane bên dưới và `Ctrl+0` để về cỡ chữ mặc định. Gõ `tmx font 14` trong pane TMX WezTerm để đặt 14 pt cho cửa sổ hiện tại. Trên macOS Terminal, dùng `Cmd++` hoặc `Cmd+-`. Trên Linux/macOS, `tmx font` hiển thị các phím theo ứng dụng terminal. Từ v1.8.5, dùng `tmx update` để cập nhật.
 
 **Từ v1.7.0 — lệnh Windows tương tự Linux/macOS:** cài EXE một lần, chọn **WezTerm**, rồi gọi `tmx` từ PowerShell hoặc CMD. Có `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` và `tmx uninstall`. `Ctrl-a d` detach để tiến trình tiếp tục chạy; `Ctrl-a t` chọn theme. Đã bỏ hộp thoại “Workspace installed”. [Hướng dẫn Windows](windows-terminal/README.md#windows-command-line).

@@ -36,6 +36,14 @@ If `~/.local/bin` is on PATH, use `tmx` directly from your outer terminal. Insid
 
 `new NAME` creates a three-pane session; `-d` leaves it detached. It rejects an existing name instead of resetting that session. `workspace [NAME]` preserves the older create-or-reattach behavior. `attach NAME` (also `attach -t NAME`) enters an existing session, or switches to it from inside Tmux Style. It never creates a missing session. `attach` without a name reattaches the most recently used session from an outer terminal; inside Tmux Style it opens the native session chooser. `list` / `ls` shows names, windows, attachment state and themes. `tmx detach` and Ctrl-a d leave pane processes running. Closing a terminal also leaves the sessions available for later attach.
 
+## Diagnostics and pane logs
+
+Run `tmx doctor` to see versions, session and pane counts, the current prefix and scrollback when run inside a TMX pane, and the tmux OSC 52 clipboard setting. Share this report separately from any pane log.
+
+Run `tmx log start` inside the pane to record its subsequent output. `tmx log status` shows the file and `tmx log stop` ends the capture. Each recording gets a private directory under the TMX data path with the `-logs` suffix. The current file is `pane.log` and the older segments are `pane.log.1` and `pane.log.2`. Each segment is at most 10 MiB.
+
+The file captures terminal bytes, which can include echoed input and escape sequences. Open it in a text editor. It can contain sensitive output. Recording continues when you detach and ends if the pane closes.
+
 ## Change font size
 
 Run `tmx font` to see shortcuts. macOS Terminal uses [Cmd+Plus and Cmd+Minus](https://support.apple.com/en-ae/guide/terminal/trmlshtcts/mac). GNOME Terminal uses [Ctrl+Plus, Ctrl+Minus and Ctrl+0](https://help.gnome.org/gnome-terminal/app-zoom.html). When connected over SSH, use the shortcuts in the terminal app on your own computer.

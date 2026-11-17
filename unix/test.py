@@ -190,6 +190,43 @@ try:
     print('PASS:', checks[-1], flush=True)
 
     primary = tm('list-panes', '-t', 'TMUX:1', '-F', '#{pane_id}').splitlines()[0]
+    assert run(launcher, 'log', 'start', ok=False).returncode
+    assert 'Context: outside' in run(launcher, 'doctor').stdout
+    report_file = work / 'doctor.txt'
+    in_shell(primary, f'TERM_PROGRAM=private-terminal tmx doctor > {shlex.quote(str(report_file))}')
+    report = report_file.read_text()
+    for field in ['Context: owned-pane', 'Prefix: C-a', 'Sessions: 1', 'Panes: 3', ' / 20000 lines']:
+        assert field in report, report
+    assert str(home) not in report and 'private-terminal' not in report
+    checks.append('tmx doctor reports owned tmux state without exposing terminal strings or paths')
+
+    report_file = work / 'log.txt'
+    in_shell(primary, f'tmx log start > {shlex.quote(str(report_file))}')
+    path = Path(report_file.read_text().strip().split(': ', 1)[1])
+    assert path.stat().st_mode & 0o077 == 0
+    in_shell(primary, "printf '%s\r\n' TMX_RECORD_MARKER")
+    wait_for(lambda: b'TMX_RECORD_MARKER' in path.read_bytes())
+    assert tm('display-message', '-p', '-t', primary, '#{pane_pipe}') == '1'
+    in_shell(primary, 'tmx log stop && tmx log status')
+    assert tm('display-message', '-p', '-t', primary, '#{pane_pipe}') == '0'
+    assert b'TMX_RECORD_MARKER' in path.read_bytes()
+    in_shell(primary, "printf '%s\r\n' TMX_AFTER_STOP")
+    assert b'TMX_AFTER_STOP' not in path.read_bytes()
+
+    # Exercise exact byte limits without flooding the interactive test client.
+    rotation = work / 'rotation'
+    rotation.mkdir()
+    segment = 10 * 1024 * 1024
+    writer = ROOT / 'unix/shell/pane_log.py'
+    subprocess.run([sys.executable, str(writer), 'write', str(rotation)],
+                   input=b'a' * segment + b'b' * segment + b'c' * segment + b'last',
+                   check=True, timeout=15)
+    assert (rotation / 'pane.log').read_bytes() == b'last'
+    assert (rotation / 'pane.log.1').read_bytes() == b'c' * segment
+    assert (rotation / 'pane.log.2').read_bytes() == b'b' * segment
+    assert not (rotation / 'pane.log.3').exists()
+    checks.append('tmx log captures real pane output, stops on request and rotates exactly at 10 MiB')
+
     in_shell(primary, 'type theme >/dev/null && type tmx >/dev/null && type tmux-style >/dev/null')
     in_shell(primary, 'tmx_prompt_colors; test -n "$TMX_PROMPT_FG" && test -n "$TMX_PROMPT_BG" && test "${PS1#*48;2;}" != "$PS1"')
     painted = run(launcher, 'paint', 'printf', 'success 42 /tmp/result\n').stdout

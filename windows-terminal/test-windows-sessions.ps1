@@ -183,6 +183,27 @@ try{
     }
     if((Panes work).pane_id -join ',' -ne $ids -or -not(Get-Process -Id ([int]$shellPid) -ErrorAction SilentlyContinue)){throw 'Font changes replaced the running panes'}
     $checks+='live font size set, increase, decrease and reset in the same GUI with no pane or process replacement'
+    $doctor=Invoke-TestTmx @('doctor')
+    if($doctor -notmatch 'Sessions: 3' -or $doctor -notmatch 'Panes: 9' -or
+        $doctor -notmatch 'Backend: wezterm' -or $doctor.Contains($fixture) -or
+        $doctor -match '\b(work|lab|defaults)\b'){
+        throw 'Doctor did not report safe session counts'
+    }
+    Invoke-TestTmx @('log','start') -Fail|Out-Null
+    $logDir=$assets+'-logs'
+    Send work $first 'tmx log start'
+    $log=$null
+    Wait-Until {@(Get-ChildItem -LiteralPath $logDir -Recurse -Filter 'pane.log' -ErrorAction SilentlyContinue).Count -eq 1}
+    $log=(Get-ChildItem -LiteralPath $logDir -Recurse -Filter 'pane.log').FullName
+    Send work $first "Write-Host ('TMX_'+'LOG_FIRST'); Update-TmxLog -SegmentBytes 1"
+    Wait-Until {Test-Path -LiteralPath ($log+'.1')}
+    Send work $first "Write-Host ('TMX_'+'LOG_SECOND'); tmx log stop"
+    Wait-Until {(Mux work @('get-text','--pane-id',$first)).Contains('Pane log stopped:')}
+    if(-not ([IO.File]::ReadAllText($log+'.1')).Contains('TMX_LOG_FIRST') -or
+        -not ([IO.File]::ReadAllText($log)).Contains('TMX_LOG_SECOND')){
+        throw 'The pane transcript lost output across rotation'
+    }
+    $checks+='tmx doctor hides paths and session names; tmx log captures and rotates real PowerShell pane output'
     Send work $first 'tmx detach'
     Wait-Until {(Clients work).Count -eq 0}
     Invoke-TestTmx @('uninstall') -Fail|Out-Null

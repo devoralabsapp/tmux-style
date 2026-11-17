@@ -5,10 +5,21 @@ param(
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath($AssetDirectory)
 $state=$root.TrimEnd('\','/')+'-state'
-$backend=[IO.File]::ReadAllText((Join-Path $root 'backend.json'))|ConvertFrom-Json
+$verb=if($Arguments.Count){$Arguments[0]}else{'workspace'}
+$rest=@(if($Arguments.Count -gt 1){$Arguments[1..($Arguments.Count-1)]})
+if($verb -eq 'log'){
+    throw 'Run tmx log start|stop|status at the PowerShell prompt inside a TMX pane. Open a new pane after upgrading if needed.'
+}
+if($verb -eq 'doctor' -and $rest.Count){throw 'Usage: tmx doctor'}
+try{
+    $backend=[IO.File]::ReadAllText((Join-Path $root 'backend.json'))|ConvertFrom-Json
+}catch{
+    if($verb -ne 'doctor'){throw}
+    $backend=$null
+}
 $names=@('aurora','midnight','ember','paper','neon','black','code','hacker','prism')
 $defaultPath=Join-Path $state 'default-theme.json'
-if(Test-Path -LiteralPath $defaultPath){$savedDefault=[IO.File]::ReadAllText($defaultPath)|ConvertFrom-Json;if($names -contains $savedDefault.theme){$backend.theme=$savedDefault.theme}}
+if($verb -ne 'doctor' -and (Test-Path -LiteralPath $defaultPath)){$savedDefault=[IO.File]::ReadAllText($defaultPath)|ConvertFrom-Json;if($names -contains $savedDefault.theme){$backend.theme=$savedDefault.theme}}
 function Session-Key([string]$Name){
     if($Name -cnotmatch '^[a-zA-Z0-9_-]{1,32}$'){throw 'Use a session name of 1-32 letters, numbers, underscores or hyphens.'}
     $sha=[Security.Cryptography.SHA256]::Create()
@@ -65,7 +76,7 @@ function Assert-NoSessions {
 function Assert-OwnedPath([string]$Path,[string]$Commands){
     $full=[IO.Path]::GetFullPath($Path)
     $parent=Split-Path -Parent $full;$leaf=Split-Path -Leaf $full
-    $assetNames=@('shell.ps1','output.ps1','tmx.ps1','update.ps1','VERSION','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md','backend.json')
+    $assetNames=@('shell.ps1','output.ps1','tmx.ps1','update.ps1','doctor.ps1','log.ps1','VERSION','restore-wezterm.ps1','TmuxStyle.Metrics.exe','tmux-style.ico','wezterm-palettes.json','wezterm-runtime.json','WEZTERM_LICENSE.md','backend.json')
     $allowed=($parent -ieq $root -and ($assetNames -contains $leaf -or $leaf -match '^wezterm-(aurora|midnight|ember|paper|neon|black|code|hacker|prism)\.lua$')) -or
         ($Commands -and $parent -ieq [IO.Path]::GetFullPath($Commands) -and $leaf -in 'tmx.exe','tmx-location.txt') -or $leaf -eq 'Tmux Style WezTerm.lnk'
     if(-not $allowed -or ((Get-Item -LiteralPath $full -ErrorAction SilentlyContinue).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw ('Invalid owned installation path: '+$full)}
@@ -118,16 +129,34 @@ function Remove-Installation {
     Remove-Item -LiteralPath $manifest
     'TMX uninstalled. Backups, recovery files and the WezTerm runtime are kept at: '+$recovery
 }
-$verb=if($Arguments.Count){$Arguments[0]}else{'workspace'}
-$rest=@(if($Arguments.Count -gt 1){$Arguments[1..($Arguments.Count-1)]})
 switch($verb){
     {$_ -in 'help','--help','-h'}{
         'tmx new NAME [--theme NAME] [-d] | attach [NAME] | list | detach | exit'
         'tmx theme NAME | version. Ctrl-a d detaches without stopping processes.'
         'tmx font [8-32 | increase | decrease | reset]'
+        'tmx doctor | tmx log start|stop|status'
         'tmx themes | renderer [webgpu|software|opengl] | metrics | update | restore | uninstall.'
     }
     {$_ -in 'version','--version'}{[IO.File]::ReadAllText((Join-Path $root 'VERSION')).Trim()}
+    'doctor'{
+        $engine='unknown';$sessionCount=0;$paneCount=0;$owned=$false
+        if($backend -and $backend.executable -and (Test-Path -LiteralPath $backend.executable -PathType Leaf)){
+            try{$engine=(& $backend.executable --version 2>$null | Select-Object -First 1)}catch{}
+            foreach($file in Get-ChildItem -LiteralPath $state -Filter 'session-*.json' -ErrorAction SilentlyContinue){
+                try{
+                    $saved=[IO.File]::ReadAllText($file.FullName)|ConvertFrom-Json
+                    $key=Session-Key $saved.name
+                    if($file.Name -cne ('session-'+$key+'.json')){continue}
+                    $live=@(Session-Panes $saved.name)
+                    if($live.Count){$sessionCount++;$paneCount+=$live.Count}
+                    if($env:TMX_SESSION -ceq $saved.name -and $env:TMX_SESSION_KEY -ceq $key){
+                        $owned=@($live|Where-Object {[string]$_.pane_id -ceq $env:WEZTERM_PANE}).Count -gt 0
+                    }
+                }catch{continue}
+            }
+        }
+        & ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $root 'doctor.ps1')))) -AssetDirectory $root -Backend wezterm -Engine $engine -Sessions $sessionCount -Panes $paneCount -OwnedPane:$owned
+    }
     'font'{
         $usage='Usage: tmx font [8-32 | increase | decrease | reset]'
         if(-not $rest.Count){
