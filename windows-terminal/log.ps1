@@ -1,6 +1,6 @@
 # A transcript belongs to the PowerShell host in which tmx log start was run.
 function global:Start-TmxLogSegment {
-    Start-Transcript -LiteralPath $global:TmxLog.Path -UseMinimalHeader -ErrorAction Stop | Out-Null
+    Start-Transcript -LiteralPath $global:TmxLog.Path -ErrorAction Stop | Out-Null
 }
 
 function global:Update-TmxLog {
