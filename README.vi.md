@@ -68,6 +68,7 @@ Riêng lựa chọn Windows Terminal:
 | --- | --- |
 | `Ctrl-a c` | Tab mới, giữ profile/thư mục hiện tại |
 | `Ctrl-a \|` / `Ctrl-a _` | Chia phải / chia dưới |
+| `Ctrl-a -` / `Ctrl-a +` | Giảm / tăng cỡ chữ |
 | `Ctrl-a r` / `Ctrl-a R` | Đổi tên tab / cửa sổ |
 | `Ctrl-a z` | Zoom / trả pane về bố cục cũ |
 | `Ctrl-a x` / `Ctrl-a X` | Đóng pane / tab |

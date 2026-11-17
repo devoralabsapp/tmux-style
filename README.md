@@ -86,7 +86,8 @@ WezTerm uses its own configuration and **Tmux Style WezTerm** shortcut under `%L
 | Shortcut | Windows behavior |
 | --- | --- |
 | `Ctrl-a c` | New tab in the focused profile and working directory |
-| `Ctrl-a \|` / `Ctrl-a -` | Split right / below |
+| `Ctrl-a \|` / `Ctrl-a _` | Split right / below |
+| `Ctrl-a -` / `Ctrl-a +` | Decrease / increase font size |
 | `Ctrl-a r` / `Ctrl-a R` | Rename tab / workspace (WezTerm) or window (Terminal) |
 | `Ctrl-a z` | Zoom / restore pane |
 | `Ctrl-a x` / `Ctrl-a X` | Close pane / tab |

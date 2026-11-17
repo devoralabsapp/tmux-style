@@ -124,7 +124,7 @@ function global:Set-TmuxStyleTheme {
 function global:Show-TmuxStyleHelp {
     Write-Host ''
     Write-Host '  TMUX STYLE / WINDOWS' -ForegroundColor $global:TmuxStylePalette.Accent
-    Write-Host '  Ctrl-a then | / -  split right / below'
+    Write-Host '  Ctrl-a then | / _  split right / below'
     Write-Host '  Ctrl-a then c / r  new tab / rename tab'
     Write-Host '  Ctrl-a then z / x  zoom pane / close pane'
     Write-Host '  F12                 toggle pass-through for remote tmux'

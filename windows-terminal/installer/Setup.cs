@@ -91,7 +91,7 @@ internal sealed class SetupForm:Form
         shortcut=new CheckBox{Text="Create a 3-pane workspace shortcut on Desktop",Checked=true,Location=new Point(34,218),AutoSize=true};Controls.Add(shortcut);
         launch=new CheckBox{Text="Open the workspace after installing",Checked=true,Location=new Point(34,251),AutoSize=true};Controls.Add(launch);
         terminal=new CheckBox{Text="Install Microsoft Windows Terminal if missing (requires internet)",Checked=true,Location=new Point(34,284),AutoSize=true};Controls.Add(terminal);
-        Controls.Add(new Label{Text="Ctrl-a, then | / - / c / r / z / x. F12 passes keys through.\nThe key bridge only handles Windows Terminal while it is in front. It does not record keys.",Location=new Point(34,328),Size=new Size(690,50),ForeColor=Color.FromArgb(197,181,237)});
+        Controls.Add(new Label{Text="Ctrl-a, then - / + for font size, | / _ to split. F12 passes keys through.\nWezTerm uses native shortcuts and a bottom bar. Windows Terminal uses the key bridge.",Location=new Point(34,328),Size=new Size(690,50),ForeColor=Color.FromArgb(197,181,237)});
         log=new TextBox{Location=new Point(34,390),Size=new Size(688,125),Multiline=true,ReadOnly=true,ScrollBars=ScrollBars.Vertical,BackColor=Color.FromArgb(24,39,34),ForeColor=Color.FromArgb(225,238,230),BorderStyle=BorderStyle.FixedSingle};Controls.Add(log);
         status=new Label{Text="Per-user installation. Existing settings are backed up. No administrator required.",Location=new Point(34,532),Size=new Size(688,25),ForeColor=Color.FromArgb(167,189,177)};Controls.Add(status);
         restore=new Button{Text="Restore previous settings",Location=new Point(34,568),Size=new Size(220,35)};restore.Click+=async delegate{await Restore();};Controls.Add(restore);
@@ -99,7 +99,6 @@ internal sealed class SetupForm:Form
         // Make room for the engine selector without overlapping the existing form.
         foreach(Control control in Controls){if(control!=title && control!=backend && control.Top>=123)control.Top+=50;}
         terminal.Text="Download the selected official terminal if missing (requires internet)";
-        foreach(Control control in Controls){Label help=control as Label;if(help!=null && help.Text.StartsWith("Ctrl-a,"))help.Text="Ctrl-a, then - / + for font size, | / _ to split. F12 passes keys through.\nWezTerm: native shortcuts + bottom bar. Windows Terminal: foreground key bridge.";}
         FormClosing+=delegate(object sender,FormClosingEventArgs e){if(busy){e.Cancel=true;MessageBox.Show(this,"Please wait for installation to finish.","Tmux Style");}};
     }
     void Write(string line){if(IsDisposed)return;if(InvokeRequired){BeginInvoke(new Action<string>(Write),line);return;}log.AppendText(line+Environment.NewLine);}
