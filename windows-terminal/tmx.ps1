@@ -124,9 +124,26 @@ switch($verb){
     {$_ -in 'help','--help','-h'}{
         'tmx new NAME [--theme NAME] [-d] | attach [NAME] | list | detach | exit'
         'tmx theme NAME | version. Ctrl-a d detaches without stopping processes.'
+        'tmx font [8-32 | increase | decrease | reset]'
         'tmx themes | renderer [webgpu|software|opengl] | metrics | update | restore | uninstall.'
     }
     {$_ -in 'version','--version'}{[IO.File]::ReadAllText((Join-Path $root 'VERSION')).Trim()}
+    'font'{
+        $usage='Usage: tmx font [8-32 | increase | decrease | reset]'
+        if(-not $rest.Count){
+            $usage
+            'WezTerm: Ctrl+= increases, Ctrl+- decreases, Ctrl+0 resets to 11 pt.'
+            'With the leader enabled: press Ctrl+A, then - or +.'
+            return
+        }
+        if($rest.Count -ne 1 -or $rest[0] -cnotmatch '^(?:[89]|[12][0-9]|3[0-2]|increase|decrease|reset)$'){throw $usage}
+        if(-not $env:WEZTERM_PANE -or -not $env:TMUX_STYLE_ASSETS -or
+            [IO.Path]::GetFullPath($env:TMUX_STYLE_ASSETS).TrimEnd('\','/') -ine $root.TrimEnd('\','/')){
+            throw 'Run this command inside a TMX WezTerm pane. Windows Terminal uses Ctrl+=, Ctrl+- and Ctrl+0.'
+        }
+        $request='font:'+$rest[0]+':'+[Guid]::NewGuid().ToString('N')
+        Write-Host -NoNewline ([string][char]27+']1337;SetUserVar=TmuxStyleCommand='+[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($request))+[char]7)
+    }
     'update'{
         if($rest.Count){throw 'Usage: tmx update'}
         & ([scriptblock]::Create([IO.File]::ReadAllText((Join-Path $root 'update.ps1')))) -AssetDirectory $root

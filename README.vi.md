@@ -2,7 +2,7 @@
 
 [English](README.md) · Tiếng Việt
 
-**Mới ở v1.8.5.** Cài bản này một lần, sau đó chạy `tmx update` để cập nhật từ GitHub trên Linux, macOS và Windows dùng WezTerm. Lệnh kiểm tra SHA-256 trước khi cài và giữ các phiên đang chạy cùng theme mặc định. Mỗi pane giữ tối đa 20.000 dòng lịch sử cuộn và bỏ dòng cũ nhất khi có log mới. Sau khi nâng cấp trên Linux/macOS, mở pane mới để dùng bộ tô màu đã sửa.
+**Mới ở v1.8.6.** Trên Windows, nhấn `Ctrl+A` rồi `-` để giảm hoặc `+` để tăng cỡ chữ. Dùng `Ctrl+A` rồi `_` để chia pane bên dưới và `Ctrl+0` để về cỡ chữ mặc định. Gõ `tmx font 14` trong pane TMX WezTerm để đặt 14 pt cho cửa sổ hiện tại. Trên macOS Terminal, dùng `Cmd++` hoặc `Cmd+-`. Trên Linux/macOS, `tmx font` hiển thị các phím theo ứng dụng terminal. Từ v1.8.5, dùng `tmx update` để cập nhật.
 
 **Từ v1.7.0 — lệnh Windows tương tự Linux/macOS:** cài EXE một lần, chọn **WezTerm**, rồi gọi `tmx` từ PowerShell hoặc CMD. Có `tmx new work`, `tmx list`, `tmx attach work`, `tmx detach`, `tmx theme hacker`, `tmx restore` và `tmx uninstall`. `Ctrl-a d` detach để tiến trình tiếp tục chạy; `Ctrl-a t` chọn theme. Đã bỏ hộp thoại “Workspace installed”. [Hướng dẫn Windows](windows-terminal/README.md#windows-command-line).
 
@@ -67,7 +67,7 @@ Riêng lựa chọn Windows Terminal:
 | Phím chính | Tác dụng Windows |
 | --- | --- |
 | `Ctrl-a c` | Tab mới, giữ profile/thư mục hiện tại |
-| `Ctrl-a \|` / `Ctrl-a -` | Chia phải / chia dưới |
+| `Ctrl-a \|` / `Ctrl-a _` | Chia phải / chia dưới |
 | `Ctrl-a r` / `Ctrl-a R` | Đổi tên tab / cửa sổ |
 | `Ctrl-a z` | Zoom / trả pane về bố cục cũ |
 | `Ctrl-a x` / `Ctrl-a X` | Đóng pane / tab |

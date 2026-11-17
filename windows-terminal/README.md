@@ -63,6 +63,19 @@ Exit every TMX session before `tmx restore` (undo the last install) or `tmx unin
 
 The session implementation uses WezTerm's [native multiplexer domains](https://wezterm.org/multiplexing.html#unix-domains), with a checked GUI-client disconnect to avoid the pinned runtime's pane-resize bug. The detached session remains in its separate mux server.
 
+## Change font size
+
+| Shortcut | Action |
+| --- | --- |
+| `Ctrl-a -` / `Ctrl-a +` | Decrease / increase with the TMX leader enabled |
+| `Ctrl+=` or `Ctrl++` | Increase font size |
+| `Ctrl+-` | Decrease font size |
+| `Ctrl+0` | Restore the default size |
+
+In a TMX WezTerm pane, run `tmx font 14` to set 14 pt, or use `tmx font increase`, `tmx font decrease` and `tmx font reset`. The live setting applies to the whole current window, accepts 8 to 32 pt and starts at 11 pt when you open a new window. The font shortcuts also work with F12 pass-through enabled.
+
+Windows Terminal provides the same shortcuts for the focused pane through its native font actions. [Microsoft Terminal key bindings](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/key-bindings#adjust-font-size)
+
 ## WezTerm: real bottom bar (default)
 
 Choose **WezTerm** for a terminal-owned bottom bar containing numbered tab names, workspace, PREFIX/ZOOM/OFF indicators, local Windows CPU/RAM, hostname and date/time. CPU/RAM refresh every two seconds; the clock refreshes every second. Small windows show a compact status; missing or stale counter data shows `--`. These are local Windows values, including during SSH sessions.
@@ -84,7 +97,7 @@ WezTerm handles `Ctrl-a` natively, without the Windows Terminal keyboard bridge.
 | Keys | WezTerm behavior |
 | --- | --- |
 | `Ctrl-a d`, `Ctrl-a t` | Detach persistent session / choose a theme |
-| `Ctrl-a c`, `Ctrl-a \|`, `Ctrl-a -` | New tab, split right, split below; inherit current directory |
+| `Ctrl-a c`, `Ctrl-a \|`, `Ctrl-a _` | New tab, split right, split below in the current directory |
 | `Ctrl-a r` / `Ctrl-a R` | Rename tab / workspace |
 | `Ctrl-a z`, `Ctrl-a x` / `Ctrl-a X` | Zoom, close pane / tab with confirmation when needed |
 | `Ctrl-a Tab`, `Ctrl-a 1` … `9` | Last active tab, select numbered tab |
@@ -120,7 +133,8 @@ Press and release **Ctrl-a**, then the second key. The prefix waits up to two se
 | --- | --- |
 | `Ctrl-a c` | New tab using the focused profile and working directory |
 | `Ctrl-a \|` | Split right |
-| `Ctrl-a -` | Split below |
+| `Ctrl-a _` | Split below |
+| `Ctrl-a -` / `Ctrl-a +` | Decrease / increase the focused pane's font size |
 | `Ctrl-a r` | Rename tab |
 | `Ctrl-a R` | Rename window |
 | `Ctrl-a Tab` | Switch to a recently used tab |

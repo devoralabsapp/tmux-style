@@ -1,4 +1,12 @@
-# TMX v1.8.5
+# TMX v1.8.6
+
+- On Windows, press `Ctrl+A` then `-` or `+` to change the font size and `Ctrl+A` then `_` to split below. In WezTerm, `Ctrl+=`, `Ctrl+-` and `Ctrl+0` also work in F12 pass-through mode. The reset size is 11 pt.
+- Run `tmx font 14` inside a TMX WezTerm pane to set the current window to 14 pt. `tmx font increase`, `decrease` and `reset` share the same setting. Each newly opened window starts at 11 pt.
+- On Linux/macOS, `tmx font` lists native terminal shortcuts. Use the font controls in the app displaying your session, including when connected over SSH.
+
+Downloads include `TMX-Setup-1.8.6.exe`, `tmx-linux-1.8.6.tar.gz`, `tmx-macos-1.8.6.tar.gz`, source, checksums and validation reports.
+
+## v1.8.5 historical notes
 
 - Added `tmx update` on Linux, macOS and Windows with the WezTerm option. It compares stable release versions, verifies SHA-256, and applies the upgrade with the installed default theme and live sessions retained. Install this release once to get the command.
 - Pane scrollback is capped at 20,000 lines. Added real pane tests with 30,000 lines of output that check old history is evicted and the original process remains responsive.

@@ -36,6 +36,10 @@ If `~/.local/bin` is on PATH, use `tmx` directly from your outer terminal. Insid
 
 `new NAME` creates a three-pane session; `-d` leaves it detached. It rejects an existing name instead of resetting that session. `workspace [NAME]` preserves the older create-or-reattach behavior. `attach NAME` (also `attach -t NAME`) enters an existing session, or switches to it from inside Tmux Style. It never creates a missing session. `attach` without a name reattaches the most recently used session from an outer terminal; inside Tmux Style it opens the native session chooser. `list` / `ls` shows names, windows, attachment state and themes. `tmx detach` and Ctrl-a d leave pane processes running. Closing a terminal also leaves the sessions available for later attach.
 
+## Change font size
+
+Run `tmx font` to see shortcuts. macOS Terminal uses [Cmd+Plus and Cmd+Minus](https://support.apple.com/en-ae/guide/terminal/trmlshtcts/mac). GNOME Terminal uses [Ctrl+Plus, Ctrl+Minus and Ctrl+0](https://help.gnome.org/gnome-terminal/app-zoom.html). When connected over SSH, use the shortcuts in the terminal app on your own computer.
+
 ## Change theme in the terminal
 
 Inside a Tmux Style Bash/Zsh pane, use the same short command as on Windows:

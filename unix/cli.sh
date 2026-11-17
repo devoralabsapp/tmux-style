@@ -16,6 +16,7 @@ case "$command_name" in
     echo 'tmx new NAME [--theme NAME] [-d] | attach [NAME] | list | detach | exit'
     echo 'tmx workspace [NAME] | theme [NAME] [--session NAME | --default]'
     echo 'tmx themes | metrics | update | restore | uninstall | version'
+    echo 'tmx font shows the font shortcuts for your terminal app.'
     echo 'Ctrl-a t selects a theme; Ctrl-a d detaches; F12 toggles SSH pass-through.' ;;
   themes) printf '%s\n' aurora midnight ember paper neon black code hacker prism ;;
   theme) theme_command "$@" ;;
@@ -36,6 +37,11 @@ case "$command_name" in
     tm kill-session -t "$sid" ;;
   metrics) exec bash "$root/metrics.sh" ;;
   paint) exec bash "$root/paint.sh" "$@" ;;
+  font)
+    printf '%s\n' 'Change the font size in the terminal app displaying this session:' \
+      'macOS Terminal: Cmd+Plus and Cmd+Minus.' \
+      'GNOME Terminal, WezTerm and Windows Terminal: Ctrl+Plus, Ctrl+Minus and Ctrl+0.'
+    [[ $# == 0 ]] ;;
   update)
     [[ $# == 0 ]] || { echo 'Usage: tmx update' >&2; exit 1; }
     exec "${TMX_PYTHON:-python3}" "$root/shell/update.py" "$root" ;;

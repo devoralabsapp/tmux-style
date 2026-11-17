@@ -141,6 +141,9 @@ function global:Show-TmuxStyleHelp {
     Write-Host '  tmx new work [-d]    create a persistent WezTerm session'
     Write-Host '  tmx list / attach work / detach    manage sessions; Ctrl-a d detaches'
     Write-Host '  tmx exit            close this entire session and its running processes'
+    Write-Host '  Ctrl+= / Ctrl+- / Ctrl+0    increase / decrease / reset font size'
+    Write-Host '  Ctrl+A then - / +          decrease / increase font size'
+    if($global:TmuxStyleBackend -eq 'wezterm'){Write-Host '  tmx font 14         set this WezTerm window to 14 pt'}
     Write-Host '  theme neon          recolor this WezTerm window / open a Terminal tab'
     Write-Host '  theme code / hacker  Code Spectrum / Hacker Matrix'
     Write-Host '  Show-TmuxStyleHelp  show these shortcuts'

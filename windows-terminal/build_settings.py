@@ -47,6 +47,8 @@ def action(id,name,command,key):
     keys.append(dict(id=id,keys=key))
 action('SplitRight','split right',dict(action='splitPane',split='right',splitMode='duplicate'),'ctrl+alt+v')
 action('SplitDown','split below',dict(action='splitPane',split='down',splitMode='duplicate'),'ctrl+alt+h')
+action('FontDecrease','decrease font size',dict(action='adjustFontSize',delta=-1),'ctrl+alt+-')
+action('FontIncrease','increase font size',dict(action='adjustFontSize',delta=1),'ctrl+alt+=')
 action('Zoom','zoom / restore pane','togglePaneZoom','ctrl+shift+z')
 action('NewTab','new tab','newTab','ctrl+shift+t')
 action('ClosePane','close pane','closePane','ctrl+shift+w')

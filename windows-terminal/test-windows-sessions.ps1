@@ -20,12 +20,12 @@ if($true){
     return
   end
 '@
-    $text=$text.Replace("wezterm.on('user-var-changed', function(window,pane,name,value)","wezterm.on('user-var-changed', function(window,pane,name,value)`n"+$controls)
+    $text=$text.Replace('local function user_var_changed(window,pane,name,value)',"local function user_var_changed(window,pane,name,value)`n"+$controls)
     $telemetry=@'
   do
     local size=active_tab:get_size()
     local f=io.open(state_dir..'/geometry-test.json','w')
-    if f then f:write(wezterm.json_encode{cols=size.cols,rows=size.rows});f:close() end
+    if f then f:write(wezterm.json_encode{cols=size.cols,rows=size.rows,font_size=window:effective_config().font_size});f:close() end
   end
 '@
     $text=$text.Replace('  if not valid or not active_tab then return end','  if not valid or not active_tab then return end'+"`n"+$telemetry)
@@ -63,6 +63,10 @@ function Mux([string]$Name,[string[]]$Arguments){
 function Panes([string]$Name){@(Mux $Name @('list','--format','json')|ConvertFrom-Json)}
 function Clients([string]$Name){@(Mux $Name @('list-clients','--format','json')|ConvertFrom-Json)}
 function Send([string]$Name,[string]$Pane,[string]$Text){Mux $Name @('send-text','--no-paste','--pane-id',$Pane,($Text+"`r"))|Out-Null}
+function Window-Font {
+    try{([IO.File]::ReadAllText((Join-Path $state 'geometry-test.json'))|ConvertFrom-Json).font_size}
+    catch{return $null}
+}
 function Check-Geometry {
     $path=Join-Path $state 'geometry-test.json'
     if(-not(Test-Path $path)){return $false}
@@ -152,6 +156,9 @@ try{
     Wait-Until {(Clients work).Count -eq 0}
     $checks+='real GUI attach/detach/reattach twice retains pane IDs, original PowerShell PID and running background job'
     $checks+=if($RequirePhysicalResize){'actual small/maximized transitions keep every PTY within the retained split grid'}else{'pane bounds verified after GUI resize requests; physical display transitions verified separately on desktop'}
+    if((Invoke-TestTmx @('font')) -notmatch 'Ctrl\+='){throw 'Font help is missing'}
+    Invoke-TestTmx @('font','14') -Fail|Out-Null
+    Invoke-TestTmx @('font','33') -Fail|Out-Null
     Invoke-TestTmx @('theme','paper','--session','work')|Out-Null
     Invoke-TestTmx @('theme','neon','--default')|Out-Null
     Invoke-TestTmx @('new','defaults','-d')|Out-Null
@@ -163,6 +170,19 @@ try{
     Send work $first ("Sync-TmuxStyleShellTheme; [IO.File]::WriteAllText('"+$themeFile.Replace("'","''")+"',[string]`$global:TmuxStyleTheme)")
     Wait-Until {(Test-Path -LiteralPath $themeFile) -and [IO.File]::ReadAllText($themeFile) -eq 'paper'}
     if((Panes work).Count -ne 3){throw 'Reattach duplicated the layout'}
+    Wait-Until {(Window-Font) -eq 11}
+    foreach($operation in @('16','increase','increase','decrease','reset')){
+        $expected=switch($operation){
+            '16'{16}
+            'increase'{(Window-Font)+1}
+            'decrease'{(Window-Font)-1}
+            'reset'{11}
+        }
+        Send work $first "tmx font $operation"
+        Wait-Until {(Window-Font) -eq $expected}
+    }
+    if((Panes work).pane_id -join ',' -ne $ids -or -not(Get-Process -Id ([int]$shellPid) -ErrorAction SilentlyContinue)){throw 'Font changes replaced the running panes'}
+    $checks+='live font size set, increase, decrease and reset in the same GUI with no pane or process replacement'
     Send work $first 'tmx detach'
     Wait-Until {(Clients work).Count -eq 0}
     Invoke-TestTmx @('uninstall') -Fail|Out-Null

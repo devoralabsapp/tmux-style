@@ -2,6 +2,7 @@
 local wezterm = require 'wezterm'
 local act = wezterm.action
 local root = wezterm.config_dir
+local default_font_size, min_font_size, max_font_size = 11, 8, 32
 -- WezTerm also watches the config's parent directory. Volatile files must
 -- live outside it, otherwise every metric/prompt write reloads config and
 -- clears the leader before its two-second timeout can expire.
@@ -95,11 +96,30 @@ local function choose_theme(window, pane)
     action=wezterm.action_callback(function(w,p,id) if id then apply_theme(w,p,'TmuxStyleTheme',id) end end)
   }, pane)
 end
-wezterm.on('user-var-changed', function(window,pane,name,value)
+local function change_font_size(window, choice)
+  local overrides = window:get_config_overrides() or {}
+  local current = overrides.font_size or default_font_size
+  local size = choice:match('^%d%d?$') and tonumber(choice)
+  if choice == 'increase' then size = math.min(current + 1, max_font_size) end
+  if choice == 'decrease' then size = math.max(current - 1, min_font_size) end
+  if choice == 'reset' then size = default_font_size end
+  if not size or size < min_font_size or size > max_font_size or size == current then return end
+  overrides.font_size = size
+  window:set_config_overrides(overrides)
+end
+local function user_var_changed(window,pane,name,value)
   if name == 'TmuxStyleTheme' then apply_theme(window,pane,name,value) end
-  if name == 'TmuxStyleCommand' and value:match('^detach:') then detach_session(window,pane) end
-  if name == 'TmuxStyleCommand' and value:match('^choose%-theme:') then choose_theme(window,pane) end
-end)
+  if name ~= 'TmuxStyleCommand' then return end
+  if value:match('^detach:') then
+    detach_session(window,pane)
+  elseif value:match('^choose%-theme:') then
+    choose_theme(window,pane)
+  else
+    local choice = value:match('^font:([%w]+):%x+$')
+    if choice then change_font_size(window, choice) end
+  end
+end
+wezterm.on('user-var-changed', user_var_changed)
 local config = wezterm.config_builder()
 -- Some Windows OpenGL drivers draw glyph textures as solid rectangles.
 -- Use Direct3D through WebGPU; keep an outer-command software recovery mode.
@@ -117,7 +137,8 @@ if persistent then
 end
 config.set_environment_variables = shell_environment(theme)
 config.font = wezterm.font_with_fallback { 'Cascadia Mono', 'Consolas' }
-config.font_size = 11
+config.font_size = default_font_size
+config.adjust_window_size_when_changing_font_size = false
 config.initial_cols = 150
 config.initial_rows = 38
 config.window_padding = { left = 14, right = 14, top = 10, bottom = 6 }
@@ -158,8 +179,11 @@ local function copy_or_interrupt(window, pane)
     window:perform_action(act.SendKey {key='c',mods='CTRL'}, pane)
   end
 end
-local function clipboard_keys()
-  return {
+local increase_font = wezterm.action_callback(function(w) change_font_size(w, 'increase') end)
+local decrease_font = wezterm.action_callback(function(w) change_font_size(w, 'decrease') end)
+local reset_font = wezterm.action_callback(function(w) change_font_size(w, 'reset') end)
+local function local_keys()
+  local keys = {
     {key='c',mods='CTRL',action=wezterm.action_callback(copy_or_interrupt)},
     {key='v',mods='CTRL',action=act.PasteFrom 'Clipboard'},
     {key='C',mods='CTRL|SHIFT',action=act.CopyTo 'Clipboard'},
@@ -169,14 +193,24 @@ local function clipboard_keys()
     {key='Insert',mods='CTRL',action=act.CopyTo 'Clipboard'},
     {key='Insert',mods='SHIFT',action=act.PasteFrom 'Clipboard'},
   }
+  -- Override the native scale bindings so the CLI and keys share point sizes.
+  for _, mods in ipairs {'CTRL', 'CTRL|SHIFT', 'SUPER', 'SUPER|SHIFT'} do
+    for _, pair in ipairs {
+      {'=',increase_font},{'+',increase_font},{'-',decrease_font},
+      {'_',decrease_font},{'0',reset_font},{')',reset_font},
+    } do
+      table.insert(keys, {key=pair[1], mods=mods, action=pair[2]})
+    end
+  end
+  return keys
 end
 local function pass_through(window, pane)
   -- Overrides survive configuration reloads. Disable leader and defaults too,
-  -- so Ctrl-a reaches remote tmux. Clipboard shortcuts remain local to the GUI.
+  -- so Ctrl-a reaches remote tmux. Clipboard and font shortcuts stay local.
   local overrides = window:get_config_overrides() or {}
   overrides.leader = { key = 'F24', mods = 'CTRL|ALT|SHIFT' }
   overrides.disable_default_key_bindings = true
-  overrides.keys = clipboard_keys()
+  overrides.keys = local_keys()
   table.insert(overrides.keys, {key='F12',action=act.EmitEvent 'tmux-style-resume'})
   table.insert(overrides.keys, {key='DownArrow',mods='SHIFT',action=act.EmitEvent 'tmux-style-resume'})
   window:set_config_overrides(overrides)
@@ -196,7 +230,14 @@ config.keys = {
   { key = 'a', mods = 'LEADER|CTRL', action = act.SendKey { key = 'a', mods = 'CTRL' } },
   { key = 'c', mods = 'LEADER', action = act.SpawnTab 'CurrentPaneDomain' },
   { key = '|', mods = 'LEADER|SHIFT', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
-  { key = '-', mods = 'LEADER', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = '-', mods = 'LEADER', action = decrease_font },
+  { key = '=', mods = 'LEADER', action = increase_font },
+  { key = '=', mods = 'LEADER|SHIFT', action = increase_font },
+  { key = '+', mods = 'LEADER', action = increase_font },
+  { key = '+', mods = 'LEADER|SHIFT', action = increase_font },
+  { key = '_', mods = 'LEADER', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = '_', mods = 'LEADER|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+  { key = '-', mods = 'LEADER|SHIFT', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
   { key = 'r', mods = 'LEADER', action = rename('Rename tab (empty resets)', function(w, _, s) w:active_tab():set_title(s) end) },
   { key = 'R', mods = 'LEADER|SHIFT', action = rename('Rename workspace', function(w, _, s)
       if persistent then w:toast_notification('TMX', 'Create a named session with tmx new NAME.', nil, 5000)
@@ -222,7 +263,7 @@ config.keys = {
   { key = 'LeftArrow', mods = 'CTRL|SHIFT', action = act.MoveTabRelative(-1) },
   { key = 'RightArrow', mods = 'CTRL|SHIFT', action = act.MoveTabRelative(1) },
 }
-for _, binding in ipairs(clipboard_keys()) do table.insert(config.keys, binding) end
+for _, binding in ipairs(local_keys()) do table.insert(config.keys, binding) end
 for _, direction in ipairs { 'Left', 'Right', 'Up', 'Down' } do
   table.insert(config.keys, { key = direction .. 'Arrow', mods = 'LEADER', action = act.ActivatePaneDirection(direction) })
   table.insert(config.keys, { key = direction .. 'Arrow', mods = 'ALT', action = act.ActivatePaneDirection(direction) })

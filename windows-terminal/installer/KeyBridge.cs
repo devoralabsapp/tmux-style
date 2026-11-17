@@ -55,7 +55,9 @@ internal static class KeyBridge
         if(vk>=0x31&&vk<=0x39&&!shift)return "ctrl+alt+"+(char)vk;
         if(vk>=0x25&&vk<=0x28&&!shift)return "alt+"+Arrow(vk);
         if(vk==0xdc&&shift)return "ctrl+alt+v";
-        if(vk==0xbd&&!shift)return "ctrl+alt+h";
+        if(vk==0xbd)return shift?"ctrl+alt+h":"ctrl+alt+-";
+        if(vk==0xbb||vk==0x6b)return "ctrl+alt+=";
+        if(vk==0x6d)return "ctrl+alt+-";
         if(vk==0x43&&!shift)return "ctrl+alt+c";
         if(vk==0x52)return shift?"ctrl+alt+shift+r":"ctrl+alt+r";
         if(vk==0x5a&&!shift)return "ctrl+shift+z";
@@ -73,6 +75,7 @@ internal static class KeyBridge
         switch(key){case "ctrl":return 0x11;case "alt":return 0x12;case "shift":return 0x10;
             case "left":return 0x25;case "up":return 0x26;case "right":return 0x27;case "down":return 0x28;
             case "[":return 0xdb;case "]":return 0xdd;case "tab":return 9;
+            case "-":return 0xbd;case "=":return 0xbb;
             case "f11":return 0x7a;case "f12":return 0x7b;}
         return (int)Char.ToUpperInvariant(key[0]);
     }
@@ -124,6 +127,8 @@ internal static class KeyBridge
         checks["prefix c"]=Resolve(0x43,false,false,false);
         checks["prefix pipe"]=Resolve(0xdc,false,true,false);
         checks["prefix minus"]=Resolve(0xbd,false,false,false);
+        checks["prefix plus"]=Resolve(0xbb,false,true,false);
+        checks["prefix underscore"]=Resolve(0xbd,false,true,false);
         checks["prefix r"]=Resolve(0x52,false,false,false);
         checks["prefix R"]=Resolve(0x52,false,true,false);
         checks["prefix Ctrl-o"]=Resolve(0x4f,true,false,false);
@@ -131,7 +136,8 @@ internal static class KeyBridge
         checks["prefix z"]=Resolve(0x5a,false,false,false);
         checks["prefix x"]=Resolve(0x58,false,false,false);
         checks["prefix X"]=Resolve(0x58,false,true,false);
-        if(checks["prefix c"]!="ctrl+alt+c"||checks["prefix pipe"]!="ctrl+alt+v"||checks["prefix minus"]!="ctrl+alt+h"||checks["prefix r"]==checks["prefix R"]||checks["prefix Ctrl-Up"]!="alt+shift+up"||Resolve(0x43,false,false,true)!=null)return 1;
+        if(checks["prefix c"]!="ctrl+alt+c"||checks["prefix pipe"]!="ctrl+alt+v"||checks["prefix r"]==checks["prefix R"]||checks["prefix Ctrl-Up"]!="alt+shift+up"||Resolve(0x43,false,false,true)!=null)return 1;
+        if(checks["prefix minus"]!="ctrl+alt+-"||checks["prefix plus"]!="ctrl+alt+="||checks["prefix underscore"]!="ctrl+alt+h")return 1;
         if(PrefixExpired(1999)||!PrefixExpired(2000)||!PrefixExpired(2001))return 1;
         File.WriteAllText(report,new JavaScriptSerializer().Serialize(new {passed=true,prefixTimeoutMilliseconds=PrefixTimeoutMilliseconds,mappings=checks,scope="Windows Terminal foreground only; no keys recorded"}));return 0;
     }

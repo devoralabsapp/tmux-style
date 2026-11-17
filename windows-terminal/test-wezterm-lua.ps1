@@ -38,7 +38,7 @@ assert(w.right:find(wezterm.hostname(),1,true), 'Host missing')
 assert(w.left:find('CTRL%-A'), 'Normal mode missing')
 pass_through(w,pane);status_handler(w,pane)
 assert(w.left:find('OFF'), 'Pass-through indicator missing')
-assert(w.overrides.disable_default_key_bindings and w.overrides.leader.key=='F24' and #w.overrides.keys==10, 'Pass-through still captures defaults/leader or lost clipboard keys')
+assert(w.overrides.disable_default_key_bindings and w.overrides.leader.key=='F24', 'Pass-through still captures defaults/leader')
 local function binding(keys, key, mods)
   for _, item in ipairs(keys) do if item.key==key and item.mods==mods then return item.action end end
 end
@@ -46,7 +46,11 @@ for _, keys in ipairs {config.keys,w.overrides.keys} do
   assert(binding(keys,'c','CTRL'), 'Conditional Ctrl-C missing')
   assert(wezterm.json_encode(binding(keys,'v','CTRL'))==wezterm.json_encode(act.PasteFrom 'Clipboard'), 'Ctrl-V does not paste local clipboard')
   assert(binding(keys,'C','CTRL|SHIFT') and binding(keys,'V','CTRL|SHIFT') and binding(keys,'v','SUPER'), 'Standard clipboard shortcuts missing')
+  assert(binding(keys,'=','CTRL') and binding(keys,'+','CTRL|SHIFT') and binding(keys,'-','CTRL') and binding(keys,'0','CTRL'), 'Font shortcuts missing')
 end
+assert(binding(config.keys,'-','LEADER')==decrease_font and binding(config.keys,'+','LEADER|SHIFT')==increase_font, 'Leader font shortcuts missing')
+assert(wezterm.json_encode(binding(config.keys,'_','LEADER|SHIFT')):find('SplitVertical'), 'Split-below shortcut missing')
+assert(wezterm.json_encode(binding(config.keys,'[','LEADER')):find('ActivateCopyMode'), 'Leader copy mode missing')
 function w:get_selection_text_for_pane(_) return self.selection or '' end
 function w:perform_action(action, _) self.performed=action end
 w.selection='selected text';copy_or_interrupt(w,pane)
@@ -66,6 +70,12 @@ assert(w.right:find('CPU %-%-') and w.right:find('RAM %-%-'), 'Stale counters di
 w.overrides.enable_tab_bar=false
 pass_through(w,pane)
 local other = {get_config_overrides=function() return {} end}
+user_var_changed(w,pane,'TmuxStyleCommand','font:14:abc')
+assert(w.overrides.font_size==14 and other:get_config_overrides().font_size==nil, 'Font size did not target the current window')
+user_var_changed(w,pane,'TmuxStyleCommand','font:increase:def')
+assert(w.overrides.font_size==15, 'Font increase did not apply')
+user_var_changed(w,pane,'TmuxStyleCommand','font:decrease:123')
+assert(w.overrides.font_size==14, 'Font decrease did not apply')
 apply_theme(w,pane,'TmuxStyleTheme','paper')
 for _, name in ipairs {'black','paper','neon','ember','midnight','aurora','code','hacker','prism'} do
   apply_theme(w,pane,'TmuxStyleTheme',name)
@@ -73,6 +83,7 @@ for _, name in ipairs {'black','paper','neon','ember','midnight','aurora','code'
   assert(w.overrides.colors.background==palettes[name].colors.background, 'Pane background stale')
   assert(w.overrides.colors.tab_bar.active_tab.bg_color==palettes[name].accent, 'Tab palette stale')
   assert(w.overrides.disable_default_key_bindings and w.overrides.enable_tab_bar==false, 'Theme reset OFF/chrome state')
+  assert(w.overrides.font_size==14, 'Theme reset font size')
   assert(w.overrides.default_prog[5]:find('-Theme '..name,1,true), 'New pane theme stale')
   local f=assert(io.open(state_dir .. '/window-theme-'..gui_pid..'-41.json','r'))
   local state=wezterm.json_parse(f:read('*a'));f:close()
@@ -83,6 +94,16 @@ local previous=w.overrides
 apply_theme(w,pane,'TmuxStyleTheme','invalid')
 apply_theme(w,pane,'other-var','black')
 assert(w.overrides==previous, 'Unrelated/invalid signal changed theme')
+for _, choice in ipairs {'7', '33', '1e1', 'bad'} do
+  user_var_changed(w,pane,'TmuxStyleCommand','font:'..choice..':123')
+  assert(w.overrides.font_size==14, 'Invalid font size changed the window')
+end
+change_font_size(w, '32'); change_font_size(w, 'increase')
+assert(w.overrides.font_size==32, 'Font increase exceeded the upper bound')
+change_font_size(w, '8'); change_font_size(w, 'decrease')
+assert(w.overrides.font_size==8, 'Font decrease exceeded the lower bound')
+user_var_changed(w,pane,'TmuxStyleCommand','font:reset:456')
+assert(w.overrides.font_size==config.font_size, 'Font reset did not restore the default')
 -- Parse and exercise real detach/input-selector actions in the pinned runtime.
 local was_persistent=persistent
 persistent=true

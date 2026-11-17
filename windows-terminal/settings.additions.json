@@ -410,6 +410,22 @@
       }
     },
     {
+      "id": "User.TmuxStyle.FontDecrease",
+      "name": "Workspace: decrease font size",
+      "command": {
+        "action": "adjustFontSize",
+        "delta": -1
+      }
+    },
+    {
+      "id": "User.TmuxStyle.FontIncrease",
+      "name": "Workspace: increase font size",
+      "command": {
+        "action": "adjustFontSize",
+        "delta": 1
+      }
+    },
+    {
       "id": "User.TmuxStyle.Zoom",
       "name": "Workspace: zoom / restore pane",
       "command": "togglePaneZoom"
@@ -703,6 +719,14 @@
     {
       "id": "User.TmuxStyle.SplitDown",
       "keys": "ctrl+alt+h"
+    },
+    {
+      "id": "User.TmuxStyle.FontDecrease",
+      "keys": "ctrl+alt+-"
+    },
+    {
+      "id": "User.TmuxStyle.FontIncrease",
+      "keys": "ctrl+alt+="
     },
     {
       "id": "User.TmuxStyle.Zoom",
